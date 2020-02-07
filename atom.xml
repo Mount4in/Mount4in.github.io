@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Mount4in</title>
+  
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://yoursite.com/"/>
+  <updated>2020-02-07T07:38:22.153Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name>Ded</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>buuoj_1</title>
+    <link href="http://yoursite.com/2020/02/07/buuoj-1/"/>
+    <id>http://yoursite.com/2020/02/07/buuoj-1/</id>
+    <published>2020-02-07T06:25:26.000Z</published>
+    <updated>2020-02-07T07:38:22.153Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;记录buuoj刷题&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>hello-world</title>
+    <link href="http://yoursite.com/2020/01/25/hello-world/"/>
+    <id>http://yoursite.com/2020/01/25/hello-world/</id>
+    <published>2020-01-25T06:22:14.178Z</published>
+    <updated>2020-02-07T05:12:01.595Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;start try&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+</feed>
