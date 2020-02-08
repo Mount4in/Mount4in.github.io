@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    BUUOJ_2 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-BUUOJ-2" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      BUUOJ_2
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/02/08/BUUOJ-2/" class="article-date">
+  <time datetime="2020-02-08T09:11:44.000Z" itemprop="datePublished">2020-02-08</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        <p>记录buuoj刷题</p>
+<a id="more"></a>
+
+<h2 id="l33t-hoster"><a href="#l33t-hoster" class="headerlink" title="l33t-hoster"></a>l33t-hoster</h2><h4 id="考点：-htaccess文件上传-bypass-disable-function"><a href="#考点：-htaccess文件上传-bypass-disable-function" class="headerlink" title="考点：.htaccess文件上传   bypass_disable_function"></a>考点：.htaccess文件上传   bypass_disable_function</h4><p>右键源代码可以看见<code>&lt;!-- /?source --&gt;</code>得到源码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>($_GET[<span class="string">"source"</span>])) &#123;</span><br><span class="line">	<span class="keyword">die</span>(highlight_file(<span class="keyword">__FILE__</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">session_start();</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (!<span class="keyword">isset</span>($_SESSION[<span class="string">"home"</span>])) &#123;</span><br><span class="line">	$_SESSION[<span class="string">"home"</span>] = bin2hex(random_bytes(<span class="number">20</span>));</span><br><span class="line">&#125;</span><br><span class="line">$userdir = <span class="string">"images/&#123;$_SESSION["</span>home<span class="string">"]&#125;/"</span>;</span><br><span class="line"><span class="keyword">if</span> (!file_exists($userdir)) &#123;</span><br><span class="line">	mkdir($userdir);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$disallowed_ext = <span class="keyword">array</span>(</span><br><span class="line">	<span class="string">"php"</span>,</span><br><span class="line">	<span class="string">"php3"</span>,</span><br><span class="line">	<span class="string">"php4"</span>,</span><br><span class="line">	<span class="string">"php5"</span>,</span><br><span class="line">	<span class="string">"php7"</span>,</span><br><span class="line">	<span class="string">"pht"</span>,</span><br><span class="line">	<span class="string">"phtm"</span>,</span><br><span class="line">	<span class="string">"phtml"</span>,</span><br><span class="line">	<span class="string">"phar"</span>,</span><br><span class="line">	<span class="string">"phps"</span>,</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>($_POST[<span class="string">"upload"</span>])) &#123;</span><br><span class="line">	<span class="keyword">if</span> ($_FILES[<span class="string">'image'</span>][<span class="string">'error'</span>] !== UPLOAD_ERR_OK) &#123;</span><br><span class="line">		<span class="keyword">die</span>(<span class="string">"yuuuge fail"</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	$tmp_name = $_FILES[<span class="string">"image"</span>][<span class="string">"tmp_name"</span>];</span><br><span class="line">	$name = $_FILES[<span class="string">"image"</span>][<span class="string">"name"</span>];</span><br><span class="line">	$parts = explode(<span class="string">"."</span>, $name);</span><br><span class="line">	$ext = array_pop($parts);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (<span class="keyword">empty</span>($parts[<span class="number">0</span>])) &#123;</span><br><span class="line">		array_shift($parts);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (count($parts) === <span class="number">0</span>) &#123;</span><br><span class="line">		<span class="keyword">die</span>(<span class="string">"lol filename is empty"</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (in_array($ext, $disallowed_ext, <span class="keyword">TRUE</span>)) &#123;</span><br><span class="line">		<span class="keyword">die</span>(<span class="string">"lol nice try, but im not stupid dude..."</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	$image = file_get_contents($tmp_name);</span><br><span class="line">	<span class="keyword">if</span> (mb_strpos($image, <span class="string">"&lt;?"</span>) !== <span class="keyword">FALSE</span>) &#123;</span><br><span class="line">		<span class="keyword">die</span>(<span class="string">"why would you need php in a pic....."</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (!exif_imagetype($tmp_name)) &#123;</span><br><span class="line">		<span class="keyword">die</span>(<span class="string">"not an image."</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	$image_size = getimagesize($tmp_name);</span><br><span class="line">	<span class="keyword">if</span> ($image_size[<span class="number">0</span>] !== <span class="number">1337</span> || $image_size[<span class="number">1</span>] !== <span class="number">1337</span>) &#123;</span><br><span class="line">		<span class="keyword">die</span>(<span class="string">"lol noob, your pic is not l33t enough"</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	$name = implode(<span class="string">"."</span>, $parts);</span><br><span class="line">	move_uploaded_file($tmp_name, $userdir . $name . <span class="string">"."</span> . $ext);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;h3&gt;Your &lt;a href=$userdir&gt;files&lt;/a&gt;:&lt;/h3&gt;&lt;ul&gt;"</span>;</span><br><span class="line"><span class="keyword">foreach</span> (glob($userdir . <span class="string">"*"</span>) <span class="keyword">as</span> $file) &#123;</span><br><span class="line">	<span class="keyword">echo</span> <span class="string">"&lt;li&gt;&lt;a href='$file'&gt;$file&lt;/a&gt;&lt;/li&gt;"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"&lt;/ul&gt;"</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line"></span><br><span class="line">&lt;h1&gt;Upload your pics!&lt;/h1&gt;</span><br><span class="line">&lt;form method=<span class="string">"POST"</span> action=<span class="string">"?"</span> enctype=<span class="string">"multipart/form-data"</span>&gt;</span><br><span class="line">    &lt;input type=<span class="string">"file"</span> name=<span class="string">"image"</span>&gt;</span><br><span class="line">    &lt;input type=<span class="string">"submit"</span> name=upload&gt;</span><br><span class="line">&lt;/form&gt;</span><br><span class="line">&lt;!-- /?source --&gt;</span><br><span class="line"></span><br><span class="line"><span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>过滤的比较完全，有黑名单的限制，上传内容中不能含有<code>&lt;?</code>，因为环境为php7.0，<code>&lt;script&gt;</code>不能绕过，用<code>getimagesize()</code>限制了文件的大小和类型，XNUCAezphp的考点就是上传<code>.htaccess</code>文件，利用</p>
+<ul>
+<li><code>AddType application/x-httpd-php</code></li>
+<li><code>php_value auto_append_file</code></li>
+</ul>
+<p>来绕过过滤。</p>
+<p>首先可以使用<code>..htaccess</code>绕过源码对文件名的限制，然后<code>.htaccess</code>文件有严格的规范，如果有非法的格式服务器会报错。所以我们需要找到一种即能够绕过文件类型检查有不会影响<code>.htaccess</code>文件的图片形式，</p>
+<blockquote>
+<p>XBM 文件可以用<code>#define</code>来规定图片的 width &amp; height，而<code>#</code>在<code>.htaccess</code>文件中恰好是注释符，也不会引起解析错误。</p>
+</blockquote>
+<p>接下来源码对文件中的内容检查，不允许出现<code>&lt;?</code>，然后采用base64编码来绕过。</p>
+<p><img src="/2020/02/08/BUUOJ-2/image-20200208172739023.png" alt="image-20200208172739023"></p>
+<p><img src="/2020/02/08/BUUOJ-2/image-20200208173031706.png" alt="image-20200208173031706"></p>
+<p><img src="/2020/02/08/BUUOJ-2/image-20200208173133554.png" alt="image-20200208173133554"></p>
+<p><img src="/2020/02/08/BUUOJ-2/image-20200208173226142.png" alt="image-20200208173226142"></p>
+<p>查看<strong>disable_functions</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pcntl_alarm,pcntl_fork,pcntl_waitpid,pcntl_wait,pcntl_wifexited,pcntl_wifstopped,pcntl_wifsignaled,pcntl_wifcontinued,pcntl_wexitstatus,pcntl_wtermsig,pcntl_wstopsig,pcntl_signal,pcntl_signal_get_handler,pcntl_signal_dispatch,pcntl_get_last_error,pcntl_strerror,pcntl_sigprocmask,pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setpriority,pcntl_async_signals,exec,passthru,shell_exec,system,proc_open,popen,pcntl_exec,posix_mkfifo, pg_lo_import, dbmopen, dbase_open, popen, chgrp, chown, chmod, symlink,apache_setenv,define_syslog_variables, posix_getpwuid, posix_kill, posix_mkfifo, posix_setpgid, posix_setsid, posix_uname, proc_close, pclose, proc_nice, proc_terminate,curl_exec,curl_multi_exec,parse_ini_file,show_source,imap_open,fopen,copy,rename,readfile,readlink,tmpfile,tempnam,touch,link,file_put_contents,file,ftp_connect,ftp_ssl_connect,</span><br></pre></td></tr></table></figure>
+
+<p>禁止了system、readfile、file_put_contents等函数，采用</p>
+<p><a href="https://github.com/mm0r1/exploits/blob/master/php7-gc-bypass/exploit.php" target="_blank" rel="noopener">https://github.com/mm0r1/exploits/blob/master/php7-gc-bypass/exploit.php</a>进行绕过。</p>
+<p>根目录面flag不可读，有一个/get_flag的二进制文件，需要快速计算才能得到flag。这里copy下别人的perl脚本，</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> strict;</span><br><span class="line"><span class="keyword">chdir</span> <span class="string">"/"</span>;</span><br><span class="line"><span class="keyword">use</span> IPC::Open3;</span><br><span class="line"><span class="keyword">my</span> $pid = open3( \*CHLD_IN, \*CHLD_OUT, \*CHLD_ERR, <span class="string">'/get_flag'</span> )</span><br><span class="line">  <span class="keyword">or</span> <span class="keyword">die</span> <span class="string">"open3() failed $!"</span>;</span><br><span class="line"><span class="keyword">my</span> $r;</span><br><span class="line">$r = &lt;CHLD_OUT&gt;;</span><br><span class="line"><span class="keyword">print</span> <span class="string">"$r"</span>;</span><br><span class="line">$r = &lt;CHLD_OUT&gt;;</span><br><span class="line"><span class="keyword">print</span> <span class="string">"$r"</span>;</span><br><span class="line">$r = <span class="keyword">eval</span> <span class="string">"$r"</span>;</span><br><span class="line"><span class="keyword">print</span> <span class="string">"$r\n"</span>;</span><br><span class="line"><span class="keyword">print</span> CHLD_IN <span class="string">"$r\n"</span>;</span><br><span class="line">$r = &lt;CHLD_OUT&gt;;</span><br><span class="line"><span class="keyword">print</span> <span class="string">"$r"</span>;</span><br><span class="line">$r = &lt;CHLD_OUT&gt;;</span><br><span class="line"><span class="keyword">print</span> <span class="string">"$r"</span>;</span><br></pre></td></tr></table></figure>
+
+<p>传到服务器，执行perl文件，</p>
+<p><img src="/2020/02/08/BUUOJ-2/image-20200208174844984.png" alt="image-20200208174844984"></p>
+<p>得到flag。</p>
+<p><img src="/2020/02/08/BUUOJ-2/image-20200208175004296.png" alt="image-20200208175004296"></p>
+<p><strong>ref</strong>:<a href="https://blog.zeddyu.info/2019/10/03/xnuca-2019-ezphp/" target="_blank" rel="noopener">https://blog.zeddyu.info/2019/10/03/xnuca-2019-ezphp/</a></p>
+<p><a href="https://github.com/mdsnins/ctf-writeups/blob/master/2019/Insomnihack%202019/l33t-hoster/l33t-hoster.md" target="_blank" rel="noopener">[https://github.com/mdsnins/ctf-writeups/blob/master/2019/Insomnihack%202019/l33t-hoster/l33t-hoster.md](https://github.com/mdsnins/ctf-writeups/blob/master/2019/Insomnihack 2019/l33t-hoster/l33t-hoster.md)</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/02/08/BUUOJ-2/" data-id="ck6dfim50000018shfo1neoz8"
+         class="article-share-link">Share</a>
+      
+    </footer>
+
+  </div>
+
+  
+    
+  <nav class="article-nav">
+    
+    
+      <a href="/2020/02/07/buuoj-1/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">BUUOJ刷题_1</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2020 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

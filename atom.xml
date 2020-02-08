@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-02-08T02:40:08.820Z</updated>
+  <updated>2020-02-08T10:01:16.956Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,23 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>BUUOJ_2</title>
+    <link href="http://yoursite.com/2020/02/08/BUUOJ-2/"/>
+    <id>http://yoursite.com/2020/02/08/BUUOJ-2/</id>
+    <published>2020-02-08T09:11:44.000Z</published>
+    <updated>2020-02-08T10:01:16.956Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;记录buuoj刷题&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+  </entry>
   
   <entry>
     <title>BUUOJ刷题_1</title>
