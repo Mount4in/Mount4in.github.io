@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-02-08T10:01:16.956Z</updated>
+  <updated>2020-02-24T02:19:32.655Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -17,11 +17,28 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>BUUOJ_2</title>
+    <title>2020新春战役网络安全公益赛web部分题解</title>
+    <link href="http://yoursite.com/2020/02/22/2020%E6%96%B0%E6%98%A5%E6%88%98%E5%BD%B9%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%85%AC%E7%9B%8A%E8%B5%9B/"/>
+    <id>http://yoursite.com/2020/02/22/2020%E6%96%B0%E6%98%A5%E6%88%98%E5%BD%B9%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%85%AC%E7%9B%8A%E8%B5%9B/</id>
+    <published>2020-02-22T06:55:49.000Z</published>
+    <updated>2020-02-24T02:19:32.655Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;打了ichunqiu的新春战役网络安全公益赛，web题大部分比较友好。&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>BUUOJ_刷题2</title>
     <link href="http://yoursite.com/2020/02/08/BUUOJ-2/"/>
     <id>http://yoursite.com/2020/02/08/BUUOJ-2/</id>
     <published>2020-02-08T09:11:44.000Z</published>
-    <updated>2020-02-08T10:01:16.956Z</updated>
+    <updated>2020-02-24T02:19:58.730Z</updated>
     
     <summary type="html">
     
