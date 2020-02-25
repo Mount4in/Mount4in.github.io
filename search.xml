@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>javascript原型链污染</title>
+    <title>Javascript原型链污染</title>
     <url>/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/</url>
-    <content><![CDATA[<p>通过几道ctf题学习javascript 原型链污染 </p>
+    <content><![CDATA[<p>通过几道ctf题学习Javascript 原型链污染 </p>
 <a id="more"></a>
 
 <h1 id="JavaScript原型链污染"><a href="#JavaScript原型链污染" class="headerlink" title="JavaScript原型链污染"></a>JavaScript原型链污染</h1><p>javascript原型链污染，网上介绍原理的文章已经很多了，最经典的还是P神分析的那篇<a href="https://www.leavesongs.com/PENETRATION/javascript-prototype-pollution-attack.html" target="_blank" rel="noopener">文章</a>，这里就不在详细的介绍原理了，简单来说，就是</p>
