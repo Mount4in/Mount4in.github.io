@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://mount4in.github.io/"/>
-  <updated>2020-02-25T14:25:58.114Z</updated>
+  <updated>2020-03-01T04:45:42.382Z</updated>
   <id>http://mount4in.github.io/</id>
   
   <author>
@@ -15,6 +15,23 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>V&amp;N招新赛web部分题解</title>
+    <link href="http://mount4in.github.io/2020/02/29/V&amp;Nwp/"/>
+    <id>http://mount4in.github.io/2020/02/29/V&amp;Nwp/</id>
+    <published>2020-02-29T10:33:07.000Z</published>
+    <updated>2020-03-01T04:45:42.382Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;V&amp;amp;N招新赛部分web题解&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+  </entry>
   
   <entry>
     <title>Javascript原型链污染</title>
@@ -51,11 +68,11 @@
   </entry>
   
   <entry>
-    <title>BUUOJ_刷题2</title>
+    <title>BUUOJ刷题_2</title>
     <link href="http://mount4in.github.io/2020/02/08/BUUOJ-2/"/>
     <id>http://mount4in.github.io/2020/02/08/BUUOJ-2/</id>
     <published>2020-02-08T09:11:44.000Z</published>
-    <updated>2020-02-24T02:19:58.730Z</updated>
+    <updated>2020-02-27T02:01:17.287Z</updated>
     
     <summary type="html">
     
