@@ -81,7 +81,7 @@
         <p>记录自己阅读chip源码</p>
 <a id="more"></a>
 
-<h1 id="0X00-思维导图"><a href="#0X00-思维导图" class="headerlink" title="0X00 思维导图"></a>0X00 思维导图</h1><p><img src="/2020/04/17/chip%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image-20200417122051607.png" alt="image-20200417122051607"></p>
+<h1 id="0X00-思维导图"><a href="#0X00-思维导图" class="headerlink" title="0X00 思维导图"></a>0X00 思维导图</h1><p><img src="/2020/04/17/chip%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image-20200418123816033.png" alt="image-20200418123816033"></p>
 <h1 id="0x01-入口文件"><a href="#0x01-入口文件" class="headerlink" title="0x01 入口文件"></a>0x01 入口文件</h1><p>/bin/chip</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">if</span> (PHP_SAPI !== <span class="string">'cli'</span> &amp;&amp; PHP_SAPI !== <span class="string">'phpdbg'</span>) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">'Warning: Chip should be invoked via the CLI version of PHP, not the '</span>.PHP_SAPI.<span class="string">' SAPI'</span>.PHP_EOL;</span><br><span class="line">    <span class="keyword">exit</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">require</span> <span class="keyword">__DIR__</span> . <span class="string">'/../vendor/autoload.php'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> <span class="title">Symfony</span>\<span class="title">Component</span>\<span class="title">Console</span>\<span class="title">Application</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    $application = <span class="keyword">new</span> Application(<span class="string">'Chip'</span>, <span class="string">'1.3.0'</span>);</span><br><span class="line">    $application-&gt;addCommands([</span><br><span class="line">        <span class="keyword">new</span> \Chip\Console\Check()</span><br><span class="line">    ]);</span><br><span class="line">    $application-&gt;run();</span><br><span class="line">&#125; <span class="keyword">catch</span> (\<span class="keyword">Exception</span> $e) &#123;&#125;</span><br></pre></td></tr></table></figure>
 
@@ -123,8 +123,14 @@
 </ol>
 </li>
 </ol>
-<p>visitor 分两类 </p>
+<p>visitor 分三类</p>
 <ul>
+<li><p>NameResolver     parser内置的Visitor，在chip中是遍历AST的第一个Visitor，在看到有用use给函数别名时，将别名和函数原名保存，之后再遍历到有FuncCall节点时，检查FuncCall的name，若为之前保存的别名，然后修改当前节点。</p>
+<p>用于检测</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">use</span> <span class="title">function</span> <span class="title">assert</span> <span class="title">as</span> <span class="title">test</span>;</span><br><span class="line">test($_POST[<span class="number">2333</span>]);</span><br></pre></td></tr></table></figure>
+
+<p>这类webshell。</p>
+</li>
 <li><p>CallstackVisitor    定义一个栈，入节点时如果节点为Node\Stmt\Function_ 或Node\Stmt\ClassMethod 压栈，离开节点时，若栈非空且栈顶为当前的节点，将该节点弹出栈。</p>
 </li>
 <li><p>Visitor文件夹下   均继承BaseVisitor，beforeProcess()分三类，在入节点先检测当前节点是否是checkNodeClass，若是则调用process()函数。</p>
