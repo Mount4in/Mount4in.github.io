@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://mount4in.github.io/"/>
-  <updated>2020-04-21T00:46:46.442Z</updated>
+  <updated>2020-04-22T05:59:03.983Z</updated>
   <id>http://mount4in.github.io/</id>
   
   <author>
@@ -15,6 +15,27 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>从一道ctf题学习cbc-padding-oracle和cbc翻转</title>
+    <link href="http://mount4in.github.io/2020/04/22/%E4%BB%8E%E4%B8%80%E9%81%93ctf%E9%A2%98%E5%AD%A6%E4%B9%A0cbc-padding-oracle%E5%92%8Ccbc%E7%BF%BB%E8%BD%AC/"/>
+    <id>http://mount4in.github.io/2020/04/22/%E4%BB%8E%E4%B8%80%E9%81%93ctf%E9%A2%98%E5%AD%A6%E4%B9%A0cbc-padding-oracle%E5%92%8Ccbc%E7%BF%BB%E8%BD%AC/</id>
+    <published>2020-04-22T02:21:59.000Z</published>
+    <updated>2020-04-22T05:59:03.983Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;之前一直不怎么清楚cbc加密的padding-oracle和cbc翻转攻击方法，这次NPUCTF比赛遇到了，就记录一下吧&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="padding oracle" scheme="http://mount4in.github.io/tags/padding-oracle/"/>
+    
+      <category term="CBC翻转" scheme="http://mount4in.github.io/tags/CBC%E7%BF%BB%E8%BD%AC/"/>
+    
+  </entry>
   
   <entry>
     <title>2020数字中国创新大道虎符网络安全赛道Web题解</title>
