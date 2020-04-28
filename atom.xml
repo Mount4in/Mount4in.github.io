@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://mount4in.github.io/"/>
-  <updated>2020-04-26T05:25:27.128Z</updated>
+  <updated>2020-04-28T15:53:59.270Z</updated>
   <id>http://mount4in.github.io/</id>
   
   <author>
@@ -15,6 +15,25 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>[WUSTCTF2020]Train Yourself To Be Godly</title>
+    <link href="http://mount4in.github.io/2020/04/28/WUSTCTF2020-Train-Yourself-To-Be-Godly/"/>
+    <id>http://mount4in.github.io/2020/04/28/WUSTCTF2020-Train-Yourself-To-Be-Godly/</id>
+    <published>2020-04-28T15:04:05.000Z</published>
+    <updated>2020-04-28T15:53:59.270Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Tomcat目录穿越+弱口令+getshell&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="writeup" scheme="http://mount4in.github.io/tags/writeup/"/>
+    
+  </entry>
   
   <entry>
     <title>NPUCTF_WP</title>

