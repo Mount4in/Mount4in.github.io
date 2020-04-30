@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://mount4in.github.io/"/>
-  <updated>2020-04-28T15:53:59.270Z</updated>
+  <updated>2020-04-30T16:05:15.013Z</updated>
   <id>http://mount4in.github.io/</id>
   
   <author>
@@ -15,6 +15,25 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>[Zer0pts2020]musicblog</title>
+    <link href="http://mount4in.github.io/2020/04/30/Zer0pts2020-musicblog/"/>
+    <id>http://mount4in.github.io/2020/04/30/Zer0pts2020-musicblog/</id>
+    <published>2020-04-30T15:13:12.000Z</published>
+    <updated>2020-04-30T16:05:15.013Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;strip_tags()函数bug&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="writeup" scheme="http://mount4in.github.io/tags/writeup/"/>
+    
+  </entry>
   
   <entry>
     <title>[WUSTCTF2020]Train Yourself To Be Godly</title>

