@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://mount4in.github.io/"/>
-  <updated>2020-04-30T16:05:15.013Z</updated>
+  <updated>2020-05-01T06:30:40.526Z</updated>
   <id>http://mount4in.github.io/</id>
   
   <author>
@@ -17,15 +17,16 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>[Zer0pts2020]musicblog</title>
+    <title>Zer0pts2020 Writeup</title>
     <link href="http://mount4in.github.io/2020/04/30/Zer0pts2020-musicblog/"/>
     <id>http://mount4in.github.io/2020/04/30/Zer0pts2020-musicblog/</id>
     <published>2020-04-30T15:13:12.000Z</published>
-    <updated>2020-04-30T16:05:15.013Z</updated>
+    <updated>2020-05-01T06:30:40.526Z</updated>
     
     <summary type="html">
     
       &lt;p&gt;strip_tags()函数bug&lt;/p&gt;
+&lt;p&gt;记录复现Zer0pts2020部分题目&lt;/p&gt;
     
     </summary>
     
