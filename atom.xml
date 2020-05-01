@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://mount4in.github.io/"/>
-  <updated>2020-05-01T06:30:40.526Z</updated>
+  <updated>2020-05-01T14:48:35.926Z</updated>
   <id>http://mount4in.github.io/</id>
   
   <author>
@@ -15,6 +15,25 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>2020年安恒四月月赛</title>
+    <link href="http://mount4in.github.io/2020/05/01/2020%E5%B9%B4%E5%AE%89%E6%81%92%E5%9B%9B%E6%9C%88%E6%9C%88%E8%B5%9B/"/>
+    <id>http://mount4in.github.io/2020/05/01/2020%E5%B9%B4%E5%AE%89%E6%81%92%E5%9B%9B%E6%9C%88%E6%9C%88%E8%B5%9B/</id>
+    <published>2020-05-01T09:57:47.000Z</published>
+    <updated>2020-05-01T14:48:35.926Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;比赛时只做出了一个web，这次安恒月赛质量很好，还提供了复现👍👍👍&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="writeup" scheme="http://mount4in.github.io/tags/writeup/"/>
+    
+  </entry>
   
   <entry>
     <title>Zer0pts2020 Writeup</title>
