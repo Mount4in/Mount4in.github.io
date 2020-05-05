@@ -3,7 +3,10 @@
   <entry>
     <title>渗透工具使用</title>
     <url>/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/</url>
-    <content><![CDATA[<p>参考 <a href="https://daiker.gitbook.io/windows-protocol/ldap-pian/12#0x02-acl" target="_blank" rel="noopener">https://daiker.gitbook.io/windows-protocol/ldap-pian/12#0x02-acl</a></p>
+    <content><![CDATA[<p>记录一些渗透工具的使用，持续更新</p>
+<a id="more"></a>
+
+<p>参考 <a href="https://daiker.gitbook.io/windows-protocol/ldap-pian/12#0x02-acl" target="_blank" rel="noopener">https://daiker.gitbook.io/windows-protocol/ldap-pian/12#0x02-acl</a></p>
 <h2 id="4-利用adfind-过滤-ACL"><a href="#4-利用adfind-过滤-ACL" class="headerlink" title="4. 利用adfind 过滤 ACL"></a><strong>4. 利用adfind 过滤 ACL</strong></h2><p>如果想用adfind 过滤ACL的话，我们可以使用<code>-sddlfilter</code>,语法如下</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-sddlfilter ;;;;;</span><br></pre></td></tr></table></figure>
 
@@ -41,6 +44,9 @@
 <p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t015d193bee48b235f1.png" alt="img"></p>
 <p>image-20191209214607836</p>
 ]]></content>
+      <tags>
+        <tag>pentest</tag>
+      </tags>
   </entry>
   <entry>
     <title>内网渗透信息收集</title>
@@ -695,23 +701,6 @@
       <tags>
         <tag>Pentest</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>配置</title>
-    <url>/2020/05/04/%E9%85%8D%E7%BD%AE/</url>
-    <content><![CDATA[<p>debian java</p>
-<p>cobaltstrike teamserver运行报错</p>
-<p>java not $PATH :root身份运行报错，没有java环境变量</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;java java &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;java 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;javac javac &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;javac 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;java_vm java_vm &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;java_vm 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;jcontrol jcontrol &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;jcontrol 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;jexec jexec &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;jre&#x2F;lib&#x2F;jexec 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;jexec jexec &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;jre&#x2F;lib&#x2F;jexec 100 --slave &#x2F;usr&#x2F;share&#x2F;binfmts&#x2F;jar jexec-binfmt media&#x2F;mydisk&#x2F;jdk&#x2F;jre&#x2F;lib&#x2F;javaws</span><br></pre></td></tr></table></figure>
-
-<p>cobaltstrike </p>
-<p>[-] keytool is not in $PATH<br>    install the Java Developer Kit</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ln -s &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;bin&#x2F;keytool &#x2F;usr&#x2F;bin&#x2F;</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;keytool keytool &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;keytool 100</span><br></pre></td></tr></table></figure>
-
-<p>参考</p>
-<p><a href="https://superuser.com/questions/408918/trouble-setting-up-path-for-java-on-debian" target="_blank" rel="noopener">1</a></p>
-<p><a href="https://askubuntu.com/questions/159575/how-do-i-make-java-default-to-a-manually-installed-jre-jdk" target="_blank" rel="noopener">2</a></p>
-]]></content>
   </entry>
   <entry>
     <title>De1CTF-writeup</title>
@@ -2803,6 +2792,29 @@
 ]]></content>
       <tags>
         <tag>刷题记录</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>配置</title>
+    <url>/2019/05/04/%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<p>令人头大的配置记录，持续更新</p>
+<a id="more"></a>
+
+<p>debian java</p>
+<p>cobaltstrike teamserver运行报错</p>
+<p>java not $PATH :root身份运行报错，没有java环境变量</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;java java &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;java 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;javac javac &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;javac 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;java_vm java_vm &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;java_vm 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;jcontrol jcontrol &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;jcontrol 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;jexec jexec &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;jre&#x2F;lib&#x2F;jexec 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;jexec jexec &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;jre&#x2F;lib&#x2F;jexec 100 --slave &#x2F;usr&#x2F;share&#x2F;binfmts&#x2F;jar jexec-binfmt media&#x2F;mydisk&#x2F;jdk&#x2F;jre&#x2F;lib&#x2F;javaws</span><br></pre></td></tr></table></figure>
+
+<p>cobaltstrike </p>
+<p>[-] keytool is not in $PATH<br>    install the Java Developer Kit</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ln -s &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;bin&#x2F;keytool &#x2F;usr&#x2F;bin&#x2F;</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;keytool keytool &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;keytool 100</span><br></pre></td></tr></table></figure>
+
+<p>参考</p>
+<p><a href="https://superuser.com/questions/408918/trouble-setting-up-path-for-java-on-debian" target="_blank" rel="noopener">1</a></p>
+<p><a href="https://askubuntu.com/questions/159575/how-do-i-make-java-default-to-a-manually-installed-jre-jdk" target="_blank" rel="noopener">2</a></p>
+]]></content>
+      <tags>
+        <tag>misc</tag>
       </tags>
   </entry>
 </search>

@@ -97,45 +97,10 @@
       
 
       
+        <p>记录一些渗透工具的使用，持续更新</p>
         
-        <p>参考 <a href="https://daiker.gitbook.io/windows-protocol/ldap-pian/12#0x02-acl" target="_blank" rel="noopener">https://daiker.gitbook.io/windows-protocol/ldap-pian/12#0x02-acl</a></p>
-<h2 id="4-利用adfind-过滤-ACL"><a href="#4-利用adfind-过滤-ACL" class="headerlink" title="4. 利用adfind 过滤 ACL"></a><strong>4. 利用adfind 过滤 ACL</strong></h2><p>如果想用adfind 过滤ACL的话，我们可以使用<code>-sddlfilter</code>,语法如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-sddlfilter ;;;;;</span><br></pre></td></tr></table></figure>
-
-<p>后面跟的参数对应的是ace条目相应的参数，值得注意的是，过滤的格式跟输出的格式要保持一致。</p>
-<p>如果<code>-rawsddl</code> ，最后一个参数是sid，这个时候用<code>-sddlfilter</code>进行过滤，最后一个参数就要用sid的形式。</p>
-<p>如果是<code>-sddl+++</code>，最后一个参数已经解析后账号名，这个时候用<code>-sddlfilter</code>进行过滤，最后一个参数就要用账号名的形式。</p>
-<p>下面举几个例子</p>
-<ol>
-<li>查找某个对象在域内的ACL权限</li>
-</ol>
-   <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AdFind.exe -s subtree -b &quot;DC&#x3D;test,DC&#x3D;local&quot; nTSecurityDescriptor   -sddl+++   -sddlfilter ;;;;;&quot;TEST\DC2016$&quot;   -recmute</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t01820587bbe037011c.png" alt="img"></p>
-<p>image-20191209212905224</p>
-<ol>
-<li>查找更改一个对象的马上到！S-AllowedToActOnBehalfOfOtherIdentity的权限</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AdFind.exe -s subtree -b &quot;DC&#x3D;test,DC&#x3D;local&quot; nTSecurityDescriptor   -sddl++   -sddlfilter ;;;&quot;msDS-AllowedToActOnBehalfOfOtherIdentity&quot;;;  -recmute</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t01c5d2427249c7cca8.png" alt="img"></p>
-<p>image-20191209211825196</p>
-<ol>
-<li>查找域内具备dcync 权限的用户</li>
-</ol>
-<p>对域对象只需要具备一下这两个权限，就有dcsync的权限。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#39;DS-Replication-Get-Changes&#39;     &#x3D; 1131f6aa-9c07-11d1-f79f-00c04fc2dcd2</span><br><span class="line">&#39;DS-Replication-Get-Changes-All&#39; &#x3D; 1131f6ad-9c07-11d1-f79f-00c04fc2dcd2</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t0190b4f7118459c867.png" alt="img"></p>
-<p>img</p>
-<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t01783c2e12d6384581.png" alt="img"></p>
-<p>image-20200109163432815</p>
-<p>开始进行搜索</p>
-<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t011c3a109eabb651d5.png" alt="img"></p>
-<p>image-20191209214334996</p>
-<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t015d193bee48b235f1.png" alt="img"></p>
-<p>image-20191209214607836</p>
-
+          <a class="article-more-link" href="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/">Read More...</a>
+        
       
     </div>
   </div>
@@ -146,6 +111,8 @@
       <a data-url="http://mount4in.github.io/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" data-id="ck9tvfah50001rgsh29xud8yg"
          class="article-share-link">Share</a>
       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pentest/" rel="tag">pentest</a></li></ul>
+
     </footer>
 
 
@@ -215,83 +182,6 @@
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pentest/" rel="tag">Pentest</a></li></ul>
 
-    </footer>
-
-
-
-  
-
-
-  
-
-</article>
-
-
-
-        
-          
-
-<article id="post-配置" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
-  
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h2 itemprop="name">
-      <a class="article-title" href="/2020/05/04/%E9%85%8D%E7%BD%AE/">配置</a>
-    </h2>
-  
-  
-
-
-
-
-      </header>
-    
-
-    
-      <div class="article-meta">
-        <a href="/2020/05/04/%E9%85%8D%E7%BD%AE/" class="article-date">
-  <time datetime="2020-05-04T07:25:44.000Z" itemprop="datePublished">2020-05-04</time>
-</a>
-        
-      </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-        
-        <p>debian java</p>
-<p>cobaltstrike teamserver运行报错</p>
-<p>java not $PATH :root身份运行报错，没有java环境变量</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;java java &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;java 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;javac javac &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;javac 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;java_vm java_vm &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;java_vm 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;jcontrol jcontrol &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;jcontrol 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;jexec jexec &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;jre&#x2F;lib&#x2F;jexec 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;jexec jexec &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;jre&#x2F;lib&#x2F;jexec 100 --slave &#x2F;usr&#x2F;share&#x2F;binfmts&#x2F;jar jexec-binfmt media&#x2F;mydisk&#x2F;jdk&#x2F;jre&#x2F;lib&#x2F;javaws</span><br></pre></td></tr></table></figure>
-
-<p>cobaltstrike </p>
-<p>[-] keytool is not in $PATH<br>    install the Java Developer Kit</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ln -s &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;bin&#x2F;keytool &#x2F;usr&#x2F;bin&#x2F;</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;keytool keytool &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;keytool 100</span><br></pre></td></tr></table></figure>
-
-<p>参考</p>
-<p><a href="https://superuser.com/questions/408918/trouble-setting-up-path-for-java-on-debian" target="_blank" rel="noopener">1</a></p>
-<p><a href="https://askubuntu.com/questions/159575/how-do-i-make-java-default-to-a-manually-installed-jre-jdk" target="_blank" rel="noopener">2</a></p>
-
-      
-    </div>
-  </div>
-  <!-- 要添加的内容 -->
-  
-  <!---->
-    <footer class="article-footer">
-      <a data-url="http://mount4in.github.io/2020/05/04/%E9%85%8D%E7%BD%AE/" data-id="ck9tvfahd0003rgsh3lej3g84"
-         class="article-share-link">Share</a>
-      
     </footer>
 
 
@@ -787,6 +677,75 @@
          class="article-share-link">Share</a>
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+
+    </footer>
+
+
+
+  
+
+
+  
+
+</article>
+
+
+
+        
+          
+
+<article id="post-shellcoderop" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h2 itemprop="name">
+      <a class="article-title" href="/2020/04/17/shellcoderop/">长亭公开课——Shellcode&amp;ROP</a>
+    </h2>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/04/17/shellcoderop/" class="article-date">
+  <time datetime="2020-04-17T07:02:00.000Z" itemprop="datePublished">2020-04-17</time>
+</a>
+        
+      </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        <p> 该篇文章博主不想让其他人看见哟~ </p>
+        
+          <a class="article-more-link" href="/2020/04/17/shellcoderop/">Read More...</a>
+        
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/04/17/shellcoderop/" data-id="ck99763ro0008mwsh0gge6ceq"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pwn/" rel="tag">pwn</a></li></ul>
 
     </footer>
 
