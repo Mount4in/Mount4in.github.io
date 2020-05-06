@@ -145,9 +145,44 @@
 <p>res</p>
 <p><a href="https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012</a></p>
 <blockquote>
-<p>以下参考<a href="https://xz.aliyun.com/t/7663" target="_blank" rel="noopener">https://xz.aliyun.com/t/7663</a></p>
+<p>以下参考</p>
+<p><a href="https://xz.aliyun.com/t/7663" target="_blank" rel="noopener">https://xz.aliyun.com/t/7663</a></p>
+<p><a href="https://wh0ale.github.io/2018/12/19/2018-12-19-域渗透/" target="_blank" rel="noopener">https://wh0ale.github.io/2018/12/19/2018-12-19-%E5%9F%9F%E6%B8%97%E9%80%8F/</a></p>
+<p><a href="https://www.cnblogs.com/leixiao-/p/10578809.html环境搭建介绍的较全面" target="_blank" rel="noopener">https://www.cnblogs.com/leixiao-/p/10578809.html环境搭建介绍的较全面</a></p>
 </blockquote>
-<h1 id="内网渗透信息收集"><a href="#内网渗透信息收集" class="headerlink" title="内网渗透信息收集"></a>内网渗透信息收集</h1><h2 id="系统环境变量"><a href="#系统环境变量" class="headerlink" title="系统环境变量"></a>系统环境变量</h2><ul>
+<h1 id="内网渗透信息收集"><a href="#内网渗透信息收集" class="headerlink" title="内网渗透信息收集"></a>内网渗透信息收集</h1><blockquote>
+<h1 id="内网和域"><a href="#内网和域" class="headerlink" title="内网和域"></a>内网和域</h1><h2 id="内网"><a href="#内网" class="headerlink" title="内网"></a>内网</h2><p>局域网（Local Area Network，LAN）是指在某一区域内由多台计算机互联成的计算机组。一般是方圆几千米以内。局域网可以实现文件管理、应用软件共享、打印机共享、工作组内的日程安排、电子邮件和传真通信服务等功能。局域网是封闭型的，可以由办公室内的两台计算机组成，也可以由一个公司内的上千台计算机组成。</p>
+<h2 id="域"><a href="#域" class="headerlink" title="域"></a>域</h2><p>域（Domain）是相对工作组（Workgroup）的概念，形象的说，域就像中央集权，由一台或数台域控制器（Domain Controller）管理域内的其他计算机；工作组就像各自为政，组内每一台计算机自己管理自己，他人无法干涉。</p>
+<p>域是一个计算机群体的组合，是一个相对严格的组织，而域控制器则是这个域内的管理核心。</p>
+<p>域控制器可以对域内计算机进行集中管理，比如在域控制器上可以定义所有用户不能更改桌面，或者所有用户的密码长度必须8位以上，而工作组环境的计算机则无法做到这些。</p>
+<p>一般情况下，域控制器集成了DNS服务，可以解析域内的计算机名称（基于TCP/IP），解决了工作组环境不同网段计算机不能使用计算机名互访的问题。</p>
+<ul>
+<li>域(Domain)是Windows网络中独立运行的单位，域之间相互访问则需要建立信任关系(即Trust Relation)。信任关系是连接在域与域之间的桥梁。当一个域与其他域建立了信任关系后， 2个域之间不但可以按需要相互进行管理，还可以跨网分配文件和打印机等设备资源，使不同的域之间实现网络资源的共享与管理。 　　 – 域既是 Windows 网络操作系统的逻辑组织单元，也是Internet的逻辑组织单元，在 Windows 网络操作系统中，域是安全边界。域管理员只能管理域的内部，除非其他的域显式地赋予他管理权限，他才能够访问或者管理其他的域;每个域都有自己的安全策略，以及它与其他域的安全信任关系。 – 域：域是一种管理边界，用于一组计算机共享共用的安全数据库，域实际上就是一组服务器和工作站的集合。</li>
+</ul>
+<blockquote>
+<p>域和域之间可以通过VPN等设备进行连接，并建立从属和平行的域关系</p>
+</blockquote>
+<h2 id="域、工作组、家庭组"><a href="#域、工作组、家庭组" class="headerlink" title="域、工作组、家庭组"></a>域、工作组、家庭组</h2><p><strong>工作组:</strong></p>
+<ul>
+<li>所有的计算机都是对等的，没有计算机可以控制另一台计算机。每台计算机都具有一组用户帐户。若要登录到工作组中的任何计算机，您必须具有该计算机上的帐户。</li>
+<li>通常情况下，计算机的数量不超过二十台。</li>
+<li>工作组不受密码保护。</li>
+<li>所有的计算机必须在同一本地网络或子网中。</li>
+</ul>
+<p><strong>家庭组：</strong></p>
+<ul>
+<li>家庭网络中的计算机必须属于某个工作组，但它们也可以属于某个家庭组。使用家庭组，可轻松与家庭网络中的其他人共享图片、音乐、视频、文档和打印机。</li>
+<li>家庭组受密码保护，但在将计算机添加到家庭组时，只需要键入一次密码即可。</li>
+</ul>
+<p><strong>域：</strong></p>
+<ul>
+<li>有一台或多台计算机为服务器。网络管理员使用服务器控制域中所有计算机的安全和权限。这使得更容易进行更改，因为更改会自动应用到所有的计算机。域用户在每次访问域时必须提供密码或其他凭据。</li>
+<li>如果具有域上的用户帐户，您就可以登录到域中的任何计算机，而无需具有该计算机上的帐户。 由于网络管理员经常要确保计算机之间的一致性，所以，您也许只能对计算机的设置进行有限制地更改。</li>
+<li>一个域中可以有几千台计算机。</li>
+<li>计算机可以位于不同的本地网络中。</li>
+</ul>
+</blockquote>
+<h2 id="系统环境变量"><a href="#系统环境变量" class="headerlink" title="系统环境变量"></a>系统环境变量</h2><ul>
 <li>set</li>
 </ul>
 <p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505134836878.png" alt="image-20200505134836878"></p>

