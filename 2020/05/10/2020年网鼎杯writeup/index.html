@@ -90,21 +90,21 @@
 <ul>
 <li>php 7.2.1</li>
 </ul>
-<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510200611561.png" alt="image-20200510200611561"></p>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200511103022778.png" alt="image-20200511103022778"></p>
 <ul>
 <li>php 7.1.13</li>
 </ul>
-<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200511100804614.png" alt="image-20200511100804614"></p>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200511103058029.png" alt="image-20200511103058029"></p>
 <ul>
 <li>php 5.3.29</li>
 </ul>
-<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510200642881.png" alt="image-20200510200642881"></p>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200511103127750.png" alt="image-20200511103127750"></p>
 <p>然后本地7版本时候，不用把3改成2也可以，但是在题目环境不改3的话不能成功。虚拟机里也是和题目环境一样。</p>
 <p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510201328743.png" alt="image-20200510201328743"></p>
 <p>win 10 phpstudy php7.2.1</p>
-<p>ps：添加了一个var_dump(scandir(‘.’));输出的试php.exe的路径。</p>
+<p>ps：添加了一个var_dump(scandir(‘.’));输出的是php.exe的路径。</p>
 <p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510202256996.png" alt="image-20200510202256996"></p>
-<p>这里是apache的原因，如果要读的话要用绝对路径</p>
+<p>这里是sapi的原因(试了apache和nginx都不可以)，如果要读的话要用绝对路径</p>
 <blockquote>
 <p><strong>Note</strong>:</p>
 <p>析构函数在脚本关闭时调用，此时所有的 HTTP 头信息已经发出。脚本关闭时的工作目录有可能和在 SAPI（如 apache）中时不同。</p>
