@@ -85,13 +85,18 @@
 
 <p>很意外为啥把上面的3改成2就好了，</p>
 <p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510195659225.png" alt="image-20200510195659225"></p>
-<p>然后在本地试了试，好像跟php的版本还有问题，</p>
+<p>然后在本地试了试，好像跟php的版本和SAPI有关，</p>
+<p>php以cli方式运行时候是不用修改3变成2的，本地测试php7.2.1和7.3.15版本将protected改成public属性是可以成功的，其他版本不可以</p>
 <ul>
-<li>php7</li>
+<li>php 7.2.1</li>
 </ul>
 <p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510200611561.png" alt="image-20200510200611561"></p>
 <ul>
-<li>php5</li>
+<li>php 7.1.13</li>
+</ul>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200511100804614.png" alt="image-20200511100804614"></p>
+<ul>
+<li>php 5.3.29</li>
 </ul>
 <p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510200642881.png" alt="image-20200510200642881"></p>
 <p>然后本地7版本时候，不用把3改成2也可以，但是在题目环境不改3的话不能成功。虚拟机里也是和题目环境一样。</p>
@@ -99,7 +104,15 @@
 <p>win 10 phpstudy php7.2.1</p>
 <p>ps：添加了一个var_dump(scandir(‘.’));输出的试php.exe的路径。</p>
 <p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510202256996.png" alt="image-20200510202256996"></p>
-<p>phpstudy其他版本均读不了flag文件。</p>
+<p>这里是apache的原因，如果要读的话要用绝对路径</p>
+<blockquote>
+<p><strong>Note</strong>:</p>
+<p>析构函数在脚本关闭时调用，此时所有的 HTTP 头信息已经发出。脚本关闭时的工作目录有可能和在 SAPI（如 apache）中时不同。</p>
+<p><a href="https://www.php.net/manual/zh/language.oop5.decon.php" target="_blank" rel="noopener">https://www.php.net/manual/zh/language.oop5.decon.php</a></p>
+</blockquote>
+<p>另外如果把3改成2的话也是可以读的</p>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200511095452622.png" alt="image-20200511095452622"></p>
+<p>phpstudy7.2.10外其他版本均读不了flag文件。</p>
 <h1 id="0x02-filejava"><a href="#0x02-filejava" class="headerlink" title="0x02 filejava"></a>0x02 filejava</h1><p>上传完文件可以看下载文件处有任意文件读取漏洞，</p>
 <p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510214503572.png" alt="image-20200510214503572"></p>
 <p>都配置文件</p>

