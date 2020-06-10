@@ -78,7 +78,10 @@
 
       
         
-        <h1 id="Animal-Crossing"><a href="#Animal-Crossing" class="headerlink" title="Animal Crossing"></a>Animal Crossing</h1><p>题目是一个可以自己编辑的通行证，然后可以将编辑好的链接发送给管理员，那么就应该是xss打cookie了.</p>
+        <p>记录复现DE1CTF 的Animal Crossing</p>
+<a id="more"></a>
+
+<h1 id="Animal-Crossing"><a href="#Animal-Crossing" class="headerlink" title="Animal Crossing"></a>Animal Crossing</h1><p>题目是一个可以自己编辑的通行证，然后可以将编辑好的链接发送给管理员，那么就应该是xss打cookie了.</p>
 <p><img src="/2020/05/14/De1CTF-Animal-Crossing-%E5%A4%8D%E7%8E%B0/image-20200514120745790.png" alt="image-20200514120745790"></p>
 <p>首先发现存在CSP</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Content-Security-Policy: default-src &#39;self&#39; &#39;unsafe-inline&#39; &#39;unsafe-eval&#39;;object-src &#39;none&#39;;</span><br></pre></td></tr></table></figure>
