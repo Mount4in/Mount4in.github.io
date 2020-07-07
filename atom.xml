@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://mount4in.github.io/"/>
-  <updated>2020-06-25T15:05:46.877Z</updated>
+  <updated>2020-07-07T14:45:34.692Z</updated>
   <id>http://mount4in.github.io/</id>
   
   <author>
@@ -15,6 +15,25 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>2020 0CTF/TCTF Web题目复现</title>
+    <link href="http://mount4in.github.io/2020/07/01/2020%20TCTF0CTF%20Web%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/"/>
+    <id>http://mount4in.github.io/2020/07/01/2020%20TCTF0CTF%20Web%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/</id>
+    <published>2020-07-01T04:13:34.000Z</published>
+    <updated>2020-07-07T14:45:34.692Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;TCTF几道TCTF的Web题目复现&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="writeup" scheme="http://mount4in.github.io/tags/writeup/"/>
+    
+  </entry>
   
   <entry>
     <title>第五空间智能安全大赛Web题解</title>
@@ -155,7 +174,7 @@
     <link href="http://mount4in.github.io/2020/05/01/2020%E5%B9%B4%E5%AE%89%E6%81%92%E5%9B%9B%E6%9C%88%E6%9C%88%E8%B5%9B/"/>
     <id>http://mount4in.github.io/2020/05/01/2020%E5%B9%B4%E5%AE%89%E6%81%92%E5%9B%9B%E6%9C%88%E6%9C%88%E8%B5%9B/</id>
     <published>2020-05-01T09:57:47.000Z</published>
-    <updated>2020-05-02T00:58:28.314Z</updated>
+    <updated>2020-07-01T05:28:00.539Z</updated>
     
     <summary type="html">
     
@@ -374,25 +393,6 @@
     <summary type="html">
     
       &lt;p&gt;GXZY CTF 几道web题目和几道web预期解的复现&lt;/p&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="writeup" scheme="http://mount4in.github.io/tags/writeup/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>高校战“疫”网络安全分享赛web部分题解</title>
-    <link href="http://mount4in.github.io/2020/03/09/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9Bweb%E9%83%A8%E5%88%86%E9%A2%98%E8%A7%A3/"/>
-    <id>http://mount4in.github.io/2020/03/09/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9Bweb%E9%83%A8%E5%88%86%E9%A2%98%E8%A7%A3/</id>
-    <published>2020-03-09T01:20:12.000Z</published>
-    <updated>2020-04-21T00:49:15.616Z</updated>
-    
-    <summary type="html">
-    
-      &lt;p&gt;web题目很好，就是多的看都看不过来，别说做了 ，全程靠着师傅带，继续划水，记录下做题和复现&lt;/p&gt;
     
     </summary>
     
