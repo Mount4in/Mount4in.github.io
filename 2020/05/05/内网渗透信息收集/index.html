@@ -456,6 +456,7 @@
 <h2 id="探测域内存活主机"><a href="#探测域内存活主机" class="headerlink" title="探测域内存活主机"></a>探测域内存活主机</h2><p>icmp</p>
 <ul>
 <li>for /L %I in (1,1,20) DO @ping -w 1 -n 1 192.168.0.%I | findstr “TTL=”</li>
+<li>for /l %i in (1,1,255) do @ ping 192.168.0.%i -w 1 -n 1 | find /i “ttl=”</li>
 </ul>
 <p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505100619516.png" alt="image-20200505100619516"></p>
 <blockquote>
