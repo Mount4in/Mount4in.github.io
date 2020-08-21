@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://mount4in.github.io/"/>
-  <updated>2020-08-08T04:35:35.462Z</updated>
+  <updated>2020-08-21T06:48:26.270Z</updated>
   <id>http://mount4in.github.io/</id>
   
   <author>
@@ -17,13 +17,34 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>2020ciscn-web题目writeup</title>
+    <link href="http://mount4in.github.io/2020/08/21/2020ciscn-web%E9%A2%98%E7%9B%AEwriteup/"/>
+    <id>http://mount4in.github.io/2020/08/21/2020ciscn-web%E9%A2%98%E7%9B%AEwriteup/</id>
+    <published>2020-08-21T06:47:07.000Z</published>
+    <updated>2020-08-21T06:48:26.270Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Web越来越便宜&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="writeup" scheme="http://mount4in.github.io/tags/writeup/"/>
+    
+  </entry>
+  
+  <entry>
     <title>2020WMCTF-WEB题目复现</title>
     <link href="http://mount4in.github.io/2020/08/08/2020WMCTF-WEB%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/"/>
     <id>http://mount4in.github.io/2020/08/08/2020WMCTF-WEB%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/</id>
     <published>2020-08-08T04:35:35.000Z</published>
-    <updated>2020-08-08T04:35:35.462Z</updated>
+    <updated>2020-08-15T02:38:03.403Z</updated>
     
     <summary type="html">
+    
+      &lt;p&gt;WMCTF几道Web题目复现&lt;/p&gt;
     
     </summary>
     
@@ -70,11 +91,11 @@
     <link href="http://mount4in.github.io/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/"/>
     <id>http://mount4in.github.io/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/</id>
     <published>2020-07-01T04:13:34.000Z</published>
-    <updated>2020-07-07T15:21:52.524Z</updated>
+    <updated>2020-08-08T07:31:49.508Z</updated>
     
     <summary type="html">
     
-      &lt;p&gt;TCTF几道TCTF的Web题目复现&lt;/p&gt;
+      &lt;p&gt;TCTF几道Web题目复现&lt;/p&gt;
     
     </summary>
     
@@ -370,25 +391,6 @@
     
     
       <category term="Chip" scheme="http://mount4in.github.io/tags/Chip/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>长亭公开课笔记</title>
-    <link href="http://mount4in.github.io/2020/04/13/%E9%95%BF%E4%BA%AD%E7%AC%94%E8%AE%B0/"/>
-    <id>http://mount4in.github.io/2020/04/13/%E9%95%BF%E4%BA%AD%E7%AC%94%E8%AE%B0/</id>
-    <published>2020-04-13T07:23:01.000Z</published>
-    <updated>2020-04-21T00:47:44.837Z</updated>
-    
-    <summary type="html">
-    
-      &lt;p&gt; 该篇文章博主不想让其他人看见哟~ &lt;/p&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="pwn" scheme="http://mount4in.github.io/tags/pwn/"/>
     
   </entry>
   
