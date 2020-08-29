@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://mount4in.github.io/"/>
-  <updated>2020-08-21T06:48:26.270Z</updated>
+  <updated>2020-08-24T07:07:22.747Z</updated>
   <id>http://mount4in.github.io/</id>
   
   <author>
@@ -15,6 +15,25 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>2020强网杯部分题目writeup</title>
+    <link href="http://mount4in.github.io/2020/08/24/2020%E5%BC%BA%E7%BD%91%E6%9D%AF%E9%83%A8%E5%88%86%E9%A2%98%E7%9B%AEwriteup/"/>
+    <id>http://mount4in.github.io/2020/08/24/2020%E5%BC%BA%E7%BD%91%E6%9D%AF%E9%83%A8%E5%88%86%E9%A2%98%E7%9B%AEwriteup/</id>
+    <published>2020-08-24T02:04:19.000Z</published>
+    <updated>2020-08-24T07:07:22.747Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;前言 2333&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="writeup" scheme="http://mount4in.github.io/tags/writeup/"/>
+    
+  </entry>
   
   <entry>
     <title>2020ciscn-web题目writeup</title>
@@ -40,7 +59,7 @@
     <link href="http://mount4in.github.io/2020/08/08/2020WMCTF-WEB%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/"/>
     <id>http://mount4in.github.io/2020/08/08/2020WMCTF-WEB%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/</id>
     <published>2020-08-08T04:35:35.000Z</published>
-    <updated>2020-08-15T02:38:03.403Z</updated>
+    <updated>2020-08-21T06:51:41.640Z</updated>
     
     <summary type="html">
     
@@ -49,6 +68,8 @@
     </summary>
     
     
+    
+      <category term="writeup" scheme="http://mount4in.github.io/tags/writeup/"/>
     
   </entry>
   
@@ -372,25 +393,6 @@
     
     
       <category term="pwn" scheme="http://mount4in.github.io/tags/pwn/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Chip代码阅读笔记</title>
-    <link href="http://mount4in.github.io/2020/04/17/chip%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/"/>
-    <id>http://mount4in.github.io/2020/04/17/chip%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/</id>
-    <published>2020-04-17T04:16:13.000Z</published>
-    <updated>2020-04-23T14:39:23.006Z</updated>
-    
-    <summary type="html">
-    
-      &lt;p&gt;记录自己阅读Chip源码&lt;/p&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="Chip" scheme="http://mount4in.github.io/tags/Chip/"/>
     
   </entry>
   
