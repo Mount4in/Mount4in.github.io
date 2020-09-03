@@ -43,7 +43,10 @@
   <entry>
     <title>用idea和maven编写spring项目</title>
     <url>/2020/08/31/%E7%94%A8idea%E5%92%8Cmaven%E7%BC%96%E5%86%99spring%E9%A1%B9%E7%9B%AE/</url>
-    <content><![CDATA[<h1 id="0x01-环境配置"><a href="#0x01-环境配置" class="headerlink" title="0x01 环境配置"></a>0x01 环境配置</h1><ul>
+    <content><![CDATA[<p>记录下用idea新建Spring项目</p>
+<a id="more"></a>
+
+<h1 id="0x01-环境配置"><a href="#0x01-环境配置" class="headerlink" title="0x01 环境配置"></a>0x01 环境配置</h1><ul>
 <li>Jdk</li>
 <li>Tomcat</li>
 <li>maven</li>
