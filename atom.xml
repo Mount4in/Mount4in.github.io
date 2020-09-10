@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://mount4in.github.io/"/>
-  <updated>2020-09-09T01:50:04.343Z</updated>
+  <updated>2020-09-10T10:48:48.667Z</updated>
   <id>http://mount4in.github.io/</id>
   
   <author>
@@ -15,6 +15,25 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Wordpress File-manager 任意文件上传漏洞分析</title>
+    <link href="http://mount4in.github.io/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    <id>http://mount4in.github.io/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/</id>
+    <published>2020-09-10T10:41:17.000Z</published>
+    <updated>2020-09-10T10:48:48.667Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;紧急！WordPress文件管理器（file manager）插件爆严重0day漏洞&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="wordpress" scheme="http://mount4in.github.io/tags/wordpress/"/>
+    
+  </entry>
   
   <entry>
     <title>2020DDCTFweb题目</title>
@@ -361,25 +380,6 @@
     <summary type="html">
     
       &lt;p&gt;比赛质量杠杠的，又被虐了。。。 &lt;/p&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="writeup" scheme="http://mount4in.github.io/tags/writeup/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>2020年安恒四月月赛</title>
-    <link href="http://mount4in.github.io/2020/05/01/2020%E5%B9%B4%E5%AE%89%E6%81%92%E5%9B%9B%E6%9C%88%E6%9C%88%E8%B5%9B/"/>
-    <id>http://mount4in.github.io/2020/05/01/2020%E5%B9%B4%E5%AE%89%E6%81%92%E5%9B%9B%E6%9C%88%E6%9C%88%E8%B5%9B/</id>
-    <published>2020-05-01T09:57:47.000Z</published>
-    <updated>2020-07-01T05:28:00.539Z</updated>
-    
-    <summary type="html">
-    
-      &lt;p&gt;比赛时只做出了一个web，这次安恒月赛质量很好，还提供了复现👍👍👍&lt;/p&gt;
     
     </summary>
     
