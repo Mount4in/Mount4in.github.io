@@ -62,6 +62,8 @@
 
     
       
+    <div class="tocbot"></div>
+
 
 
 
@@ -79,9 +81,7 @@
         <p>令人头大的配置记录，持续更新</p>
 <a id="more"></a>
 
-<p>debian java</p>
-<p>cobaltstrike teamserver运行报错</p>
-<p>java not $PATH :root身份运行报错，没有java环境变量</p>
+<h4 id="debian-java-cobaltstrike-teamserver运行报错"><a href="#debian-java-cobaltstrike-teamserver运行报错" class="headerlink" title="debian java cobaltstrike teamserver运行报错"></a>debian java cobaltstrike teamserver运行报错</h4><p>java not $PATH :root身份运行报错，没有java环境变量</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;java java &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;java 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;javac javac &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;javac 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;java_vm java_vm &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;java_vm 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;jcontrol jcontrol &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;jcontrol 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;jexec jexec &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;jre&#x2F;lib&#x2F;jexec 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;jexec jexec &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;jre&#x2F;lib&#x2F;jexec 100 --slave &#x2F;usr&#x2F;share&#x2F;binfmts&#x2F;jar jexec-binfmt media&#x2F;mydisk&#x2F;jdk&#x2F;jre&#x2F;lib&#x2F;javaws</span><br></pre></td></tr></table></figure>
 
 <p>cobaltstrike </p>
@@ -91,6 +91,34 @@
 <p>参考</p>
 <p><a href="https://superuser.com/questions/408918/trouble-setting-up-path-for-java-on-debian" target="_blank" rel="noopener">1</a></p>
 <p><a href="https://askubuntu.com/questions/159575/how-do-i-make-java-default-to-a-manually-installed-jre-jdk" target="_blank" rel="noopener">2</a></p>
+<h4 id="ubuntu安装后卸载不常用的软件"><a href="#ubuntu安装后卸载不常用的软件" class="headerlink" title="ubuntu安装后卸载不常用的软件"></a>ubuntu安装后卸载不常用的软件</h4><ul>
+<li><p>16.04</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt purge libreoffice-common  unity-webapps-common thunderbird totem rhythmbox empathy brasero simple-scan gnome-mahjongg aisleriot gnome-mines cheese gnome-sudoku transmission-common gnome-orca webbrowser-app landscape-client-ui-install</span><br></pre></td></tr></table></figure>
+
+<p>libreoffice-common libreoffice（可以换 WPS）<br>unity-webapps-common Amazon 链接<br>thunderbird 雷鸟邮件客户端<br>totem 自带的播放器<br>rhythmbox 自带的音乐播放器<br>empathy 自带的即时聊天应用<br>brasero 自带的光盘刻录器<br>simple-scan 扫描仪<br>gnome-mahjongg 对对碰游戏<br>aisleriot 纸牌游戏<br>gnome-mines 扫雷游戏<br>cheese webcam 应用<br>gnome-sudoku 数独游戏<br>transmission-common BT 客户端<br>gnome-orca 屏幕阅读<br>webbrowser-app Ubuntu 自带的浏览器（有了 chrome 和 Firefox 根本用不到这个）<br>landscape-client-ui-install landscape 远程控制软件<br>deja-dup 备份<br>onboard 屏幕键盘</p>
+</li>
+<li><p>18.04</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt remove ubuntu-web-launchers</span><br></pre></td></tr></table></figure>
+
+<p>删除Amazon的链接<br>sudo apt-get remove unity-webapps-common # 旧版</p>
+<p>sudo apt remove ubuntu-web-launchers # 新版</p>
+</li>
+</ul>
+<h4 id="ubuntu换源"><a href="#ubuntu换源" class="headerlink" title="ubuntu换源"></a>ubuntu换源</h4><p><a href="https://mirrors.tuna.tsinghua.edu.cn/help/ubuntu/" target="_blank" rel="noopener">https://mirrors.tuna.tsinghua.edu.cn/help/ubuntu/</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo mv &#x2F;etc&#x2F;apt&#x2F;sources.list &#x2F;etc&#x2F;apt&#x2F;sources.list.bak</span><br><span class="line">##下一步要确定source.list文件的内容，然后在替换</span><br><span class="line">sudo sed -i &quot;s&#x2F;us.archive.ubuntu.com&#x2F;mirrors.aliyun.com&#x2F;g&quot; &#x2F;etc&#x2F;apt&#x2F;sources.list</span><br></pre></td></tr></table></figure>
+
+<h4 id="ubuntu更换php版本"><a href="#ubuntu更换php版本" class="headerlink" title="ubuntu更换php版本"></a>ubuntu更换php版本</h4><p>查看已经安装的php包</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dpkg -l | grep php</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2019/05/04/%E9%85%8D%E7%BD%AE/image-20201120195140654.png" alt="image-20201120195140654"></p>
+<p>安装php5.6</p>
+<p>ppa:ondrej/php 是一个比较知名的PHP源（目前维护php5.6,php7.0,php7.1,php7.2）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install software-properties-common</span><br><span class="line">sudo add-apt-repository ppa:ondrej&#x2F;php</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install php5.6 </span><br><span class="line">sudo apt-get install php5.6-mbstring php5.6-mcrypt php5.6-mysql php5.6-xml libapache2-mod-php5.6</span><br></pre></td></tr></table></figure>
+
+<p><code>sudo update-alternatives --config php</code>命令可以切换php版本</p>
+<p>修改apache的php版本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo a2dismod php7.0         # unload the current version</span><br><span class="line">sudo a2enmod  php5.6         # load the version you need</span><br><span class="line">sudo service apache2 restart</span><br></pre></td></tr></table></figure>
+
 
       
     </div>
