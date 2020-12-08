@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>
-    ubuntu搭建weblogic环境 |
+    ubuntu搭建weblogic环境,配合IDEA调试 |
     
     Mount4in</title>
   
@@ -40,7 +40,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      ubuntu搭建weblogic环境
+      ubuntu搭建weblogic环境,配合IDEA调试
     </h1>
   
   
@@ -82,7 +82,7 @@
 <a id="more"></a>
 
 <blockquote>
-<p>  jdk  ubuntu 18.04.3  </p>
+<p>  jdk  ubuntu 18.04.3 (虚拟机磁盘空间选大一点（60G）)</p>
 </blockquote>
 <h2 id="0x00-jdk安装"><a href="#0x00-jdk安装" class="headerlink" title="0x00 jdk安装"></a>0x00 jdk安装</h2><p>手动下载压缩包安装oracle Java JDK</p>
 <ul>
@@ -108,14 +108,62 @@
 <ul>
 <li>使环境变量马上生效：</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">source ~&#x2F;.bashrc</span><br><span class="line">java -version</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">e&#39;x&#39;psource ~&#x2F;.bashrc</span><br><span class="line">java -version</span><br></pre></td></tr></table></figure>
 
 <img src="/2020/11/20/ubuntu%E6%90%AD%E5%BB%BAweblogic%E7%8E%AF%E5%A2%83/image-20201120131639241.png" alt="image-20201120131639241" style="zoom:150%;">
 
 <hr>
 <p>如果你安装了多个版本的jdk，你可以通过修改<code>~/.bashrc</code>文件后面的<code>JAVA_HOME</code></p>
+<h2 id="0x01-weblogic"><a href="#0x01-weblogic" class="headerlink" title="0x01 weblogic"></a>0x01 weblogic</h2><p>看了好多帖子都说要新建一个weblogic用户，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo useradd -r -m -s &#x2F;bin&#x2F;bash weblogic</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>参数的意思：<br>-r 建立系统账号<br>-m 自动建立用户的登入目录<br>-s /bin/bash 指定用户登入后所使用的shell</p>
+</blockquote>
+<p>修改密码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo passwd weblogic</span><br></pre></td></tr></table></figure>
+
+<p>新建用户后</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">java -jar fmw_12.2.1.3.0_wls.jar</span><br><span class="line">报错Exception in thread &quot;main&quot; java.awt.AWTError: Can&#39;t connect to X11 window server using &#39;:0&#39; as the value of the DISPLAY variable.</span><br></pre></td></tr></table></figure>
+
+<p>切换回原用户就可以了，搜了一下原因好像是因为weblogic用户不能打开window界面。我们这里搭建的本意就是为了复现漏洞，也可以不新建用户，直接在当前用户安装，</p>
+<p><code>wls-silent.xml</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bea-installer</span>&gt;</span> </span><br><span class="line">	<span class="tag">&lt;<span class="name">input-fields</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">data-value</span> <span class="attr">name</span>=<span class="string">"BEAHOME"</span> <span class="attr">value</span>=<span class="string">"/home/weblogic/Oracle/Middleware"</span> /&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">data-value</span> <span class="attr">name</span>=<span class="string">"USER_INSTALL_DIR"</span> <span class="attr">value</span>=<span class="string">"/home/weblogic/Oracle/Middleware"</span> /&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">data-value</span> <span class="attr">name</span>=<span class="string">"COMPONENT_PATHS"</span> <span class="attr">value</span>=<span class="string">"WebLogic Server/Core Application Server|WebLogic Server/Administration Console|WebLogic Server/Configuration Wizard and Upgrade Framework|WebLogic Server/Web 2.0 HTTP Pub-Sub Server|WebLogic Server/WebLogic JDBC Drivers|WebLogic Server/Third Party JDBC Drivers|WebLogic Server/WebLogic Server Clients|WebLogic Server/WebLogic Web Server Plugins|WebLogic Server/UDDI and Xquery Support|WebLogic Server/Server Examples"</span> /&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">data-value</span> <span class="attr">name</span>=<span class="string">"INSTALL_NODE_MANAGER_SERVICE"</span> <span class="attr">value</span>=<span class="string">"no"</span> /&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">data-value</span> <span class="attr">name</span>=<span class="string">"INSTALL_SHORTCUT_IN_ALL_USERS_FOLDER"</span> <span class="attr">value</span>=<span class="string">"no"</span>/&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">data-value</span> <span class="attr">name</span>=<span class="string">"LOCAL_JVMS"</span> <span class="attr">value</span>=<span class="string">"/usr/lib/jvm/jdk1.6.0_45"</span>/&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">input-fields</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bea-installer</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar wls1036_generic.jar -mode=silent -silent_xml=wls-silent.xml</span><br></pre></td></tr></table></figure>
+
+<p><code>create-wls-domain.py</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Default domain 'base_domain' to be created inside the Docker image for WLS</span></span><br><span class="line"><span class="comment"># ==============================================</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Open default domain template</span></span><br><span class="line"><span class="comment"># ======================</span></span><br><span class="line">readTemplate(<span class="string">"/home/weblogic/Oracle/Middleware/wlserver_10.3/common/templates/domains/wls.jar"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Configure the Administration Server and SSL port.</span></span><br><span class="line"><span class="comment"># =========================================================</span></span><br><span class="line">cd(<span class="string">'Servers/AdminServer'</span>)</span><br><span class="line">set(<span class="string">'ListenAddress'</span>,<span class="string">''</span>)</span><br><span class="line">set(<span class="string">'ListenPort'</span>, <span class="number">7001</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Define the user password for weblogic</span></span><br><span class="line"><span class="comment"># =====================================</span></span><br><span class="line">cd(<span class="string">'/'</span>)</span><br><span class="line">cd(<span class="string">'Security/base_domain/User/weblogic'</span>)</span><br><span class="line">cmo.setPassword(<span class="string">'Oracle@123'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Write the domain and close the domain template</span></span><br><span class="line"><span class="comment"># ==============================================</span></span><br><span class="line">setOption(<span class="string">'OverwriteDomain'</span>, <span class="string">'true'</span>)</span><br><span class="line"></span><br><span class="line">writeDomain(<span class="string">'/home/weblogic/Oracle/Middleware/user_projects/domains/base_domain'</span>)</span><br><span class="line">closeTemplate()</span><br><span class="line"></span><br><span class="line"><span class="comment"># Exit WLST</span></span><br><span class="line"><span class="comment"># =========</span></span><br><span class="line">exit()</span><br></pre></td></tr></table></figure>
+
+<p><code>chmod +x create-wls-domain.py</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/Oracle/Middleware/wlserver_10.3/common/bin$./wlst.sh -skipWLSModuleScanning /home/weblogic/Oracle/create-wls-domain.py</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/Oracle/Middleware/user_projects/domains/base_domain/bin$ ./startWebLogic.sh</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/20/ubuntu%E6%90%AD%E5%BB%BAweblogic%E7%8E%AF%E5%A2%83/image-20201202144942741.png" alt="image-20201202144942741"></p>
+<h2 id="0x02-idea调试"><a href="#0x02-idea调试" class="headerlink" title="0x02 idea调试"></a>0x02 idea调试</h2><p>首先修改<code>~/Oracle/Middleware/user_projects/domains/base_domain/bin/setDomainEnv.sh</code></p>
+<p>在文件头加如下内容：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">debugFlag=<span class="string">"true"</span></span><br><span class="line"><span class="built_in">export</span> debugFlag</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/11/20/ubuntu%E6%90%AD%E5%BB%BAweblogic%E7%8E%AF%E5%A2%83/image-20201203110506200.png" alt="image-20201203110506200" style="zoom: 200%;">
+
+<p>然后运行<code>./startWebLogic.sh</code></p>
+<p>然后将<code>~/Oracle/Middleware/wlserver_10.3</code>，目录复制到本机，然后利用<code>find ./ -name *.jar -exec cp {} ./weblogic_jar/ \;</code>在<code>~/Oracle/Middleware/</code>目录下搜索<code>jar</code>文件然后复制到weblogic_jar目录，然后在本地打开IDEA，将<code>weblogic_jar</code>添加到libraries，</p>
+<p><img src="/2020/11/20/ubuntu%E6%90%AD%E5%BB%BAweblogic%E7%8E%AF%E5%A2%83/image-20201203111249352.png" alt="image-20201203111249352"></p>
+<p>将jdk改为和jdk6</p>
+<p><img src="/2020/11/20/ubuntu%E6%90%AD%E5%BB%BAweblogic%E7%8E%AF%E5%A2%83/image-20201203111330965.png" alt="image-20201203111330965"></p>
+<p>然后在下断点，开启调试</p>
+<p><img src="/2020/11/20/ubuntu%E6%90%AD%E5%BB%BAweblogic%E7%8E%AF%E5%A2%83/image-20201203111434909.png" alt="image-20201203111434909"></p>
+<p>burp发包</p>
+<p><img src="/2020/11/20/ubuntu%E6%90%AD%E5%BB%BAweblogic%E7%8E%AF%E5%A2%83/image-20201203111505573.png" alt="image-20201203111505573"></p>
+<p>可以看到成功。</p>
+<p><img src="/2020/11/20/ubuntu%E6%90%AD%E5%BB%BAweblogic%E7%8E%AF%E5%A2%83/image-20201203111519281.png" alt="image-20201203111519281"></p>
 <p><a href="https://blog.csdn.net/zbj18314469395/article/details/86064849" target="_blank" rel="noopener">https://blog.csdn.net/zbj18314469395/article/details/86064849</a></p>
-<p><a href="https://starky99.com/ubuntu16-install-weblogic10.3.6/" target="_blank" rel="noopener">https://starky99.com/ubuntu16-install-weblogic10.3.6/</a></p>
+<p><a href="https://starky99.com/ubuntu16-install-weblogic10.3.6/" target="_blank" rel="noopener">Ubuntu16.04命令行安装Weblogic</a></p>
+<p><a href="https://blog.csdn.net/qq_36205145/article/details/70473545" target="_blank" rel="noopener">在ubuntu 16.04上安装weblogic 12c</a></p>
+<p><a href="https://www.oracle.com/middleware/technologies/weblogic-server-installers-downloads.html" target="_blank" rel="noopener">weblogic下载</a></p>
+<p><a href="jianshu.com/p/75344ad2aaff">ubuntu建立新用户没有家目录的问题与授予sudo权限</a></p>
+<p><a href="https://hub.docker.com/layers/vulhub/weblogic/10.3.6.0-2017/images/sha256-275ec19477cfda389dc1c42158033e7e8c650dd4cba9f090ca0ba673902b73c9?context=explore" target="_blank" rel="noopener">vulhub/weblogic:10.3.6.0-2017</a></p>
 
       
     </div>
@@ -129,7 +177,7 @@
           </li>
           <li class="post-copyright-link">
           <strong>文章链接:  </strong>
-          <a href="/2020/11/20/ubuntu搭建weblogic环境/" target="_blank" title="ubuntu搭建weblogic环境">http://mount4in.github.io/2020/11/20/ubuntu搭建weblogic环境/</a>
+          <a href="/2020/11/20/ubuntu搭建weblogic环境/" target="_blank" title="ubuntu搭建weblogic环境,配合IDEA调试">http://mount4in.github.io/2020/11/20/ubuntu搭建weblogic环境/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明:   </strong>
