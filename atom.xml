@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://mount4in.github.io/"/>
-  <updated>2020-12-08T01:17:10.974Z</updated>
+  <updated>2020-12-08T01:19:55.016Z</updated>
   <id>http://mount4in.github.io/</id>
   
   <author>
@@ -21,11 +21,14 @@
     <link href="http://mount4in.github.io/2020/12/08/2020%E7%AC%AC%E4%BA%8C%E5%B1%8A%E7%BD%91%E9%BC%8E%E6%9D%AF%E5%8D%8A%E5%86%B3%E8%B5%9BWeb%E9%A2%98%E7%9B%AEwriteup/"/>
     <id>http://mount4in.github.io/2020/12/08/2020%E7%AC%AC%E4%BA%8C%E5%B1%8A%E7%BD%91%E9%BC%8E%E6%9D%AF%E5%8D%8A%E5%86%B3%E8%B5%9BWeb%E9%A2%98%E7%9B%AEwriteup/</id>
     <published>2020-12-08T01:14:42.000Z</published>
-    <updated>2020-12-08T01:17:10.974Z</updated>
+    <updated>2020-12-08T01:19:55.016Z</updated>
     
     <summary type="html">
     
       &lt;p&gt;有幸参加了第二届网鼎杯的决赛和半决赛，被各路神仙锤爆。赛后对几道web题目进行了整理和复现，下面分享一下思路和方法，本人才疏学浅，如有错误，还请师傅们批评指正。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;本文首发于&lt;a href=&quot;https://www.anquanke.com/post/id/224207&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;安全客&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
     
     </summary>
     
