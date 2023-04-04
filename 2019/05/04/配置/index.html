@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    配置 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-配置" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      配置
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2019/05/04/%E9%85%8D%E7%BD%AE/" class="article-date">
+  <time datetime="2019-05-04T07:25:44.000Z" itemprop="datePublished">2019-05-04</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>令人头大的配置记录，持续更新</p>
+<a id="more"></a>
+
+<h3 id="debian-java-cobaltstrike-teamserver运行报错"><a href="#debian-java-cobaltstrike-teamserver运行报错" class="headerlink" title="debian java cobaltstrike teamserver运行报错"></a>debian java cobaltstrike teamserver运行报错</h3><p>java not $PATH :root身份运行报错，没有java环境变量</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;java java &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;java 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;javac javac &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;javac 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;java_vm java_vm &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;java_vm 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;jcontrol jcontrol &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;jcontrol 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;jexec jexec &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;jre&#x2F;lib&#x2F;jexec 100</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;jexec jexec &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;jre&#x2F;lib&#x2F;jexec 100 --slave &#x2F;usr&#x2F;share&#x2F;binfmts&#x2F;jar jexec-binfmt media&#x2F;mydisk&#x2F;jdk&#x2F;jre&#x2F;lib&#x2F;javaws</span><br></pre></td></tr></table></figure>
+
+<p>cobaltstrike </p>
+<p>[-] keytool is not in $PATH<br>    install the Java Developer Kit</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ln -s &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;bin&#x2F;keytool &#x2F;usr&#x2F;bin&#x2F;</span><br><span class="line">sudo update-alternatives --install &#x2F;usr&#x2F;bin&#x2F;keytool keytool &#x2F;usr&#x2F;java&#x2F;jdk1.8.0_202&#x2F;bin&#x2F;keytool 100</span><br></pre></td></tr></table></figure>
+
+<p>参考</p>
+<p><a href="https://superuser.com/questions/408918/trouble-setting-up-path-for-java-on-debian" target="_blank" rel="noopener">1</a></p>
+<p><a href="https://askubuntu.com/questions/159575/how-do-i-make-java-default-to-a-manually-installed-jre-jdk" target="_blank" rel="noopener">2</a></p>
+<h3 id="Ubuntu虚拟机"><a href="#Ubuntu虚拟机" class="headerlink" title="Ubuntu虚拟机"></a>Ubuntu虚拟机</h3><p>硬盘30G左右</p>
+<h3 id="ubuntu安装后卸载不常用的软件"><a href="#ubuntu安装后卸载不常用的软件" class="headerlink" title="ubuntu安装后卸载不常用的软件"></a>ubuntu安装后卸载不常用的软件</h3><ul>
+<li><p>16.04</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt purge libreoffice-common  unity-webapps-common thunderbird totem rhythmbox empathy brasero simple-scan gnome-mahjongg aisleriot gnome-mines cheese gnome-sudoku transmission-common gnome-orca webbrowser-app landscape-client-ui-install</span><br></pre></td></tr></table></figure>
+
+<p>libreoffice-common libreoffice（可以换 WPS）<br>unity-webapps-common Amazon 链接<br>thunderbird 雷鸟邮件客户端<br>totem 自带的播放器<br>rhythmbox 自带的音乐播放器<br>empathy 自带的即时聊天应用<br>brasero 自带的光盘刻录器<br>simple-scan 扫描仪<br>gnome-mahjongg 对对碰游戏<br>aisleriot 纸牌游戏<br>gnome-mines 扫雷游戏<br>cheese webcam 应用<br>gnome-sudoku 数独游戏<br>transmission-common BT 客户端<br>gnome-orca 屏幕阅读<br>webbrowser-app Ubuntu 自带的浏览器（有了 chrome 和 Firefox 根本用不到这个）<br>landscape-client-ui-install landscape 远程控制软件<br>deja-dup 备份<br>onboard 屏幕键盘</p>
+</li>
+<li><p>18.04</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt remove ubuntu-web-launchers</span><br></pre></td></tr></table></figure>
+
+<p>删除Amazon的链接<br>sudo apt-get remove unity-webapps-common # 旧版</p>
+<p>sudo apt remove ubuntu-web-launchers # 新版</p>
+</li>
+</ul>
+<h3 id="ubuntu换源"><a href="#ubuntu换源" class="headerlink" title="ubuntu换源"></a>ubuntu换源</h3><p><a href="https://mirrors.tuna.tsinghua.edu.cn/help/ubuntu/" target="_blank" rel="noopener">https://mirrors.tuna.tsinghua.edu.cn/help/ubuntu/</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo cp &#x2F;etc&#x2F;apt&#x2F;sources.list &#x2F;etc&#x2F;apt&#x2F;sources.list.bak</span><br><span class="line">##下一步要确定source.list文件的内容，然后在替换</span><br><span class="line">sudo sed -i &quot;s&#x2F;us.archive.ubuntu.com&#x2F;mirrors.aliyun.com&#x2F;g&quot; &#x2F;etc&#x2F;apt&#x2F;sources.list</span><br></pre></td></tr></table></figure>
+
+<h3 id="ubuntu安装docker"><a href="#ubuntu安装docker" class="headerlink" title="ubuntu安装docker"></a>ubuntu安装docker</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">#添加稳定版仓库</span><br><span class="line">curl -fsSL https:&#x2F;&#x2F;download.docker.com&#x2F;linux&#x2F;ubuntu&#x2F;gpg | sudo apt-key add -</span><br><span class="line">sudo add-apt-repository  &quot;deb [arch&#x3D;amd64] https:&#x2F;&#x2F;download.docker.com&#x2F;linux&#x2F;ubuntu $(lsb_release -cs) stable&quot;</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install docker-ce</span><br><span class="line">sudo docker run hello-world</span><br><span class="line">sudo usermod -a -G docker $USER</span><br><span class="line">#为了可以不用sudo,要注销重新登陆</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://www.jianshu.com/p/49e8f814d6e0" target="_blank" rel="noopener">https://www.jianshu.com/p/49e8f814d6e0</a></p>
+<h3 id="ubuntu更换php版本"><a href="#ubuntu更换php版本" class="headerlink" title="ubuntu更换php版本"></a>ubuntu更换php版本</h3><p>查看已经安装的php包</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dpkg -l | grep php</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2019/05/04/%E9%85%8D%E7%BD%AE/image-20201120195140654.png" alt="image-20201120195140654"></p>
+<p>安装php5.6</p>
+<p>ppa:ondrej/php 是一个比较知名的PHP源（目前维护php5.6,php7.0,php7.1,php7.2）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install software-properties-common</span><br><span class="line">sudo add-apt-repository ppa:ondrej&#x2F;php</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install php5.6 </span><br><span class="line">sudo apt-get install php5.6-mbstring php5.6-mcrypt php5.6-mysql php5.6-xml libapache2-mod-php5.6</span><br></pre></td></tr></table></figure>
+
+<p><code>sudo update-alternatives --config php</code>命令可以切换php版本</p>
+<p>修改apache的php版本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo a2dismod php7.0         # unload the current version</span><br><span class="line">sudo a2enmod  php5.6         # load the version you need</span><br><span class="line">sudo service apache2 restart</span><br></pre></td></tr></table></figure>
+
+<p>安装php-gd扩展</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install php7.0-gd</span><br><span class="line">sudo apt-get install php7.0-zip</span><br></pre></td></tr></table></figure>
+
+<p>开启rewrite</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo a2enmod rewrite</span><br><span class="line"></span><br><span class="line">sudo a2dissite 000-default.conf</span><br><span class="line">sudo a2ensite 000-default.conf</span><br><span class="line">sudo  systemctl reload apache2</span><br></pre></td></tr></table></figure>
+
+<h3 id="ubuntu设置代理"><a href="#ubuntu设置代理" class="headerlink" title="ubuntu设置代理"></a>ubuntu设置代理</h3><ul>
+<li>临时</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">export http_proxy&#x3D;http:&#x2F;&#x2F;127.0.0.1:7890</span><br><span class="line">export https_proxy&#x3D;http:&#x2F;&#x2F;127.0.0.1:7890</span><br><span class="line">export no_proxy&#x3D;&quot;127.0.0.1, localhost, *.cnn.com, 192.168.1.10, domain.com:8080&quot;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>临时取消代理<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">unset http_proxy</span><br><span class="line"></span><br><span class="line">unset https_proxy</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+<ul>
+<li>持久化</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">vim ~&#x2F;.bashrc</span><br><span class="line">export http_proxy&#x3D;http:&#x2F;&#x2F;127.0.0.1:7890</span><br><span class="line">export https_proxy&#x3D;http:&#x2F;&#x2F;127.0.0.1:7890</span><br><span class="line">export no_proxy&#x3D;&quot;127.0.0.1, localhost, *.cnn.com, 192.168.1.10, domain.com:8080&quot;</span><br><span class="line">source ~&#x2F;.bashrc</span><br></pre></td></tr></table></figure>
+
+<h3 id="mongodb-Ubuntu安装及报错"><a href="#mongodb-Ubuntu安装及报错" class="headerlink" title="mongodb Ubuntu安装及报错"></a>mongodb Ubuntu安装及报错</h3><p><a href="https://www.jb51.net/article/109091.htm" target="_blank" rel="noopener">https://www.jb51.net/article/109091.htm</a></p>
+<p><a href="https://blog.csdn.net/zn505119020/article/details/81331808" target="_blank" rel="noopener">https://blog.csdn.net/zn505119020/article/details/81331808</a></p>
+<h3 id="apt-get-install-报错"><a href="#apt-get-install-报错" class="headerlink" title="apt-get install 报错"></a>apt-get install 报错</h3><p>E: Could not get lock /var/lib/dpkg/lock - open (11: Resource temporarily unavailable)<br> E: Unable to lock the administration directory (/var/lib/dpkg/), is another process using it</p>
+<p>在终端中敲入以下两句</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo rm &#x2F;var&#x2F;cache&#x2F;apt&#x2F;archives&#x2F;lock</span><br><span class="line"></span><br><span class="line">sudo rm &#x2F;var&#x2F;lib&#x2F;dpkg&#x2F;lock</span><br></pre></td></tr></table></figure>
+
+<h3 id="lamp"><a href="#lamp" class="headerlink" title="lamp"></a>lamp</h3><p>安装多版本php</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install software-properties-common</span><br><span class="line">sudo add-apt-repository ppa:ondrej&#x2F;php</span><br><span class="line">sudo apt-get update</span><br><span class="line">#下载php5.6的命令</span><br><span class="line">sudo apt-get install -y php5.6-common php5.6-mbstring php5.6-mcrypt php5.6-mysql php5.6-xml php5.6-gd php5.6-curl php5.6-json php5.6-fpm php5.6-zip php5.6-mcrypt libapache2-mod-php5.6</span><br><span class="line">#下载php7.0的命令</span><br><span class="line">sudo apt-get install -y php7.0-common php7.0-mbstring php7.0-mcrypt php7.0-mysql php7.0-xml php7.0-gd php7.0-curl php7.0-json php7.0-fpm php7.0-zip php7.0-mcrypt libapache2-mod-php7.0</span><br><span class="line">#下载php7.1的命令</span><br><span class="line">sudo apt-get install -y php7.1-common php7.1-mbstring php7.1-mcrypt php7.1-mysql php7.1-xml php7.1-gd php7.1-curl php7.1-json php7.1-fpm php7.1-zip php7.1-mcrypt libapache2-mod-php7.1</span><br><span class="line"># 下载php7.4的命令</span><br><span class="line">sudo apt-get install -y php7.4-common php7.4-mbstring php7.4-mcrypt php7.4-mysql php7.4-xml php7.4-gd php7.4-curl php7.4-json php7.4-fpm php7.4-zip php7.4-mcrypt libapache2-mod-php7.4</span><br><span class="line"># 下载php7.2的命令</span><br><span class="line">sudo apt-get install -y php7.2-common php7.2-mbstring php7.2-mcrypt php7.2-mysql php7.2-xml php7.2-gd php7.2-curl php7.2-json php7.2-fpm php7.2-zip php7.2-mcrypt libapache2-mod-php7.2  php7.2-dev</span><br><span class="line"></span><br><span class="line">sudo apt-get install -y php7.4.3-common php7.4.3-mbstring php7.4.3-mcrypt php7.4.3-mysql php7.4.3-xml php7.4.3-gd php7.4.3-curl php7.4.3-json php7.4.3-fpm php7.4.3-zip php7.4.3-mcrypt libapache2-mod-php7.4.3</span><br><span class="line">#切换默认php版本</span><br><span class="line">sudo update-alternatives --config php 修改版本</span><br><span class="line">#PS:切换版本之前或切换之后要把被切换额版本停用</span><br><span class="line">#开启一个php版本</span><br><span class="line">sudo a2enmod php7.1</span><br><span class="line"># 禁用一个php版本</span><br><span class="line">sudo a2dismod php7.1</span><br><span class="line">#重启Apache2</span><br><span class="line">sudo service apache2 restart</span><br></pre></td></tr></table></figure>
+
+<p>卸载php</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">一、删除php的相关包及配置</span><br><span class="line">   sudo apt-get autoremove php7*</span><br><span class="line">二、删除关联</span><br><span class="line">   sudo find &#x2F;etc -name &quot;*php*&quot; |xargs rm -rf</span><br><span class="line">三、清除dept列表</span><br><span class="line">   sudo apt purge &#96;dpkg -l | grep php| awk &#39;&#123;print $2&#125;&#39; |tr &quot;\n&quot; &quot; &quot;&#96;</span><br><span class="line">四、检查是否卸载干净（无返回就是卸载完成）</span><br><span class="line">   dpkg -l | grep php7.0</span><br></pre></td></tr></table></figure>
+
+<p>安装php、apache2、 mysql</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">apt list | grep libapache2-mod-php*</span><br><span class="line">sudo apt-get install php7.2 libapache2-mod-php7.2</span><br><span class="line">sudo apt-get install mysql-server mysql-client</span><br></pre></td></tr></table></figure>
+
+<p>ubuntu 18安装mysql过程未出现设置密码界面，修改默认密码方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cat &#x2F;etc&#x2F;mysql&#x2F;debian.cnf</span><br></pre></td></tr></table></figure>
+
+<img src="/2019/05/04/%E9%85%8D%E7%BD%AE/image-20211018080209019.png" alt="image-20211018080209019" style="zoom:150%;">
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u debian-sys-maint -p</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://zhuanlan.zhihu.com/p/348317883" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/348317883</a></p>
+<p>输入上图中密码，登录后，修改root密码，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">use mysql;                   </span><br><span class="line"></span><br><span class="line">update mysql.user set authentication_string&#x3D;password(&#39;root&#39;) where user&#x3D;&#39;root&#39; and Host &#x3D;&#39;localhost&#39;;    </span><br><span class="line"></span><br><span class="line">update user set  plugin&#x3D;&quot;mysql_native_password&quot;;     </span><br><span class="line"></span><br><span class="line">flush privileges;</span><br><span class="line"></span><br><span class="line">quit;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alter user root@localhost identified with caching_sha2_password by &quot;root&quot;; #mysql8</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt purge mysql-*</span><br><span class="line"></span><br><span class="line">sudo rm -rf &#x2F;etc&#x2F;mysql&#x2F; &#x2F;var&#x2F;lib&#x2F;mysql</span><br><span class="line"></span><br><span class="line">sudo apt autoremove</span><br></pre></td></tr></table></figure>
+
+<p>修改/var/www/html目录权限</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo chown -R www-data:www-data &#x2F;var&#x2F;www&#x2F;html</span><br><span class="line">sudo chmod -R 755 &#x2F;var&#x2F;www&#x2F;html</span><br></pre></td></tr></table></figure>
+
+<p>安装php扩展</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install php7.2-dev （phpize命令不存在）</span><br><span class="line">sudo pecl install xdebug</span><br></pre></td></tr></table></figure>
+
+<p>php.ini文件位置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;etc&#x2F;php&#x2F;7.2&#x2F;apache2&#x2F;php.ini</span><br></pre></td></tr></table></figure>
+
+<p>配置xdebug3</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">[xdebug]</span><br><span class="line">zend_extension&#x3D;&#x2F;usr&#x2F;lib&#x2F;php&#x2F;20170718&#x2F;xdebug.so</span><br><span class="line">xdebug.mode&#x3D;debug,coverage,develop,trace,</span><br><span class="line">xdebug.client_host&#x3D;127.0.0.1</span><br><span class="line">xdebug.client_port&#x3D;&quot;9003&quot;</span><br><span class="line">xdebug.overload_var_dump&#x3D;1</span><br><span class="line">xdebug.trace_format &#x3D; 1</span><br><span class="line"></span><br><span class="line">[Xdebug]</span><br><span class="line">zend_extension&#x3D;&#x2F;usr&#x2F;lib&#x2F;php&#x2F;20170718&#x2F;xdebug.so</span><br><span class="line">xdebug.mode&#x3D;trace</span><br><span class="line">xdebug.start_with_request&#x3D;trigger</span><br><span class="line">xdebug.trigger_value&#x3D;StartProfileForMe</span><br><span class="line">xdebug.trace_output_name &#x3D; xdebug.trace.%t.%s</span><br><span class="line">xdebug.output_dir &#x3D; &#x2F;var&#x2F;www&#x2F;tmp</span><br><span class="line">xdebug.trace_format&#x3D;1</span><br><span class="line"></span><br><span class="line">XDEBUG_TRACE&#x3D;StartProfileForMe</span><br><span class="line"></span><br><span class="line">[Xdebug]</span><br><span class="line">zend_extension&#x3D;&#x2F;usr&#x2F;lib&#x2F;php&#x2F;20200930&#x2F;xdebug.so</span><br><span class="line">xdebug.mode&#x3D;trace</span><br><span class="line">xdebug.start_with_request&#x3D;trigger</span><br><span class="line">xdebug.trigger_value&#x3D;StartProfileForMe</span><br><span class="line">xdebug.trace_output_name &#x3D; xdebug</span><br><span class="line">xdebug.output_dir &#x3D; &#x2F;tmp</span><br><span class="line">xdebug.trace_format&#x3D;1</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2019/05/04/%E9%85%8D%E7%BD%AE/image-20211029104511689.png" alt="image-20211029104511689"></p>
+<h3 id="ubuntu18安装composer"><a href="#ubuntu18安装composer" class="headerlink" title="ubuntu18安装composer"></a>ubuntu18安装composer</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">第一种方法：sudo apt-get install composer</span><br><span class="line">第二种方法：直接使用composer.phar可执行文件</span><br></pre></td></tr></table></figure>
+
+<h4 id="初始化-init"><a href="#初始化-init" class="headerlink" title="初始化 init"></a>初始化 <code>init</code></h4><p>在 <a href="https://docs.phpcomposer.com/02-libraries.html" target="_blank" rel="noopener">“库”</a> 那一章我们看到了如何手动创建 <code>composer.json</code> 文件。实际上还有一个 <code>init</code> 命令可以更容易的做到这一点。</p>
+<p>当您运行该命令，它会以交互方式要求您填写一些信息，同时聪明的使用一些默认值。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php composer.phar init</span><br></pre></td></tr></table></figure>
+
+<h5 id="初始化-参数"><a href="#初始化-参数" class="headerlink" title="初始化-参数"></a>初始化-参数</h5><ul>
+<li><strong>–name:</strong> 包的名称。</li>
+<li><strong>–description:</strong> 包的描述。</li>
+<li><strong>–author:</strong> 包的作者。</li>
+<li><strong>–homepage:</strong> 包的主页。</li>
+<li><strong>–require:</strong> 需要依赖的其它包，必须要有一个版本约束。并且应该遵循 <code>foo/bar:1.0.0</code> 这样的格式。</li>
+<li><strong>–require-dev:</strong> 开发版的依赖包，内容格式与 <strong>–require</strong> 相同。</li>
+<li><strong>–stability (-s):</strong> <code>minimum-stability</code> 字段的值。</li>
+</ul>
+<h4 id="安装-install"><a href="#安装-install" class="headerlink" title="安装 install"></a>安装 <code>install</code></h4><p><code>install</code> 命令从当前目录读取 <code>composer.json</code> 文件，处理了依赖关系，并把其安装到 <code>vendor</code> 目录下。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php composer.phar install</span><br></pre></td></tr></table></figure>
+
+<p>如果当前目录下存在 <code>composer.lock</code> 文件，它会从此文件读取依赖版本，而不是根据 <code>composer.json</code> 文件去获取依赖。这确保了该库的每个使用者都能得到相同的依赖版本。</p>
+<p>如果没有 <code>composer.lock</code> 文件，composer 将在处理完依赖关系后创建它。</p>
+<h5 id="安装-参数"><a href="#安装-参数" class="headerlink" title="安装-参数"></a>安装-参数</h5><ul>
+<li><strong>–prefer-source:</strong> 下载包的方式有两种： <code>source</code> 和 <code>dist</code>。对于稳定版本 composer 将默认使用 <code>dist</code> 方式。而 <code>source</code> 表示版本控制源 。如果 <code>--prefer-source</code> 是被启用的，composer 将从 <code>source</code> 安装（如果有的话）。如果想要使用一个 bugfix 到你的项目，这是非常有用的。并且可以直接从本地的版本库直接获取依赖关系。</li>
+<li><strong>–prefer-dist:</strong> 与 <code>--prefer-source</code> 相反，composer 将尽可能的从 <code>dist</code> 获取，这将大幅度的加快在 build servers 上的安装。这也是一个回避 git 问题的途径，如果你不清楚如何正确的设置。</li>
+<li><strong>–dry-run:</strong> 如果你只是想演示而并非实际安装一个包，你可以运行 <code>--dry-run</code> 命令，它将模拟安装并显示将会发生什么。</li>
+<li><strong>–dev:</strong> 安装 <code>require-dev</code> 字段中列出的包（这是一个默认值）。</li>
+<li><strong>–no-dev:</strong> 跳过 <code>require-dev</code> 字段中列出的包。</li>
+<li><strong>–no-scripts:</strong> 跳过 <code>composer.json</code> 文件中定义的脚本。</li>
+<li><strong>–no-plugins:</strong> 关闭 plugins。</li>
+<li><strong>–no-progress:</strong> 移除进度信息，这可以避免一些不处理换行的终端或脚本出现混乱的显示。</li>
+<li><strong>–optimize-autoloader (-o):</strong> 转换 PSR-0/4 autoloading 到 classmap 可以获得更快的加载支持。特别是在生产环境下建议这么做，但由于运行需要一些时间，因此并没有作为默认值。</li>
+</ul>
+<h4 id="更新-update"><a href="#更新-update" class="headerlink" title="更新 update"></a>更新 <code>update</code></h4><p>为了获取依赖的最新版本，并且升级 <code>composer.lock</code> 文件，你应该使用 <code>update</code> 命令。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php composer.phar update</span><br></pre></td></tr></table></figure>
+
+<p>这将解决项目的所有依赖，并将确切的版本号写入 <code>composer.lock</code>。</p>
+<p>如果你只是想更新几个包，你可以像这样分别列出它们：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php composer.phar update vendor/package vendor/package2</span><br></pre></td></tr></table></figure>
+
+<p>你还可以使用通配符进行批量更新：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php composer.phar update vendor/*</span><br></pre></td></tr></table></figure>
+
+<h5 id="更新-参数"><a href="#更新-参数" class="headerlink" title="更新-参数"></a>更新-参数</h5><ul>
+<li><strong>–prefer-source:</strong> 当有可用的包时，从 <code>source</code> 安装。</li>
+<li><strong>–prefer-dist:</strong> 当有可用的包时，从 <code>dist</code> 安装。</li>
+<li><strong>–dry-run:</strong> 模拟命令，并没有做实际的操作。</li>
+<li><strong>–dev:</strong> 安装 <code>require-dev</code> 字段中列出的包（这是一个默认值）。</li>
+<li><strong>–no-dev:</strong> 跳过 <code>require-dev</code> 字段中列出的包。</li>
+<li><strong>–no-scripts:</strong> 跳过 <code>composer.json</code> 文件中定义的脚本。</li>
+<li><strong>–no-plugins:</strong> 关闭 plugins。</li>
+<li><strong>–no-progress:</strong> 移除进度信息，这可以避免一些不处理换行的终端或脚本出现混乱的显示。</li>
+<li><strong>–optimize-autoloader (-o):</strong> 转换 PSR-0/4 autoloading 到 classmap 可以获得更快的加载支持。特别是在生产环境下建议这么做，但由于运行需要一些时间，因此并没有作为默认值。</li>
+<li><strong>–lock:</strong> 仅更新 lock 文件的 hash，取消有关 lock 文件过时的警告。</li>
+<li><strong>–with-dependencies</strong> 同时更新白名单内包的依赖关系，这将进行递归更新。</li>
+</ul>
+<h4 id="申明依赖-require"><a href="#申明依赖-require" class="headerlink" title="申明依赖 require"></a>申明依赖 <code>require</code></h4><p><code>require</code> 命令增加新的依赖包到当前目录的 <code>composer.json</code> 文件中。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php composer.phar require</span><br></pre></td></tr></table></figure>
+
+<p>在添加或改变依赖时， 修改后的依赖关系将被安装或者更新。</p>
+<p>如果你不希望通过交互来指定依赖包，你可以在这条令中直接指明依赖包。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php composer.phar require vendor/package:2.* vendor/package2:dev-master</span><br></pre></td></tr></table></figure>
+
+<h5 id="申明依赖-参数"><a href="#申明依赖-参数" class="headerlink" title="申明依赖-参数"></a>申明依赖-参数</h5><ul>
+<li><strong>–prefer-source:</strong> 当有可用的包时，从 <code>source</code> 安装。</li>
+<li><strong>–prefer-dist:</strong> 当有可用的包时，从 <code>dist</code> 安装。</li>
+<li><strong>–dev:</strong> 安装 <code>require-dev</code> 字段中列出的包。</li>
+<li><strong>–no-update:</strong> 禁用依赖关系的自动更新。</li>
+<li><strong>–no-progress:</strong> 移除进度信息，这可以避免一些不处理换行的终端或脚本出现混乱的显示。</li>
+<li><strong>–update-with-dependencies</strong> 一并更新新装包的依赖。</li>
+</ul>
+<h4 id="全局执行-global"><a href="#全局执行-global" class="headerlink" title="全局执行 global"></a>全局执行 <code>global</code></h4><p><code>global</code> 命令允许你在 <a href="https://docs.phpcomposer.com/03-cli.html#COMPOSER_HOME" target="_blank" rel="noopener">COMPOSER_HOME</a> 目录下执行其它命令，像 <code>install</code>、<code>require</code> 或 <code>update</code>。</p>
+<p>并且如果你将 <code>$COMPOSER_HOME/vendor/bin</code> 加入到了 <code>$PATH</code> 环境变量中，你就可以用它在命令行中安装全局应用，下面是一个例子：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php composer.phar global require fabpot/php-cs-fixer:dev-master</span><br></pre></td></tr></table></figure>
+
+<p>现在 <code>php-cs-fixer</code> 就可以在全局范围使用了（假设你已经设置了你的 PATH）。如果稍后你想更新它，你只需要运行 <code>global update</code>：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php composer.phar global update</span><br></pre></td></tr></table></figure>
+
+<h3 id="ubuntu安装及更新-pip2-pip3"><a href="#ubuntu安装及更新-pip2-pip3" class="headerlink" title="ubuntu安装及更新 pip2 pip3"></a>ubuntu安装及更新 pip2 pip3</h3><p>pip2</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install python-pip</span><br><span class="line">python2 -m pip install -U pip</span><br></pre></td></tr></table></figure>
+
+<p>pip3</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install python3-pip</span><br><span class="line">pip3 install --upgrade pip</span><br></pre></td></tr></table></figure>
+
+<h3 id="pip安装requirements"><a href="#pip安装requirements" class="headerlink" title="pip安装requirements"></a>pip安装requirements</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install -r requirement.txt</span><br></pre></td></tr></table></figure>
+
+<h3 id="ubuntu安装python3-9"><a href="#ubuntu安装python3-9" class="headerlink" title="ubuntu安装python3.9"></a>ubuntu安装python3.9</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo add-apt-repository ppa:deadsnakes&#x2F;ppa</span><br><span class="line">sudo apt update</span><br><span class="line">sudo apt install python3.9</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://blog.csdn.net/peiwang245/article/details/98317863" target="_blank" rel="noopener">https://blog.csdn.net/peiwang245/article/details/98317863</a></p>
+<p>pip问题：</p>
+<p><a href="https://blog.csdn.net/sudakuang/article/details/101372007?spm=1001.2101.3001.6650.10&amp;utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-10.no_search_link&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-10.no_search_link" target="_blank" rel="noopener">https://blog.csdn.net/sudakuang/article/details/101372007?spm=1001.2101.3001.6650.10&amp;utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-10.no_search_link&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-10.no_search_link</a></p>
+<p><a href="https://blog.csdn.net/ZZQHELLO2018/article/details/106998144" target="_blank" rel="noopener">https://blog.csdn.net/ZZQHELLO2018/article/details/106998144</a></p>
+<h3 id="ubuntu-删除Trash"><a href="#ubuntu-删除Trash" class="headerlink" title="ubuntu 删除Trash"></a>ubuntu 删除Trash</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo rm -rf ~&#x2F;.local&#x2F;share&#x2F;Trash&#x2F;*</span><br></pre></td></tr></table></figure>
+
+<h3 id="ubuntu-安装-sshd"><a href="#ubuntu-安装-sshd" class="headerlink" title="ubuntu 安装 sshd"></a>ubuntu 安装 sshd</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install openssh-server</span><br><span class="line">sudo service ssh start</span><br></pre></td></tr></table></figure>
+
+<h3 id="ubuntu-安装-sqlite3"><a href="#ubuntu-安装-sqlite3" class="headerlink" title="ubuntu 安装 sqlite3"></a>ubuntu 安装 sqlite3</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install sqlite3</span><br><span class="line">sudo apt-get install libsqlite3-</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="ubuntu-安装terminator分屏"><a href="#ubuntu-安装terminator分屏" class="headerlink" title="ubuntu 安装terminator分屏"></a>ubuntu 安装terminator分屏</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install terminator</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>快捷键</li>
+</ul>
+<p>Ctrl+Shift+O<br>  Split terminals Horizontally.（上下开新窗口）<br>Ctrl+Shift+E<br>  Split terminals Vertically.（垂直开新窗口）<br>Ctrl+Shift+Right<br>  Move parent dragbar Right.（放大当前窗口 向右）<br>Ctrl+Shift+Left<br>  Move parent dragbar Left.<br>Ctrl+Shift+Up<br>  Move parent dragbar Up.<br>Ctrl+Shift+Down<br>  Move parent dragbar Down.<br>Ctrl+Shift+W<br>  Close the current terminal.<br>Alt+Up<br>  Move to the terminal above the current one.（切换当前窗口）<br>Alt+Down<br>  Move to the terminal below the current one.<br>Alt+Left<br>  Move to the terminal left of the current one.<br>Alt+Right<br>  Move to the terminal right of the current one.<br>Ctrl+Shift+S<br>  Hide/Show Scrollbar.（隐藏滚动条）<br>Ctrl+Shift+F<br>  Search within terminal scrollback<br>Ctrl+Shift+N or Ctrl+Tab<br>  Move to next terminal within the same tab, use Ctrl+PageDown to move to the next tab. If cycle_term_tab is False, cycle within the same tab will be disabled<br>Ctrl+Shift+P or Ctrl+Shift+Tab<br>  Move to previous terminal within the same tab, use Ctrl+PageUp to move to the previous tab. If cycle_term_tab is False, cycle within the same tab will be disabled<br>Ctrl+Shift+C<br>  Copy selected text to clipboard<br>Ctrl+Shift+V<br>  Paste clipboard text<br>Ctrl+Shift+Q<br>  Quits Terminator<br>Ctrl+Shift+X （最大化当前窗口）<br>  Toggle between showing all terminals and only showing the current one (maximise).<br>Ctrl+Shift+Z<br>  Toggle between showing all terminals and only showing a scaled version of the current one (zoom).<br>Ctrl+Shift+T<br>  Open new tab<br>Ctrl+Shift+Alt+T<br>  Open new tab at root level, if using extreme_tabs.<br>Ctrl+PageDown<br>  Move to next Tab<br>Ctrl+PageUp<br>  Move to previous Tab<br>Ctrl+Shift+PageDown<br>  Swap tab position with next Tab<br>Ctrl+Shift+PageUp<br>  Swap tab position with previous Tab<br>Ctrl+Shift+F<br>  Open buffer search bar to find substrings in the scrollback buffer. Hit Escape to cancel.<br>Ctrl+Plus (+)<br>  Increase font size. Note: this may require you to press shift, depending on your keyboard<br>Ctrl+Minus (-)<br>  Decrease font size. Note: this may require you to press shift, depending on your keyboard<br>Ctrl+Zero (0)<br>  Restore font size to original setting.<br>F11<br>  Toggle fullscreen（放大当前窗口）<br>Ctrl+Shift+R<br>  Reset terminal state<br>Ctrl+Shift+G<br>  Reset terminal state and clear window</p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2019/05/04/配置/" target="_blank" title="配置">http://mount4in.github.io/2019/05/04/配置/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2019/05/04/%E9%85%8D%E7%BD%AE/" data-id="clg20p62y002v14uv8hyia55m"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/misc/" rel="tag">misc</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/02/07/buuoj-1/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            BUUOJ刷题_1
+          
+        </div>
+      </a>
+    
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

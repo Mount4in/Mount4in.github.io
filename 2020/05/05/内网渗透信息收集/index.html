@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    内网渗透信息收集 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-内网渗透信息收集" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      内网渗透信息收集
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/" class="article-date">
+  <time datetime="2020-05-05T00:41:48.000Z" itemprop="datePublished">2020-05-05</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>de1tactf遇到了渗透题，记录下信息收集的命令，</p>
+<a id="more"></a>
+
+<h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><h2 id="windows常用用户"><a href="#windows常用用户" class="headerlink" title="windows常用用户"></a>windows常用用户</h2><blockquote>
+<ul>
+<li>SYSTEM：本地机器上拥有最高权限的用户。</li>
+<li>Administrator：本地机器上拥有最高权限的用户。</li>
+<li>Guest：只拥有相对较少的权限，默认被禁用。</li>
+</ul>
+</blockquote>
+<h2 id="windows常见用户组"><a href="#windows常见用户组" class="headerlink" title="windows常见用户组"></a>windows常见用户组</h2><blockquote>
+<p>Administrators,管理员组，默认情况下，Administrators中的用户对计算机/域有不受限制的完全访问权。分配给该组的默认权限允许对整个系统进行完全控制。所以，只有受信任的人员才可成为该组的成员。</p>
+<p>Power Users，高级用户组，Power Users 可以执行除了为 Administrators 组保留的任务外的其他任何操作系统任务。分配给 Power Users 组的默认权限允许 Power Users 组的成员修改整个计算机的设置。但Power Users 不具有将自己添加到 Administrators 组的权限。在权限设置中，这个组的权限是仅次于Administrators的。</p>
+<p>Users:普通用户组，这个组的用户无法进行有意或无意的改动。因此，用户可以运行经过验证的应用程序，但不可以运行大多数旧版应用程序。Users 组是最安全的组，因为分配给该组的默认权限不允许成员修改操作系统的设置或用户资料。Users 组提供了一个最安全的程序运行环境。在经过 NTFS 格式化的卷上，默认安全设置旨在禁止该组的成员危及操作系统和已安装程序的完整性。用户不能修改系统注册表设置、操作系统文件或程序文件。Users 可以关闭工作站，但不能关闭服务器。Users 可以创建本地组，但只能修改自己创建的本地组。</p>
+<p>Guests:来宾组，按默认值，来宾跟普通Users的成员有同等访问权，但来宾帐户的限制更多。</p>
+<p>Everyone:顾名思义，所有的用户，这个计算机上的所有用户都属于这个组。</p>
+</blockquote>
+<h2 id="windows-文件夹权限"><a href="#windows-文件夹权限" class="headerlink" title="windows 文件夹权限"></a>windows 文件夹权限</h2><blockquote>
+<p>①完全控制（Full Control）： 该权限允许用户对文件夹、子文件夹、文件进行全权控制，如修改资源的权限、获取资源的所有者、删除资源的权限等，拥有完全控制权限就等于拥有了其他所有的权限；</p>
+<p>②修改（Modify）： 该权限允许用户修改或删除资源，同时让用户拥有写入及读取和运行权限；</p>
+<p>③读取和运行（Read &amp; Execute）： 该权限允许用户拥有读取和列出资源目录的权限，另外也允许用户在资源中进行移动和遍历，这使得用户能够直接访问子文件夹与文件，即使用户没有权限访问这个路径；</p>
+<p>④列出文件夹目录（List Folder Contents）： 该权限允许用户查看资源中的子文件夹与文件名称；</p>
+<p>⑤读取（Read）： 该权限允许用户查看该文件夹中的文件以及子文件夹，也允许查看该文件夹的属性、所有者和拥有的权限等；</p>
+<p>⑥写入（Write）： 该权限允许用户在该文件夹中创建新的文件和子文件夹，也可以改变文件夹的属性、查看文件夹的所有者和权限等。</p>
+</blockquote>
+<p><a href="https://paper.seebug.org/17/" target="_blank" rel="noopener">https://paper.seebug.org/17/</a></p>
+<h1 id="net-系列命令"><a href="#net-系列命令" class="headerlink" title="net 系列命令"></a>net 系列命令</h1><h2 id="net-use"><a href="#net-use" class="headerlink" title="net use"></a>net use</h2><blockquote>
+<p>Connects a computer to or disconnects a computer from a shared resource, or displays information about computer connections. The command also controls persistent net connections. Used without parameters, <strong>net use</strong> retrieves a list of network connections.</p>
+<p>将计算机连接到共享资源或将其与共享资源断开连接，或显示有关计算机连接的信息。 该命令还控制持久的网络连接。 如果不带参数使用，net use会检索网络连接列表。</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">net use [&#123;&lt;DeviceName&gt; | *&#125;] [\\&lt;ComputerName&gt;\&lt;ShareName&gt;[\&lt;volume&gt;]] [&#123;&lt;Password&gt; | *&#125;]] [/user:[&lt;DomainName&gt;\]&lt;UserName] &gt;[/user:[&lt;DottedDomainName&gt;\]&lt;UserName&gt;] [/user: [&lt;UserName@DottedDomainName&gt;] [/savecred] [/smartcard] [&#123;/<span class="keyword">delete</span> | /persistent:&#123;yes | no&#125;&#125;]</span><br><span class="line">net use [&lt;DeviceName&gt; [/<span class="built_in">home</span>[&#123;&lt;Password&gt; | *&#125;] [/<span class="keyword">delete</span>:&#123;yes | no&#125;]]</span><br><span class="line">net use [/persistent:&#123;yes | no&#125;]</span><br></pre></td></tr></table></figure>
+
+<p>eg:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">要将磁盘驱动器设备名称E：分配给\\Financial服务器上的Letters共享目录，请键入：</span><br><span class="line">net use e: \\financial\letters</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">要将磁盘驱动器设备名称M：分配（映射）到\\Financial服务器上的Letters卷中的目录User2，请键入：</span><br><span class="line">net use e: \\financial\letters</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">要连接用户标识符User1，就像从帐户域中建立连接一样，请键入</span><br><span class="line">net use d:\\server\share &#x2F;user:Accounts\User1</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">要从\\Financial\Public目录断开连接，请键入：</span><br><span class="line">net use f: \\financial\public &#x2F;delete</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">要连接到\\Financial 2服务器上共享的资源备忘录，请键入：</span><br><span class="line">net use k: &quot;\\financial 2&quot; \memos</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">要恢复每次登录时的当前连接，而不考虑将来的更改，请键入：</span><br><span class="line">net use &#x2F;persistent:yes</span><br></pre></td></tr></table></figure>
+
+<h2 id="net-view"><a href="#net-view" class="headerlink" title="net view"></a>net view</h2><blockquote>
+<p>Displays a list of domains, computers, or resources that are being shared by the specified computer. Used without parameters, <strong>net view</strong> displays a list of computers in your current domain.</p>
+<p>显示指定计算机正在共享的域、计算机或资源的列表。在没有参数的情况下使用，net view将显示当前域中的计算机列表。</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net view [\\ComputerName [/CACHE] | [/ALL] | /DOMAIN[:DomainName]]</span><br></pre></td></tr></table></figure>
+
+<p>eg:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Use the net view command to display a list of computers. The output is similar to the following:</span><br><span class="line"></span><br><span class="line">Server Name           Remark</span><br><span class="line">-------------------------------------------------</span><br><span class="line">\\Production          Production file server</span><br><span class="line">\\Print1              Printer room, first floor</span><br><span class="line">\\Print2              Printer room, second floor</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">To see a list of the resources shared by the \\Production computer, type:</span><br><span class="line">net view \\production</span><br><span class="line"></span><br><span class="line">To see a list of the computers in the sales domain or workgroup, type:</span><br><span class="line">net view &#x2F;domain:sales</span><br></pre></td></tr></table></figure>
+
+<h2 id="net-user"><a href="#net-user" class="headerlink" title="net user"></a>net user</h2><blockquote>
+<p>Adds or modifies user accounts, or displays user account information.</p>
+<p><strong>Net user</strong> is a command-line tool that is built into Windows Vista. To run <strong>net user</strong>, open a command prompt, type <strong>net user</strong> with the appropriate parameters, and then press ENTER.</p>
+<p>添加或修改用户帐户，或显示用户帐户信息。</p>
+<p><strong>Net user</strong>是Windows Vista中内置的命令行工具。 若要运行net user，请打开命令提示符，键入具有适当参数的net user，然后按Enter。</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">net user [&lt;UserName&gt; &#123;&lt;Password&gt; | *&#125; [&lt;Options&gt;]] [/domain]</span><br><span class="line">net user [&lt;UserName&gt; &#123;&lt;Password&gt; | *&#125; /add [&lt;Options&gt;] [/domain]]</span><br><span class="line">net user [&lt;UserName&gt; [/<span class="keyword">delete</span>] [/domain]]</span><br></pre></td></tr></table></figure>
+
+<p>eg:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">下面的示例显示本地计算机的所有用户帐户的列表：</span><br><span class="line">net user</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">以下示例显示有关用户帐户tommyh的信息：</span><br><span class="line">net user tommyh</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">以下示例为全名是Jay Jamison，用户帐户名是jayj的用户添加了一个用户帐户，其登录权限为上午8点。周一至周五下午5点（时间指定中没有空格），强制性密码（Cyk4^g3B）和用户的全名：</span><br><span class="line">net user jayj Cyk4^g3B &#x2F;add &#x2F;passwordreq:yes &#x2F;times:monday-friday,8am-5pm &#x2F;fullname:&quot;Jay Jamison&quot;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">下面的示例使用24小时表示法设置用于登录的登录时间（上午8点到下午5点）：</span><br><span class="line">net user miked &#x2F;time:M-F,8AM-5PM</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">下面的示例指定了登录时间:周一从上午4点到下午5点，周二从下午1点到下午3点，周三到周五从上午8点到下午5点</span><br><span class="line">net user anibals &#x2F;time:M,4AM-5PM;T,1PM-3PM;W-F,8:00-17:00</span><br></pre></td></tr></table></figure>
+
+<h2 id="net-share"><a href="#net-share" class="headerlink" title="net share"></a>net share</h2><blockquote>
+<p>Manages shared resources. Used without parameters, <strong>net share</strong> displays information about all of the resources that are shared on the local computer. For each resource, the device name(s) or pathname(s) and a descriptive comment are displayed.</p>
+<p>管理共享资源。 使用不带参数的net share可以显示有关在本地计算机上共享的所有资源的信息。 对于每个资源，将显示设备名称或路径名称以及描述性注释。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">net share &lt;ShareName&gt;</span><br><span class="line">net share &lt;ShareName&gt;&#x3D;&lt;drive&gt;:&lt;DirectoryPath&gt; [&#x2F;grant:&lt;user&gt;,&#123;read | change |full&#125;] [&#x2F;users:&lt;number&gt; | &#x2F;unlimited] [&#x2F;remark:&lt;text&gt;] [&#x2F;cache:&#123;manual | documents | programs | BranchCache |none&#125; ]</span><br><span class="line">net share [&#x2F;users:&lt;number&gt; | &#x2F;unlimited] [&#x2F;remark:&lt;text&gt;] [&#x2F;cache:&#123;manual | documents | programs | BranchCache |none&#125; ]</span><br><span class="line">net share &#123;&lt;ShareName&gt; | &lt;DeviceName&gt; | &lt;drive&gt;:&lt;DirectoryPath&gt;&#125; &#x2F;delete</span><br><span class="line">net share &lt;ShareName&gt; \\&lt;ComputerName&gt; &#x2F;delete</span><br></pre></td></tr></table></figure>
+
+<h2 id="net-localgroup"><a href="#net-localgroup" class="headerlink" title="net localgroup"></a>net localgroup</h2><blockquote>
+<p>Adds, displays, or modifies local groups. Used without parameters, <strong>net localgroup</strong> displays the name of the server and the names of local groups on the computer.</p>
+<p>添加，显示或修改本地组。 使用不带参数的net localgroup可以显示服务器的名称和计算机上的本地组的名称。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">net localgroup [&lt;GroupName&gt; [&#x2F;comment:&quot;&lt;Text&gt;&quot;]] [&#x2F;domain]</span><br><span class="line">net localgroup [&lt;GroupName&gt; &#123;&#x2F;add [&#x2F;comment:&quot;&lt;Text&gt;&quot;] | &#x2F;delete&#125; [&#x2F;domain]</span><br><span class="line">net localgroup [&lt;GroupName&gt; &lt;Name&gt; […] &#123;&#x2F;add |  &#x2F;delete&#125; [&#x2F;domain]</span><br></pre></td></tr></table></figure>
+
+<p>res</p>
+<p><a href="https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012</a></p>
+<blockquote>
+<p>以下参考</p>
+<p><a href="https://xz.aliyun.com/t/7663" target="_blank" rel="noopener">https://xz.aliyun.com/t/7663</a></p>
+<p><a href="https://wh0ale.github.io/2018/12/19/2018-12-19-域渗透/" target="_blank" rel="noopener">https://wh0ale.github.io/2018/12/19/2018-12-19-%E5%9F%9F%E6%B8%97%E9%80%8F/</a></p>
+<p><a href="https://www.cnblogs.com/leixiao-/p/10578809.html环境搭建介绍的较全面" target="_blank" rel="noopener">https://www.cnblogs.com/leixiao-/p/10578809.html环境搭建介绍的较全面</a></p>
+</blockquote>
+<h1 id="内网渗透信息收集"><a href="#内网渗透信息收集" class="headerlink" title="内网渗透信息收集"></a>内网渗透信息收集</h1><blockquote>
+<h1 id="内网和域"><a href="#内网和域" class="headerlink" title="内网和域"></a>内网和域</h1><h2 id="内网"><a href="#内网" class="headerlink" title="内网"></a>内网</h2><p>局域网（Local Area Network，LAN）是指在某一区域内由多台计算机互联成的计算机组。一般是方圆几千米以内。局域网可以实现文件管理、应用软件共享、打印机共享、工作组内的日程安排、电子邮件和传真通信服务等功能。局域网是封闭型的，可以由办公室内的两台计算机组成，也可以由一个公司内的上千台计算机组成。</p>
+<h2 id="域"><a href="#域" class="headerlink" title="域"></a>域</h2><p>域（Domain）是相对工作组（Workgroup）的概念，形象的说，域就像中央集权，由一台或数台域控制器（Domain Controller）管理域内的其他计算机；工作组就像各自为政，组内每一台计算机自己管理自己，他人无法干涉。</p>
+<p>域是一个计算机群体的组合，是一个相对严格的组织，而域控制器则是这个域内的管理核心。</p>
+<p>域控制器可以对域内计算机进行集中管理，比如在域控制器上可以定义所有用户不能更改桌面，或者所有用户的密码长度必须8位以上，而工作组环境的计算机则无法做到这些。</p>
+<p>一般情况下，域控制器集成了DNS服务，可以解析域内的计算机名称（基于TCP/IP），解决了工作组环境不同网段计算机不能使用计算机名互访的问题。</p>
+<ul>
+<li>域(Domain)是Windows网络中独立运行的单位，域之间相互访问则需要建立信任关系(即Trust Relation)。信任关系是连接在域与域之间的桥梁。当一个域与其他域建立了信任关系后， 2个域之间不但可以按需要相互进行管理，还可以跨网分配文件和打印机等设备资源，使不同的域之间实现网络资源的共享与管理。 　　 – 域既是 Windows 网络操作系统的逻辑组织单元，也是Internet的逻辑组织单元，在 Windows 网络操作系统中，域是安全边界。域管理员只能管理域的内部，除非其他的域显式地赋予他管理权限，他才能够访问或者管理其他的域;每个域都有自己的安全策略，以及它与其他域的安全信任关系。 – 域：域是一种管理边界，用于一组计算机共享共用的安全数据库，域实际上就是一组服务器和工作站的集合。</li>
+</ul>
+<blockquote>
+<p>域和域之间可以通过VPN等设备进行连接，并建立从属和平行的域关系</p>
+</blockquote>
+<h2 id="域、工作组、家庭组"><a href="#域、工作组、家庭组" class="headerlink" title="域、工作组、家庭组"></a>域、工作组、家庭组</h2><p><strong>工作组:</strong></p>
+<ul>
+<li>所有的计算机都是对等的，没有计算机可以控制另一台计算机。每台计算机都具有一组用户帐户。若要登录到工作组中的任何计算机，您必须具有该计算机上的帐户。</li>
+<li>通常情况下，计算机的数量不超过二十台。</li>
+<li>工作组不受密码保护。</li>
+<li>所有的计算机必须在同一本地网络或子网中。</li>
+</ul>
+<p><strong>家庭组：</strong></p>
+<ul>
+<li>家庭网络中的计算机必须属于某个工作组，但它们也可以属于某个家庭组。使用家庭组，可轻松与家庭网络中的其他人共享图片、音乐、视频、文档和打印机。</li>
+<li>家庭组受密码保护，但在将计算机添加到家庭组时，只需要键入一次密码即可。</li>
+</ul>
+<p><strong>域：</strong></p>
+<ul>
+<li>有一台或多台计算机为服务器。网络管理员使用服务器控制域中所有计算机的安全和权限。这使得更容易进行更改，因为更改会自动应用到所有的计算机。域用户在每次访问域时必须提供密码或其他凭据。</li>
+<li>如果具有域上的用户帐户，您就可以登录到域中的任何计算机，而无需具有该计算机上的帐户。 由于网络管理员经常要确保计算机之间的一致性，所以，您也许只能对计算机的设置进行有限制地更改。</li>
+<li>一个域中可以有几千台计算机。</li>
+<li>计算机可以位于不同的本地网络中。</li>
+</ul>
+</blockquote>
+<h2 id="系统环境变量"><a href="#系统环境变量" class="headerlink" title="系统环境变量"></a>系统环境变量</h2><ul>
+<li>set</li>
+</ul>
+<p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505134836878.png" alt="image-20200505134836878"></p>
+<h2 id="本机网络配置"><a href="#本机网络配置" class="headerlink" title="本机网络配置"></a>本机网络配置</h2><ul>
+<li>ipconfig /all</li>
+</ul>
+<p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505084641489.png" alt="image-20200505084641489"></p>
+<h2 id="操作系统版本信息、补丁信息等"><a href="#操作系统版本信息、补丁信息等" class="headerlink" title="操作系统版本信息、补丁信息等"></a>操作系统版本信息、补丁信息等</h2><ul>
+<li>systeminfo</li>
+</ul>
+<p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505084846446.png" alt="image-20200505084846446"></p>
+<h2 id="查询系统体系架构"><a href="#查询系统体系架构" class="headerlink" title="查询系统体系架构"></a>查询系统体系架构</h2><ul>
+<li>echo %PROCESSOR_ARCHITECTURE%</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505085233818.png" alt="image-20200505085233818" style="zoom:200%;">
+
+<h2 id="查询已安装的软件及版本信息"><a href="#查询已安装的软件及版本信息" class="headerlink" title="查询已安装的软件及版本信息"></a>查询已安装的软件及版本信息</h2><ul>
+<li>wmic product get name,version</li>
+</ul>
+<p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505085612101.png" alt="image-20200505085612101"></p>
+<p>注：有的系统不可用，我在win10上用wmic /?，以弃用，别人说在win2012R2,win7可以用</p>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505090205953.png" alt="image-20200505090205953" style="zoom:150%;">
+
+<h3 id="powershell替代命令"><a href="#powershell替代命令" class="headerlink" title="powershell替代命令"></a>powershell替代命令</h3><ul>
+<li>Get-WmiObject -class win32_product | Select-Object  -property name ,version</li>
+</ul>
+<p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505090514148.png" alt="image-20200505090514148"></p>
+<h2 id="查询本机服务"><a href="#查询本机服务" class="headerlink" title="查询本机服务"></a>查询本机服务</h2><ul>
+<li>wmic service list brief</li>
+</ul>
+<p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505091145138.png" alt="image-20200505091145138"></p>
+<h2 id="查询进程"><a href="#查询进程" class="headerlink" title="查询进程"></a>查询进程</h2><ul>
+<li>talklist</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505091242672.png" alt="image-20200505091242672" style="zoom:200%;">
+
+<ul>
+<li>wmic process list brief</li>
+</ul>
+<p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505091342931.png" alt="image-20200505091342931"></p>
+<ul>
+<li>qprocess *</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505140059112.png" alt="image-20200505140059112" style="zoom:200%;">
+
+<blockquote>
+<ul>
+<li>常见的杀软进程：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>进程名</th>
+<th>软件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>360sd.exe</td>
+<td>360杀毒</td>
+</tr>
+<tr>
+<td>360tray.exe</td>
+<td>360实时保护</td>
+</tr>
+<tr>
+<td>ZhuDongFangYu.exe</td>
+<td>360主动防御</td>
+</tr>
+<tr>
+<td>KSafeTray.exe</td>
+<td>金山卫士</td>
+</tr>
+<tr>
+<td>SafeDogUpdateCenter.exe</td>
+<td>安全狗</td>
+</tr>
+<tr>
+<td>McAfee McShield.exe</td>
+<td>McAfee</td>
+</tr>
+<tr>
+<td>egui.exe</td>
+<td>NOD32</td>
+</tr>
+<tr>
+<td>AVP.exe</td>
+<td>卡巴斯基</td>
+</tr>
+<tr>
+<td>avguard.exe</td>
+<td>小红伞</td>
+</tr>
+<tr>
+<td>bdagent.exe</td>
+<td>BitDefender</td>
+</tr>
+</tbody></table>
+</blockquote>
+<p>获取软件安装路径</p>
+<ul>
+<li>wmic process where(description=”mysqld.exe”)&gt;&gt;mysql.log</li>
+</ul>
+<h2 id="查看已启动的程序信息"><a href="#查看已启动的程序信息" class="headerlink" title="查看已启动的程序信息"></a>查看已启动的程序信息</h2><ul>
+<li>wmic startup get command.caption</li>
+</ul>
+<p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505091604430.png" alt="image-20200505091604430"></p>
+<h2 id="查看计划任务"><a href="#查看计划任务" class="headerlink" title="查看计划任务"></a>查看计划任务</h2><ul>
+<li>schtasks /query /fo LIST /v</li>
+</ul>
+<p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505091811443.png" alt="image-20200505091811443"></p>
+<p>注：有的版本可能看不了，</p>
+<blockquote>
+<p>此处在我的靶机Server2008R2中出现了错误：无法加载列资源，这里把编码暂时设置为英文：<code>chcp 437</code>，之后再改回来：<code>chcp 936</code>即可</p>
+</blockquote>
+<h2 id="查看主机开机时间"><a href="#查看主机开机时间" class="headerlink" title="查看主机开机时间"></a>查看主机开机时间</h2><ul>
+<li>net statistics workstation</li>
+</ul>
+<p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505092016966.png" alt="image-20200505092016966"></p>
+<h2 id="查看登录到这台服务器的计算机"><a href="#查看登录到这台服务器的计算机" class="headerlink" title="查看登录到这台服务器的计算机"></a>查看登录到这台服务器的计算机</h2><ul>
+<li>echo %logonserver%</li>
+</ul>
+<h2 id="查看用户列表"><a href="#查看用户列表" class="headerlink" title="查看用户列表"></a>查看用户列表</h2><p>与 net user /domain 不同</p>
+<ul>
+<li>net user</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505092113646.png" alt="image-20200505092113646" style="zoom:150%;">
+
+<h2 id="查看本地管理员信息"><a href="#查看本地管理员信息" class="headerlink" title="查看本地管理员信息"></a>查看本地管理员信息</h2><ul>
+<li>net localgroup administrators</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505092259302.png" alt="image-20200505092259302" style="zoom:150%;">
+
+<p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505092350422.png" alt="image-20200505092350422"></p>
+<h2 id="查看当前在线的用户"><a href="#查看当前在线的用户" class="headerlink" title="查看当前在线的用户"></a>查看当前在线的用户</h2><ul>
+<li>query user || qwinsta</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505092520293.png" alt="image-20200505092520293" style="zoom:150%;">
+
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505092531518.png" alt="image-20200505092531518" style="zoom:150%;">
+
+<h2 id="查看本地计算机与所连接客户端之间的会话"><a href="#查看本地计算机与所连接客户端之间的会话" class="headerlink" title="查看本地计算机与所连接客户端之间的会话"></a>查看本地计算机与所连接客户端之间的会话</h2><ul>
+<li>net session</li>
+</ul>
+<blockquote>
+<p>对于该指令，一开始我的机器上报错：”发生系统错误5。拒绝访问”，找了一下解决办法，只要以管理员身份运行即可，此处靶机没有回话，所以显示为空<br><a href="https://xzfile.aliyuncs.com/media/upload/picture/20200423113727-c09d0fcc-8513-1.png" target="_blank" rel="noopener"><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/20200423113727-c09d0fcc-8513-1.png" alt="img"></a></p>
+</blockquote>
+<h2 id="查看端口"><a href="#查看端口" class="headerlink" title="查看端口"></a>查看端口</h2><ul>
+<li>netstat -ano</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505093135040.png" alt="image-20200505093135040" style="zoom:150%;">
+
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505092829887.png" alt="image-20200505092829887" style="zoom:150%;">
+
+<h2 id="查看补丁信息"><a href="#查看补丁信息" class="headerlink" title="查看补丁信息"></a>查看补丁信息</h2><ul>
+<li>systeminfo可以</li>
+<li>wmic qfe get caption,description,hotfixid,installedon</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505093006349.png" alt="image-20200505093006349" style="zoom:150%;">
+
+<h2 id="查看本机共享列表"><a href="#查看本机共享列表" class="headerlink" title="查看本机共享列表"></a>查看本机共享列表</h2><ul>
+<li>net share</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505093339613.png" alt="image-20200505093339613" style="zoom:150%;">
+
+<ul>
+<li>wmic share get name,path.status</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505093452485.png" alt="image-20200505093452485" style="zoom: 200%;">
+
+<h2 id="查询路由表及所有可用的ARP缓存表"><a href="#查询路由表及所有可用的ARP缓存表" class="headerlink" title="查询路由表及所有可用的ARP缓存表"></a>查询路由表及所有可用的ARP缓存表</h2><ul>
+<li>route print</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505093557840.png" alt="image-20200505093557840" style="zoom:150%;">
+
+<ul>
+<li>arp -a</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505093713636.png" alt="image-20200505093713636" style="zoom:200%;">
+
+<h2 id="查看防火墙配置"><a href="#查看防火墙配置" class="headerlink" title="查看防火墙配置"></a>查看防火墙配置</h2><ul>
+<li>netsh firewall show config</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505093915889.png" alt="image-20200505093915889" style="zoom:150%;">
+
+<h2 id="关闭防火墙"><a href="#关闭防火墙" class="headerlink" title="关闭防火墙"></a>关闭防火墙</h2><ul>
+<li>win2003前：netsh firewall set opmode disable</li>
+<li>win2003后：netsh advfirewall set allprofiles state off</li>
+</ul>
+<blockquote>
+<p>一般来说不要操作防火墙的开关，风险极大，只需要查看配置即可</p>
+</blockquote>
+<h2 id="查看代理"><a href="#查看代理" class="headerlink" title="查看代理"></a>查看代理</h2><ul>
+<li>reg query “HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings”</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505094325659.png" alt="image-20200505094325659" style="zoom:150%;">
+
+<h2 id="查询远程连接服务"><a href="#查询远程连接服务" class="headerlink" title="查询远程连接服务"></a>查询远程连接服务</h2><ul>
+<li>reg query “HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlset\Control\Terminal Server\WinStations\RDP-Tcp” /v PortNumber</li>
+</ul>
+<p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505094659459.png" alt="image-20200505094659459"></p>
+<p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505094735891.png" alt="image-20200505094735891"></p>
+<blockquote>
+<p>连接端口为16进制数0xd3d，转换为10进制就是3389</p>
+</blockquote>
+<blockquote>
+<h3 id="使用empire收集信息"><a href="#使用empire收集信息" class="headerlink" title="使用empire收集信息"></a>使用empire收集信息</h3><p>在攻击机上安装empire后，使用<code>usemodule powershell/situational_awareness/host/winenum</code>即可收集相关信息，注意使用该模块需要拿到管理员权限</p>
+</blockquote>
+<h2 id="权限"><a href="#权限" class="headerlink" title="权限"></a>权限</h2><h3 id="查看当前权限"><a href="#查看当前权限" class="headerlink" title="查看当前权限"></a>查看当前权限</h3><ul>
+<li>whoami</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505095057090.png" alt="image-20200505095057090" style="zoom: 200%;">
+
+<h3 id="获取域id"><a href="#获取域id" class="headerlink" title="获取域id"></a>获取域id</h3><ul>
+<li>whoami /all</li>
+</ul>
+<p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505095151881.png" alt="image-20200505095151881"></p>
+<h2 id="获取指定用户的详细信息"><a href="#获取指定用户的详细信息" class="headerlink" title="获取指定用户的详细信息"></a>获取指定用户的详细信息</h2><ul>
+<li>net user xxx /domain</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505095317773.png" alt="image-20200505095317773" style="zoom: 150%;">
+
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505095421848.png" alt="image-20200505095421848" style="zoom:150%;">
+
+<h2 id="判断是否存在域"><a href="#判断是否存在域" class="headerlink" title="判断是否存在域"></a>判断是否存在域</h2><ul>
+<li>ipconfig /all</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505095542250.png" alt="image-20200505095542250" style="zoom:150%;">
+
+<ul>
+<li>用nslookup解析域名的ip,来判断dns服务器与域控是否在同一主机上</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505095809931.png" alt="image-20200505095809931" style="zoom:150%;">
+
+<h2 id="查询当前登录域与用户信息"><a href="#查询当前登录域与用户信息" class="headerlink" title="查询当前登录域与用户信息"></a>查询当前登录域与用户信息</h2><ul>
+<li>net config workstation</li>
+</ul>
+<p>de1ta靶机未成功，<a href="https://xz.aliyun.com/t/7663" target="_blank" rel="noopener">用的先知的图</a></p>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/20200423114108-44acd9b4-8514-1.png" alt="img" style="zoom:150%;">
+
+<h2 id="判断主域"><a href="#判断主域" class="headerlink" title="判断主域"></a>判断主域</h2><ul>
+<li>net time /domain</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505100133137.png" alt="image-20200505100133137" style="zoom:200%;">
+
+<blockquote>
+<p>若是此命令在显示域处显示WORKGROUP，则不存在域，若是报错：发生系统错误5，则存在域，但该用户不是域用户</p>
+</blockquote>
+<h2 id="探测域内存活主机"><a href="#探测域内存活主机" class="headerlink" title="探测域内存活主机"></a>探测域内存活主机</h2><p>icmp</p>
+<ul>
+<li>for /L %I in (1,1,20) DO @ping -w 1 -n 1 192.168.0.%I | findstr “TTL=”</li>
+<li>for /l %i in (1,1,255) do @ ping 192.168.0.%i -w 1 -n 1 | find /i “ttl=”</li>
+</ul>
+<p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505100619516.png" alt="image-20200505100619516"></p>
+<blockquote>
+<p>利用empire中的arpscan模块：<code>usemodule situational_awareness/network/arpscan</code>，设置Range(范围)后即可扫描</p>
+</blockquote>
+<h2 id="扫描端口"><a href="#扫描端口" class="headerlink" title="扫描端口"></a>扫描端口</h2><blockquote>
+<ul>
+<li>使用telnet进行扫描：<code>telnet 主机名 22</code></li>
+<li>使用metasploit进行扫描：<code>需要用到的是auxiliar/scanner/portscan/ack、ftpbounce、syn、tcp、xmas</code>等模块</li>
+<li>PowerSploit中的Invoke-Portscan.ps1脚本，位于Recon目录下</li>
+<li>使用Nishang的PortScan模块，位于scan目录下，上传到主机上执行</li>
+</ul>
+</blockquote>
+<h2 id="获取banner"><a href="#获取banner" class="headerlink" title="获取banner"></a>获取banner</h2><blockquote>
+<p>扫描到端口后就要获取到其Banner信息，接着就可以在漏洞库里查找poc，这个可以找一下常见的端口的服务来得知</p>
+<table>
+<thead>
+<tr>
+<th>端口号</th>
+<th>端口说明</th>
+<th>攻击技巧</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>21/22/69</td>
+<td>ftp/tftp：文件传输协议</td>
+<td>允许匿名上传、下载、爆破、嗅探、溢出和后门</td>
+</tr>
+<tr>
+<td>22</td>
+<td>ssh：远程连接</td>
+<td>爆破OpenSSH；28个退格</td>
+</tr>
+<tr>
+<td>23</td>
+<td>telnet：远程连接</td>
+<td>爆破\嗅探、弱口令</td>
+</tr>
+<tr>
+<td>25</td>
+<td>smtp：邮件服务</td>
+<td>邮件伪造</td>
+</tr>
+<tr>
+<td>53</td>
+<td>DNS：域名系统</td>
+<td>DNS区域传输\DNS劫持\DNS缓存投毒\DNS欺骗\利用DNS隧道技术刺透防火墙</td>
+</tr>
+<tr>
+<td>67/68</td>
+<td>dhcp</td>
+<td>劫持\欺骗</td>
+</tr>
+<tr>
+<td>80/443/8080</td>
+<td>常见web服务端口</td>
+<td>web攻击、爆破、对应服务器版本漏洞</td>
+</tr>
+<tr>
+<td>110</td>
+<td>pop3</td>
+<td>爆破、嗅探</td>
+</tr>
+<tr>
+<td>139</td>
+<td>samba</td>
+<td>爆破\未授权访问\远程代码执行</td>
+</tr>
+<tr>
+<td>143</td>
+<td>imap</td>
+<td>爆破</td>
+</tr>
+<tr>
+<td>161</td>
+<td>snmp</td>
+<td>爆破</td>
+</tr>
+<tr>
+<td>389</td>
+<td>ldap目录访问协议</td>
+<td>注入攻击\未授权访问，弱口令</td>
+</tr>
+<tr>
+<td>512/513/514</td>
+<td>linux rexec</td>
+<td>直接使用rlogin\爆破</td>
+</tr>
+<tr>
+<td>873</td>
+<td>rsync</td>
+<td>未授权访问\文件上传</td>
+</tr>
+<tr>
+<td>1080</td>
+<td>socket</td>
+<td>爆破：进行内网渗透</td>
+</tr>
+<tr>
+<td>1352</td>
+<td>lotus Domino邮件服务</td>
+<td>爆破：弱口令\信息泄漏：源代码</td>
+</tr>
+<tr>
+<td>1433</td>
+<td>mssql</td>
+<td>爆破：使用系统用户登录\注入攻击\SA弱口令</td>
+</tr>
+<tr>
+<td>1521</td>
+<td>oracle</td>
+<td>爆破：TNS\注入攻击\反弹shell</td>
+</tr>
+<tr>
+<td>2049</td>
+<td>nfs</td>
+<td>配置不当</td>
+</tr>
+<tr>
+<td>2181</td>
+<td>zookeeper</td>
+<td>未授权访问</td>
+</tr>
+<tr>
+<td>3306</td>
+<td>mysql</td>
+<td>爆破\拒绝服务\注入\提权</td>
+</tr>
+<tr>
+<td>3389</td>
+<td>rdp</td>
+<td>爆破\Shift后门</td>
+</tr>
+<tr>
+<td>3690</td>
+<td>SVN服务</td>
+<td>SVN泄露\未授权访问</td>
+</tr>
+<tr>
+<td>4848</td>
+<td>glassfish</td>
+<td>爆破：控制台弱口令\认证绕过</td>
+</tr>
+<tr>
+<td>5000</td>
+<td>sybase/DB2</td>
+<td>爆破\注入</td>
+</tr>
+<tr>
+<td>5432</td>
+<td>postgresql</td>
+<td>缓冲区溢出\注入攻击\爆破：弱口令</td>
+</tr>
+<tr>
+<td>5632</td>
+<td>pcanywhere</td>
+<td>拒绝服务\代码执行，抓取密码</td>
+</tr>
+<tr>
+<td>5900</td>
+<td>vnc</td>
+<td>爆破：弱口令\认证绕过</td>
+</tr>
+<tr>
+<td>6379</td>
+<td>redis</td>
+<td>未授权访问\爆破：弱口令</td>
+</tr>
+<tr>
+<td>7001/7002</td>
+<td>weblogic</td>
+<td>Java反序列化\控制台弱口令\控制台部署webshell</td>
+</tr>
+<tr>
+<td>8069</td>
+<td>zabbix</td>
+<td>远程命令执行\SQL注入</td>
+</tr>
+<tr>
+<td>8080/8089</td>
+<td>JBoss/Resin/Jetty/Jenkins</td>
+<td>反序列化、控制台弱口令</td>
+</tr>
+<tr>
+<td>9090</td>
+<td>websphere控制台</td>
+<td>爆破：控制台弱口令\Java反序列</td>
+</tr>
+<tr>
+<td>9200/9300</td>
+<td>elasticsearch</td>
+<td>远程代码执行</td>
+</tr>
+<tr>
+<td>10000</td>
+<td>webmin控制面板</td>
+<td>弱口令</td>
+</tr>
+<tr>
+<td>11211</td>
+<td>memcacache</td>
+<td>未授权访问</td>
+</tr>
+<tr>
+<td>27017/27018</td>
+<td>mongodb</td>
+<td>爆破\未授权访问</td>
+</tr>
+<tr>
+<td>50000</td>
+<td>SAP Management Console</td>
+<td>远程执行</td>
+</tr>
+</tbody></table>
+</blockquote>
+<h2 id="获取域内的基础信息"><a href="#获取域内的基础信息" class="headerlink" title="获取域内的基础信息"></a>获取域内的基础信息</h2><h3 id="查询域"><a href="#查询域" class="headerlink" title="查询域"></a>查询域</h3><ul>
+<li>net view /domain  用来查询当前环境存在几个域</li>
+</ul>
+<p>de1ta靶机报错，<a href="https://xz.aliyun.com/t/7663" target="_blank" rel="noopener">参考先知图片</a></p>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/20200423114253-83737004-8514-1.png" alt="img" style="zoom: 200%;">
+
+<h3 id="查询域内所有计算机"><a href="#查询域内所有计算机" class="headerlink" title="查询域内所有计算机"></a>查询域内所有计算机</h3><ul>
+<li>net view /domain:域名</li>
+</ul>
+<p>de1ta靶机报错，<a href="https://xz.aliyun.com/t/7663" target="_blank" rel="noopener">参考先知图片</a></p>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/20200423114325-95fac128-8514-1.png" alt="img" style="zoom:200%;">
+
+<h3 id="查询域内所有用户组"><a href="#查询域内所有用户组" class="headerlink" title="查询域内所有用户组"></a>查询域内所有用户组</h3><ul>
+<li>net group /domain</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505101849441.png" alt="image-20200505101849441" style="zoom:150%;">
+
+<h3 id="查询所有域成员计算机列表"><a href="#查询所有域成员计算机列表" class="headerlink" title="查询所有域成员计算机列表"></a>查询所有域成员计算机列表</h3><ul>
+<li>net  group “domain computers” /domain</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505141419870.png" alt="image-20200505141419870" style="zoom:150%;">
+
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/20200423114350-a50c7288-8514-1.png" alt="img" style="zoom:200%;">
+
+<h3 id="获取域密码信息"><a href="#获取域密码信息" class="headerlink" title="获取域密码信息"></a>获取域密码信息</h3><ul>
+<li>net accounts /domain</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505103458760.png" alt="image-20200505103458760" style="zoom:150%;">
+
+<h3 id="获取域信任信息"><a href="#获取域信任信息" class="headerlink" title="获取域信任信息"></a>获取域信任信息</h3><ul>
+<li>nltest /domain_trusts</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505103739277.png" alt="image-20200505103739277" style="zoom:200%;">
+
+<h2 id="寻找域控"><a href="#寻找域控" class="headerlink" title="寻找域控"></a>寻找域控</h2><h3 id="查看域控机器名"><a href="#查看域控机器名" class="headerlink" title="查看域控机器名"></a>查看域控机器名</h3><ul>
+<li>nltest /DCLIST:域名  </li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505103955222.png" alt="image-20200505103955222" style="zoom:200%;">
+
+<h3 id="查看域控主机名"><a href="#查看域控主机名" class="headerlink" title="查看域控主机名"></a>查看域控主机名</h3><ul>
+<li>nslookup -type=SRV _ladp._tcp</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505104206938.png" alt="image-20200505104206938" style="zoom:150%;">
+
+<h3 id="查看域控制器组"><a href="#查看域控制器组" class="headerlink" title="查看域控制器组"></a>查看域控制器组</h3><ul>
+<li>net  group “Domain Controllers”  /domain</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505104348725.png" alt="image-20200505104348725" style="zoom:150%;">
+
+<ul>
+<li>netdom query pdc</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505104452989.png" alt="image-20200505104452989" style="zoom:200%;">
+
+<h2 id="获取域内用户和管理员信息"><a href="#获取域内用户和管理员信息" class="headerlink" title="获取域内用户和管理员信息"></a>获取域内用户和管理员信息</h2><h3 id="查询所有域用户列表"><a href="#查询所有域用户列表" class="headerlink" title="查询所有域用户列表"></a>查询所有域用户列表</h3><ul>
+<li>net user /domain</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505104604612.png" alt="image-20200505104604612" style="zoom:150%;">
+
+<h3 id="获取域内用户的详细信息"><a href="#获取域内用户的详细信息" class="headerlink" title="获取域内用户的详细信息"></a>获取域内用户的详细信息</h3><ul>
+<li>wmic useraccount get /all</li>
+</ul>
+<p>可以查询到sid</p>
+<p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200507155219302.png" alt="image-20200507155219302"></p>
+<h3 id="查询存在的用户"><a href="#查询存在的用户" class="headerlink" title="查询存在的用户"></a>查询存在的用户</h3><ul>
+<li>dsquery user</li>
+</ul>
+<p>de1ta靶机报错，<a href="https://xz.aliyun.com/t/7663" target="_blank" rel="noopener">参考先知图片</a></p>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/20200423114528-df6fb5a2-8514-1.png" alt="img" style="zoom:200%;">
+
+<p>本地dsquery命令不存在</p>
+<h2 id="查询本地管理员组用户"><a href="#查询本地管理员组用户" class="headerlink" title="查询本地管理员组用户"></a>查询本地管理员组用户</h2><ul>
+<li>net localgroup administrators</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505105728041.png" alt="image-20200505105728041" style="zoom:200%;">
+
+<h2 id="查询域管理员用户组"><a href="#查询域管理员用户组" class="headerlink" title="查询域管理员用户组"></a><strong>查询域管理员用户组</strong></h2><ul>
+<li>net group “domain admins”  /domain</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505105826739.png" alt="image-20200505105826739" style="zoom:200%;">
+
+<h2 id="查询管理员用户组"><a href="#查询管理员用户组" class="headerlink" title="查询管理员用户组"></a>查询管理员用户组</h2><ul>
+<li>net  group  “Enterprise Admins” /domain</li>
+</ul>
+<img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505110038499.png" alt="image-20200505110038499" style="zoom:200%;">
+
+<h2 id="定位域管理员"><a href="#定位域管理员" class="headerlink" title="定位域管理员"></a>定位域管理员</h2><blockquote>
+<p>常规渠道有二个，日志与会话，日志是本地机器的管理员日志，可以用脚本或者内置应用wevtutil导出来看<br>### 工具<br><a href="https://docs.microsoft.com/en-us/sysinternals/downloads/psloggedon" target="_blank" rel="noopener">psloggedon.exe</a>，<a href="https://github.com/mubix/netview" target="_blank" rel="noopener">netview.exe</a>，<a href="https://github.com/chrisdee/Tools/tree/master/AD/ADFindUsersLoggedOn" target="_blank" rel="noopener">PVEFindADUser.exe</a>，powersploit的PowerView脚本，Empire的user_hunter模块等</p>
+</blockquote>
+<h2 id="查找域管理进程"><a href="#查找域管理进程" class="headerlink" title="查找域管理进程"></a>查找域管理进程</h2><h3 id="列出本机的所有进程及进程用户"><a href="#列出本机的所有进程及进程用户" class="headerlink" title="列出本机的所有进程及进程用户"></a>列出本机的所有进程及进程用户</h3><ul>
+<li>tasklist /v</li>
+</ul>
+<p><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20200505110813873.png" alt="image-20200505110813873"></p>
+<blockquote>
+<p>在以上进程中尽量查找域管理员进程或是与其相关的进程</p>
+</blockquote>
+<h2 id="查找域控的域用户会话"><a href="#查找域控的域用户会话" class="headerlink" title="查找域控的域用户会话"></a>查找域控的域用户会话</h2><blockquote>
+<p>收集所有活动域的会话列表：<code>NetSess -h</code>，使用的是<a href="http://www.joeware.net/freetools/tools/netsess/index.htm" target="_blank" rel="noopener">NetSess.exe</a><br><a href="https://xzfile.aliyuncs.com/media/upload/picture/20200423114153-5f44aee6-8514-1.png" target="_blank" rel="noopener"><img src="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/20200423114153-5f44aee6-8514-1.png" alt="img"></a><br>目前还没有任何会话，所以显示无</p>
+</blockquote>
+<blockquote>
+<ul>
+<li>## 利用powershell收集域信息</li>
+</ul>
+<p>首先要将powershell的权限限制更改为<strong>RemoteSigned</strong>，这样就可以执行本地上的脚本</p>
+<p>输入：<code>Get-ExecutionPolicy</code>，发现自己并不是RemoteSigned权限，输入：<code>Set-ExecutionPolicy RemoteSigned</code>，按Y确定即可，在本地虚拟机测试时还可以将脚本权限改为<strong>Unrestricter</strong>，这样可以执行来自网络与本地的任何脚本</p>
+<p>此处要使用的脚本在PowerSploit/Recon中，将要用到的PowerView.ps1传入靶机，在powershell中打开该脚本目录并导入：<code>Import-Module .\PowerView.ps1</code>就可以进行收集了</p>
+<p>具体命令的相关用法在<code>PowerSploit/Recon/READE.md</code>中</p>
+</blockquote>
+<h1 id="攻击流程"><a href="#攻击流程" class="headerlink" title="攻击流程"></a>攻击流程</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net use \\\\域控(如pc.xx.com) password &#x2F;user:xxx.com\username 相当于这个帐号登录域内主机，可访问资源</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/05/05/内网渗透信息收集/" target="_blank" title="内网渗透信息收集">http://mount4in.github.io/2020/05/05/内网渗透信息收集/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/" data-id="clg20p62t002t14uv4ohddl4z"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pentest/" rel="tag">Pentest</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            渗透工具使用
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/05/01/2020%E5%B9%B4%E5%AE%89%E6%81%92%E5%9B%9B%E6%9C%88%E6%9C%88%E8%B5%9B/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">2020年安恒四月月赛</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    Chip代码阅读笔记 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-chip代码阅读笔记" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Chip代码阅读笔记
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/04/17/chip%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/" class="article-date">
+  <time datetime="2020-04-17T04:16:13.000Z" itemprop="datePublished">2020-04-17</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>记录自己阅读Chip源码</p>
+<a id="more"></a>
+
+<h1 id="0X00-思维导图"><a href="#0X00-思维导图" class="headerlink" title="0X00 思维导图"></a>0X00 思维导图</h1><p><img src="/2020/04/17/chip%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image-20200418212831298.png" alt="image-20200418212831298"></p>
+<p><img src="/2020/04/17/chip%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image-20200418123816033.png" alt="image-20200418123816033"></p>
+<h1 id="0x01-CHIP-整体检测方法"><a href="#0x01-CHIP-整体检测方法" class="headerlink" title="0x01 CHIP 整体检测方法"></a>0x01 CHIP 整体检测方法</h1><p>通过阅读CHIP源码，可以看出开发者分别将<strong>普通eval/assert代码、正则/e模式代码执行（如：preg_match函数）、create_function代码执行、系统命令执行、动态函数调用（如：$a($b)）、回调后门（如call_user_func函数）、畸形/加密一句话木马（如base64编码）、任意文件包含（如：include函数）、PHP反射（如：ReflectionClass类）和执行不安全的继承与重命名利用（如：将eval函数起别名）</strong>这些动态特性的形式总结出来，然后得到各类型的特征，在语法分析的层面上对php动态特性进行捕获，利用已有的PHP-Parser包来将PHP转换成AST语法树，结合每个类型的特征设置相应的Visitor去遍历AST的每个节点，遇到有符合相应特征的节点就输出报警信息，直到所有Visitor遍历完AST后结束。</p>
+<h1 id="0x02-入口文件"><a href="#0x02-入口文件" class="headerlink" title="0x02 入口文件"></a>0x02 入口文件</h1><p>/bin/chip，</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">if</span> (PHP_SAPI !== <span class="string">'cli'</span> &amp;&amp; PHP_SAPI !== <span class="string">'phpdbg'</span>) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">'Warning: Chip should be invoked via the CLI version of PHP, not the '</span>.PHP_SAPI.<span class="string">' SAPI'</span>.PHP_EOL;</span><br><span class="line">    <span class="keyword">exit</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">require</span> <span class="keyword">__DIR__</span> . <span class="string">'/../vendor/autoload.php'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> <span class="title">Symfony</span>\<span class="title">Component</span>\<span class="title">Console</span>\<span class="title">Application</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    $application = <span class="keyword">new</span> Application(<span class="string">'Chip'</span>, <span class="string">'1.3.0'</span>);</span><br><span class="line">    $application-&gt;addCommands([</span><br><span class="line">        <span class="keyword">new</span> \Chip\Console\Check()</span><br><span class="line">    ]);</span><br><span class="line">    $application-&gt;run();</span><br><span class="line">&#125; <span class="keyword">catch</span> (\<span class="keyword">Exception</span> $e) &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里采用了phar用来打包项目，在本地测试将chip打包时需要将bin和src拷贝到项目根路径中，然后运行如下php脚本。即可将chip打包成chip.phar。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">$dir = <span class="keyword">__DIR__</span>; <span class="comment">// 需要打包的目录</span></span><br><span class="line">$file = <span class="string">'chip.phar'</span>; <span class="comment">// 包的名称, 注意它不仅仅是一个文件名, 在stub中也会作为入口前缀</span></span><br><span class="line">$phar = <span class="keyword">new</span> Phar(<span class="keyword">__DIR__</span> . <span class="string">'/'</span> . $file, FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::KEY_AS_FILENAME, $file);</span><br><span class="line"><span class="comment">// 开始打包</span></span><br><span class="line">$phar-&gt;startBuffering();</span><br><span class="line">$phar-&gt;buildFromDirectory($dir);</span><br><span class="line">$phar-&gt;delete(<span class="string">'build1.php'</span>);</span><br><span class="line"><span class="comment">// 设置入口</span></span><br><span class="line">$phar-&gt;setStub(<span class="string">"&lt;?php</span></span><br><span class="line"><span class="string">Phar::mapPhar('&#123;$file&#125;');</span></span><br><span class="line"><span class="string">require 'phar://&#123;$file&#125;/bin/chip';</span></span><br><span class="line"><span class="string">__HALT_COMPILER();</span></span><br><span class="line"><span class="string">?&gt;"</span>);</span><br><span class="line">$phar-&gt;stopBuffering();</span><br><span class="line"><span class="comment">// 打包完成</span></span><br><span class="line"><span class="keyword">echo</span> <span class="string">"Finished &#123;$file&#125;\n"</span>;</span><br></pre></td></tr></table></figure>
+
+<h1 id="0x03-代码流程"><a href="#0x03-代码流程" class="headerlink" title="0x03 代码流程"></a>0x03 代码流程</h1><p>简写的函数调用栈</p>
+<ol>
+<li><p><code>new  Application()</code></p>
+</li>
+<li><p><code>application-&gt;addCommands([new \Chip\Console\Check])</code>      加入 -r  -l  等参数</p>
+</li>
+<li><p><code>application-&gt;run()</code>    </p>
+<ol>
+<li><p><code>application-&gt;doRun()</code></p>
+<ol>
+<li><p><code>application-&gt;doRunCommand()</code></p>
+<ol>
+<li><p><code>command-&gt;run()</code></p>
+<ol>
+<li><p><code>command-&gt;execute()</code>      ===     <code>check-&gt;execute()</code></p>
+<ol>
+<li><p><code>check-&gt;checkCode()</code></p>
+<ol>
+<li><p><code>ChipFactory-&gt;create-&gt;detect()</code>   ===  <code>ChipManager-&gt;detect()</code>  添加visitor</p>
+<ol>
+<li><code>chip-&gt;feed()</code>      扫描代码   traverser<ol>
+<li><code>chip-&gt;feed()-&gt;alarm()</code>   获取输出结果</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>chip先读取输入的php代码，然后利用PHP-Parser将php代码转换成AST抽象语法树，然后通过添加Visitors来遍历AST树，分别去检测webshell。</p>
+<p>visitor 分三类</p>
+<ul>
+<li><p>NameResolver     parser内置的Visitor，在chip中是遍历AST的第一个Visitor，在看到有用use给函数别名时，将别名和函数原名保存，之后再遍历到有FuncCall节点时，检查FuncCall的name，若为之前保存的别名，然后修改当前节点。<strong>这里只针对use别名webshell而言，NameResolver还有其他功能。</strong></p>
+<p>用于检测</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">use</span> <span class="title">function</span> <span class="title">assert</span> <span class="title">as</span> <span class="title">test</span>;</span><br><span class="line">test($_POST[<span class="number">2333</span>]);</span><br></pre></td></tr></table></figure>
+
+<p>这类webshell。</p>
+</li>
+<li><p>CallstackVisitor    定义一个栈，入节点时如果节点为Node\Stmt\Function_ 或Node\Stmt\ClassMethod 压栈，离开节点时，若栈非空且栈顶为当前的节点，将该节点弹出栈。</p>
+</li>
+<li><p>Visitor文件夹下   均继承BaseVisitor，beforeProcess()分三类，在入节点先检测当前节点是否是checkNodeClass，若是则调用process()函数。下图为BaseVisitor.php。</p>
+<p><img src="/2020/04/17/chip%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image-20200418214141523.png" alt="image-20200418214141523"></p>
+<ul>
+<li><p>Assert:   checkNodeClass为<code>FuncCall</code>  ，调用FunctionWalker中的beforeProcess() ,调用getFunctionname(),若函数名为assert,进行process() ,然后调用hasDynamicExpr()检测<code>$node-&gt;args[0]-&gt;value</code>,分别用hasVariable()和hasFunctionCall()检测<code>$node-&gt;args[0]-&gt;value</code>节点，是否为如下类型节点，是就critical，否则warning。<strong>同Eval(EvalNode)  Shell  ShellFunction</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">  hasVariable()</span><br><span class="line">  Node\Expr\Variable    		变量 </span><br><span class="line">  Node\Expr\PropertyFetch     </span><br><span class="line">  Node\Expr\ConstFetch 		</span><br><span class="line">  Node\Expr\ClassConstFetch  	</span><br><span class="line">  </span><br><span class="line">  hasFunctionCall()</span><br><span class="line">  Node\Expr\MethodCall  		</span><br><span class="line">  Node\Expr\FuncCall</span><br><span class="line">  Node\Expr\New_</span><br><span class="line">Node\Expr\StaticCall</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Callback: CheckNodeClass为FuncCall，在Chip/Schema/FunctionWithCallable.php中定义了FUNCTION_WITH_CALLABLE常量，保存带有回调参数的函数，在Callback的构造函数中将下图中的函数<img src="/2020/04/17/chip%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image-20200414171244310.png" alt="image-20200414171244310"></p>
+<p>保存到$this-&gt;functionWithCallback二维数组中，键为函数名，值为对应的回调参数的位置。调用FunctionWalker中的beforeProcess() ，然后获取函数名，判断在不在$this-&gt;functionWithCallback中，若在，调用process()函数,先遍历$node-&gt;args，如果有有使用<code>&lt;?php usort(...$_GET);?&gt;</code>这种参数，报danger。然后检查对应pos位置是否是回调参数位置，然后判断$node-&gt;args[pos]-&gt;value instanceof Node\Expr\Closure ，是就跳过，否则调用hasDynamicExpr()函数检测$node-&gt;args[pos]-&gt;value,若返回真则报danger，返回假则调用isSafeCallback($node-&gt;args[pos])，如果$node-&gt;args[pos]-&gt;value是string而且函数名满足<code>/^\\\\?[a-z0-9_]+$/is</code>且函数名不在DANGER_FUNCTION常量数组中，报info,否则报warning.</p>
+</li>
+<li><p>CreateFunction: CheckNodeClass为FuncCall，调用FunctionWalker中的beforeProcess() ,调用getFunctionname(),若函数名为create_function,进行process() ,首先调用hasUnpackBefore()函数检测$node-&gt;args[$i]-&gt;unpack是否为true,若为true，报critical，然后调用hasDynamicExpr()函数检测$node-&gt;args[$i]-&gt;value,若返回真，报critical,否则报warning。</p>
+</li>
+<li><p>DynamicCall: CheckNodeClass为FuncCall,进行process() ,若hasDynamicExpr($node-&gt;name)为真，报danger，如果isName($node-&gt;name)为假，报waring。 <strong>个人认为这里误报率较高，</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">  &lt;?php</span><br><span class="line">  $a &#x3D; 1;</span><br><span class="line">  eval($a());&#x2F;&#x2F;只要是（）就报danger</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>DynamicMethod: CheckNodeClass为MethodCall,进行process() ,若hasDynamicExpr($node-&gt;name)为真，报danger，如果isName($node-&gt;name)为假，报waring。</p>
+</li>
+<li><p>DynamicNew: CheckNodeClass为New_,进行process()中检测hasVariable($node-&gt;class),返回是报waring。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">  &lt;?php</span><br><span class="line">  $a &#x3D; new $class;   &#x2F;&#x2F;没理解这样有什么危险</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>DynamicStaticMethod: CheckNodeClass为StaticCall,进行process() ,</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">process</span><span class="params">($node)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $class = $node-&gt;class;</span><br><span class="line">        $name = $node-&gt;name;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;hasDynamicExpr($class)) &#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;storage-&gt;danger($node, <span class="keyword">__CLASS__</span>, <span class="string">'以动态类形式调用静态方法，可能存在远程代码执行的隐患'</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;hasDynamicExpr($name)) &#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;storage-&gt;danger($node, <span class="keyword">__CLASS__</span>, <span class="string">'动态调用方法，可能存在远程代码执行的隐患'</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!<span class="keyword">$this</span>-&gt;isName($class) || !<span class="keyword">$this</span>-&gt;isIdentifier($name)) &#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;storage-&gt;warning($node, <span class="keyword">__CLASS__</span>, <span class="string">'不规范的静态方法调用，可能存在远程代码执行的隐患'</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Eval : EvalNode   process调用hasDynamicExpr()函数检测$node-&gt;expr。</p>
+</li>
+<li><p>Extends: Class_   process</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">process</span><span class="params">($node)</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> ($node-&gt;extends <span class="keyword">instanceof</span> Node &amp;&amp; <span class="keyword">$this</span>-&gt;isName($node-&gt;extends)) &#123;</span><br><span class="line">          $className = $node-&gt;extends-&gt;toLowerString();</span><br><span class="line">    </span><br><span class="line">          <span class="keyword">if</span> (in_array($className, array_map(<span class="string">'strtolower'</span>, <span class="keyword">$this</span>-&gt;dangerClassName))) &#123;</span><br><span class="line">              <span class="keyword">$this</span>-&gt;storage-&gt;danger($node, <span class="keyword">__CLASS__</span>, <span class="string">'代码继承了不安全的类'</span>);</span><br><span class="line">              <span class="keyword">return</span>;</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要检测 类的继承  ReflectionFunction</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">  &lt;?php class test extends ReflectionFunction &#123;&#125; </span><br><span class="line">  $f &#x3D; new test(&#39;system&#39;); </span><br><span class="line">$f-&gt;invoke($_POST[2333]);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>FilterVar: 结点 funccall   funcname : filter、filter_var  ,然后process </p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">  <span class="meta">&lt;?php</span></span><br><span class="line">  filter_var($_REQUEST[<span class="string">'pass'</span>], FILTER_CALLBACK, <span class="keyword">array</span>(<span class="string">'options'</span> =&gt; <span class="string">'assert'</span>));</span><br><span class="line">filter_var_array(<span class="keyword">array</span>(<span class="string">'test'</span> =&gt; $_REQUEST[<span class="string">'pass'</span>]), <span class="keyword">array</span>(<span class="string">'test'</span> =&gt; <span class="keyword">array</span>(<span class="string">'filter'</span> =&gt; FILTER_CALLBACK, <span class="string">'options'</span> =&gt; <span class="string">'assert'</span>)));</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Include : 节点  Include  ，进行process()函数，首先递归找$node-&gt;expr  分两类（Concat  -字符串、Encapsed –<strong>不知</strong> ）然后判断最后的节点，若文件名不为php inc 就报danger，然后hasdynamicExpr($nodd-&gt;expr),返回真 报danger.</p>
+</li>
+<li><p>MbPregExec : 检测这类变形webshell，<img src="/2020/04/17/chip%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/image-20200414171305419.png" alt="image-20200414171305419"></p>
+<p>节点： FuncCall，然后若函数名为：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'mb_ereg_replace'</span>,</span><br><span class="line">    	<span class="string">'mbereg_replace'</span>,</span><br><span class="line">      <span class="string">'mb_eregi_replace'</span>,</span><br><span class="line">      <span class="string">'mberegi_replace'</span>,</span><br><span class="line">      <span class="string">'mb_regex_set_options'</span>,</span><br><span class="line">    <span class="string">'mbregex_set_options'</span>,</span><br></pre></td></tr></table></figure>
+
+<p> 上面这些函数，就执行process()函数，先获得参数，然后对参数进行检测。若参数不为字符串，报danger,若参数为e，则报danger。</p>
+</li>
+<li><p>MethodCallback: 检测下面这类webshell , 节点  MethodCall</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">  <span class="meta">&lt;?php</span></span><br><span class="line">  <span class="comment">// way 0</span></span><br><span class="line">  $arr = <span class="keyword">new</span> ArrayObject(<span class="keyword">array</span>(<span class="string">'test'</span>, $_REQUEST[<span class="string">'pass'</span>]));</span><br><span class="line">  $arr-&gt;uasort(<span class="string">'assert'</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// way 1</span></span><br><span class="line">  $arr = <span class="keyword">new</span> ArrayObject(<span class="keyword">array</span>(<span class="string">'test'</span> =&gt; <span class="number">1</span>, $_REQUEST[<span class="string">'pass'</span>] =&gt; <span class="number">2</span>));</span><br><span class="line">  $arr-&gt;uksort(<span class="string">'assert'</span>);</span><br><span class="line">  </span><br><span class="line">  $e = $_REQUEST[<span class="string">'e'</span>];</span><br><span class="line">  $db = <span class="keyword">new</span> PDO(<span class="string">'sqlite:sqlite.db3'</span>);</span><br><span class="line">  $db-&gt;sqliteCreateFunction(<span class="string">'myfunc'</span>, $e, <span class="number">1</span>);</span><br><span class="line">  $sth = $db-&gt;prepare(<span class="string">"SELECT myfunc(:exec)"</span>);</span><br><span class="line">  $sth-&gt;execute(<span class="keyword">array</span>(<span class="string">':exec'</span> =&gt; $_REQUEST[<span class="string">'pass'</span>]));</span><br><span class="line">  </span><br><span class="line">  $e = $_REQUEST[<span class="string">'e'</span>];</span><br><span class="line">  $db = <span class="keyword">new</span> SQLite3(<span class="string">'sqlite.db3'</span>);</span><br><span class="line">  $db-&gt;createFunction(<span class="string">'myfunc'</span>, $e);</span><br><span class="line">  $stmt = $db-&gt;prepare(<span class="string">"SELECT myfunc(?)"</span>);</span><br><span class="line">  $stmt-&gt;bindValue(<span class="number">1</span>, $_REQUEST[<span class="string">'pass'</span>], SQLITE3_TEXT);</span><br><span class="line">$stmt-&gt;execute();</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/04/17/chip%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/51631434650097.png" alt="img"></p>
+<p>之后获得方法名，如为下面的名称，执行process()函数，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">  &#39;uasort&#39;                   </span><br><span class="line">  &#39;uksort&#39;                   </span><br><span class="line">  &#39;set_local_infile_handler&#39; </span><br><span class="line">  &#39;sqlitecreateaggregate&#39;   </span><br><span class="line">  &#39;sqlitecreatecollation&#39;   </span><br><span class="line">  &#39;sqlitecreatefunction&#39;     </span><br><span class="line">  &#39;createcollation&#39;         </span><br><span class="line">  &#39;fetchall&#39;                 </span><br><span class="line">&#39;createfunction&#39;</span><br></pre></td></tr></table></figure>
+
+<p>首先，若方法名为fetchall，先看参数是否有 <code>...</code>这种形式，若有报danger;然后检查fetchAll()的前两个参数，若通过白名单检测跳过，否则调用hasDynamicExpr()检查第二个参数，若真报danger，若第二个参数不为匿名函数报warning。</p>
+<p>之后检测其他函数首先检测指定位置前的参数是否存在变长参数，若存在报danger；然后检测指定位置的参数值是否含有动态性，若有则报danger；若指定位置的参数值不为匿名函数报warning。</p>
+</li>
+<li><p>PregExec:  节点 funccall  ,若函数名为preg_replace或preg_filter，就执行process()函数，检测第一个参数中是否有e，若有则报danger</p>
+</li>
+<li><p>Reflection: 检测节点 New  ,然后获取$node-&gt;class;，若名称在下列中，报warning。reflectionclass-&gt;getDocComment()可以获取注释。reflectionfunctin-&gt;invokeargs()执行函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">  &#39;ReflectionClass&#39;,</span><br><span class="line">  &#39;ReflectionZendExtension&#39;,</span><br><span class="line">  &#39;ReflectionExtension&#39;,</span><br><span class="line">  &#39;ReflectionFunction&#39;,</span><br><span class="line">  &#39;ReflectionFunctionAbstract&#39;,</span><br><span class="line">  &#39;ReflectionMethod&#39;,</span><br><span class="line">&#39;ReflectionGenerator&#39;, &#x2F;&#x2F;&#x2F;和extend中一样</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>ScriptTag: 检测<code>&lt;script&gt;</code>标签型webshell，报warning（不判断代码内容）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">array(1) &#123;</span><br><span class="line">  [0]&#x3D;&gt;</span><br><span class="line">  object(PhpParser\Node\Stmt\InlineHTML)#1124 (2) &#123;</span><br><span class="line">    [&quot;value&quot;]&#x3D;&gt;</span><br><span class="line">    string(46) &quot;&lt;script language&#x3D;&quot;php&quot;&gt;</span><br><span class="line">echo 2222;</span><br><span class="line">&lt;&#x2F;script&gt;&quot;</span><br><span class="line">    [&quot;attributes&quot;:protected]&#x3D;&gt;</span><br><span class="line">    array(5) &#123;</span><br><span class="line">      [&quot;startLine&quot;]&#x3D;&gt;</span><br><span class="line">      int(1)</span><br><span class="line">      [&quot;startFilePos&quot;]&#x3D;&gt;</span><br><span class="line">      int(0)</span><br><span class="line">      [&quot;hasLeadingNewline&quot;]&#x3D;&gt;</span><br><span class="line">      bool(true)</span><br><span class="line">      [&quot;endLine&quot;]&#x3D;&gt;</span><br><span class="line">      int(3)</span><br><span class="line">      [&quot;endFilePos&quot;]&#x3D;&gt;</span><br><span class="line">      int(45)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">Array</span><br><span class="line">(</span><br><span class="line">    [0] &#x3D;&gt; Chip\Alarm Object</span><br><span class="line">        (</span><br><span class="line">            [type] &#x3D;&gt; ScriptTag</span><br><span class="line">            [level] &#x3D;&gt; WARNING</span><br><span class="line">            [message] &#x3D;&gt; 使用不支持的PHP标签，可能存在安全问题</span><br><span class="line">        )</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>shellFunction: 同assert，只是将检测的函数名变为</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">   &#39;system&#39;,</span><br><span class="line">   &#39;shell_exec&#39;,</span><br><span class="line">   &#39;exec&#39;,</span><br><span class="line">   &#39;passthru&#39;,</span><br><span class="line">   &#39;popen&#39;,</span><br><span class="line">&#39;proc_open&#39;,</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>shell: 节点为  ShellExec  ，然后同shellfunction</p>
+</li>
+<li><p>StaticCallback: 检测phar:webphar 、closure::fromcallable ；节点 为 StaticCall，若{$node-&gt;class-&gt;toLowerString()}::{$node-&gt;name-&gt;toLowerString()}为phar:webphar 、closure::fromcallable，执行process()函数，若参数<code>...</code>报danger，检测参数动态性，若有动态性报danger,若未使用匿名函数，报warning.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="0x04-踩坑"><a href="#0x04-踩坑" class="headerlink" title="0x04 踩坑"></a>0x04 踩坑</h1><ol>
+<li><p>Symfony命令行处理</p>
+<p>用了application的run()方法，若不传参数会调用ArgvInput类，</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ArgvInput</span> <span class="keyword">extends</span> <span class="title">Input</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> $tokens;</span><br><span class="line">    <span class="keyword">private</span> $parsed;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> array|null           $argv       An array of parameters from the CLI (in the argv format)</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> InputDefinition|null $definition A InputDefinition instance</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">(array $argv = null, InputDefinition $definition = null)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">null</span> === $argv) &#123;</span><br><span class="line">            $argv = $_SERVER[<span class="string">'argv'</span>];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// strip the application name</span></span><br><span class="line">        array_shift($argv);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">$this</span>-&gt;tokens = $argv;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">parent</span>::__construct($definition);</span><br><span class="line">    &#125;</span><br><span class="line">..................</span><br></pre></td></tr></table></figure>
+
+<p><code>$_SERVER[argv]</code>在cli模式中，为输入的东西，<code>$argv=$_SERVER[argv]</code> ,$argv[0]是脚本名，$argv[1]是第一个参数如(–11=2)，依次类推。</p>
+<blockquote>
+<p>arguments   ls -l  /   有两个arguments  -l  /  </p>
+<p>A parameter is an argument that provides information to either the command or one of its options</p>
+<p>option   对arguments的细分   -  或 – </p>
+</blockquote>
+</li>
+<li><p>php-di</p>
+<p><a href="https://blog.csdn.net/soonfly/article/details/52627683" target="_blank" rel="noopener">依赖注入参考链接</a>    php-di 文档<a href="https://link.jianshu.com/?t=http%3A%2F%2Fphp-di.org%2Fdoc%2Fgetting-start" target="_blank" rel="noopener">http://php-di.org/doc/getting-start</a></p>
+<p>分为 构造函数  方法  属性   php回调注入 </p>
+<blockquote>
+<h3 id="3-Create-the-objects"><a href="#3-Create-the-objects" class="headerlink" title="3. Create the objects"></a>3. Create the objects</h3><p>（创建对象）<br>Without PHP-DI, we would have to “wire” the dependencies manually like this:<br>（如果没有PHP-DI，我们将不得不像这样手动地“连接”依赖项:）</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$mailer = <span class="keyword">new</span> Mailer();</span><br><span class="line">$userManager = <span class="keyword">new</span> UserManager($mailer);</span><br></pre></td></tr></table></figure>
+
+<p>Instead, we can let PHP-DI figure out the dependencies:<br>（相反，我们可以让PHP-DI计算出依赖项:）</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$userManager = $container-&gt;get(<span class="string">'UserManager'</span>);</span><br></pre></td></tr></table></figure>
+
+<p>Behind the scenes, PHP-DI will create both a Mailer object and a UserManager object.<br>（在幕后，PHP-DI将创建一个Mailer对象和一个UserManager对象。）</p>
+</blockquote>
+</li>
+<li><p>php  Trait</p>
+<p>代码复用：实例代码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">sayHello</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">'Hello '</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">trait</span> SayWorld &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">sayHello</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">parent</span>::sayHello();</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">'World!'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyHelloWorld</span> <span class="keyword">extends</span> <span class="title">Base</span> </span>&#123;</span><br><span class="line">    <span class="keyword">use</span> <span class="title">SayWorld</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$o = <span class="keyword">new</span> MyHelloWorld();</span><br><span class="line">$o-&gt;sayHello();<span class="comment">//Hello World!</span></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+</li>
+</ol>
+<h1 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h1><p><a href="https://www.leavesongs.com/PENETRATION/php-callback-backdoor.html" target="_blank" rel="noopener">https://www.leavesongs.com/PENETRATION/php-callback-backdoor.html</a></p>
+<p>PHP动态特性的捕捉与逃逸</p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/04/17/chip代码阅读笔记/" target="_blank" title="Chip代码阅读笔记">http://mount4in.github.io/2020/04/17/chip代码阅读笔记/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/04/17/chip%E4%BB%A3%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/" data-id="clg20p60d002i14uv8p41a6jz"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Chip/" rel="tag">Chip</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/04/17/shellcoderop/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            长亭公开课——Shellcode&amp;ROP
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/04/13/%E9%95%BF%E4%BA%AD%E7%AC%94%E8%AE%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">长亭公开课笔记</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

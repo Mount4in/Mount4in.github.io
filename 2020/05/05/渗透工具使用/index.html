@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    渗透工具使用 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-渗透工具使用" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      渗透工具使用
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" class="article-date">
+  <time datetime="2020-05-05T07:16:28.000Z" itemprop="datePublished">2020-05-05</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>记录一些渗透工具的使用，持续更新</p>
+<a id="more"></a>
+
+<h2 id="1-利用adfind-过滤-ACL"><a href="#1-利用adfind-过滤-ACL" class="headerlink" title="1. 利用adfind 过滤 ACL"></a><strong>1. 利用adfind 过滤 ACL</strong></h2><p>如果想用adfind 过滤ACL的话，我们可以使用<code>-sddlfilter</code>,语法如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-sddlfilter ;;;;;</span><br></pre></td></tr></table></figure>
+
+<p>后面跟的参数对应的是ace条目相应的参数，值得注意的是，过滤的格式跟输出的格式要保持一致。</p>
+<p>如果<code>-rawsddl</code> ，最后一个参数是sid，这个时候用<code>-sddlfilter</code>进行过滤，最后一个参数就要用sid的形式。</p>
+<p>如果是<code>-sddl+++</code>，最后一个参数已经解析后账号名，这个时候用<code>-sddlfilter</code>进行过滤，最后一个参数就要用账号名的形式。</p>
+<p>下面举几个例子</p>
+<ol>
+<li><p>查找某个对象在域内的ACL权限</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AdFind.exe -s subtree -b &quot;DC&#x3D;test,DC&#x3D;local&quot; nTSecurityDescriptor   -sddl+++   -sddlfilter ;;;;;&quot;TEST\DC2016$&quot;   -recmute</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t01820587bbe037011c.png" alt="img"></p>
+<ol>
+<li>查找更改一个对象的马上到！S-AllowedToActOnBehalfOfOtherIdentity的权限</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AdFind.exe -s subtree -b &quot;DC&#x3D;test,DC&#x3D;local&quot; nTSecurityDescriptor   -sddl++   -sddlfilter ;;;&quot;msDS-AllowedToActOnBehalfOfOtherIdentity&quot;;;  -recmute</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t01c5d2427249c7cca8.png" alt="img"></p>
+<ol>
+<li>查找域内具备dcync 权限的用户</li>
+</ol>
+<p>对域对象只需要具备一下这两个权限，就有dcsync的权限。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#39;DS-Replication-Get-Changes&#39;     &#x3D; 1131f6aa-9c07-11d1-f79f-00c04fc2dcd2</span><br><span class="line">&#39;DS-Replication-Get-Changes-All&#39; &#x3D; 1131f6ad-9c07-11d1-f79f-00c04fc2dcd2</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t0190b4f7118459c867.png" alt="img"></p>
+<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t01783c2e12d6384581.png" alt="img"></p>
+<p>开始进行搜索</p>
+<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t011c3a109eabb651d5.png" alt="img"></p>
+<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/t015d193bee48b235f1.png" alt="img"></p>
+<h1 id="2-frp-内网代理"><a href="#2-frp-内网代理" class="headerlink" title="2 frp 内网代理"></a>2 frp 内网代理</h1><p>frps 运行在具有公网IP地址的VPS上</p>
+<p>frpc 运行在我们得到shell权限的肉鸡上</p>
+<p>frps  配置文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line">bind_addr &#x3D; 0.0.0.0</span><br><span class="line">bind_port &#x3D; 7000</span><br><span class="line"></span><br><span class="line"># IP 与 bind_addr 默认相同，可以不设置</span><br><span class="line"># dashboard_addr &#x3D; 0.0.0.0</span><br><span class="line"># 端口必须设置，只有设置web页面才生效</span><br><span class="line">dashboard_port &#x3D; 7500</span><br><span class="line"># 用户密码保平安</span><br><span class="line">dashboard_user &#x3D; aaaa</span><br><span class="line">dashboard_pwd &#x3D; bbbb</span><br><span class="line"></span><br><span class="line"># 允许客户端绑定的端口</span><br><span class="line">allow_ports &#x3D; 40000-50000</span><br></pre></td></tr></table></figure>
+
+<p>frpc 配置文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line"># 远程VPS地址</span><br><span class="line">server_addr &#x3D; xxx.xx.xx.xx</span><br><span class="line">server_port &#x3D; 7000</span><br><span class="line">tls_enable &#x3D; true</span><br><span class="line">pool_count &#x3D; 5</span><br><span class="line"></span><br><span class="line">[plugin_socks5]</span><br><span class="line">type &#x3D; tcp</span><br><span class="line">remote_port &#x3D; 44444</span><br><span class="line">plugin &#x3D; socks5</span><br><span class="line">plugin_user &#x3D; abc</span><br><span class="line">plugin_passwd &#x3D; abc</span><br></pre></td></tr></table></figure>
+
+<p>客户端运行</p>
+<img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/image-20200506151014647.png" alt="image-20200506151014647" style="zoom:200%;">
+
+<p>上图客户端为win2012R2</p>
+<p>服务端运行</p>
+<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/image-20200509191519398.png" alt="image-20200509191519398"></p>
+<p>上面第三行表示已经建立代理</p>
+<p>之后在本地用proxifier就可以代理访问内网资源</p>
+<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/image-20200506151223032.png" alt="image-20200506151223032"></p>
+<h1 id="3-BloodHound"><a href="#3-BloodHound" class="headerlink" title="3.BloodHound"></a>3.BloodHound</h1><p><a href="https://github.com/BloodHoundAD/BloodHound/wiki" target="_blank" rel="noopener">项目地址</a></p>
+<p>需要java环境，安装neo4j数据库，我是选择在kali虚拟机安装neo4j数据库，然后再主机win10使用bloodhound,要修改kali里的数据库配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dbms.default_listen_address&#x3D;0.0.0.0</span><br><span class="line">dbms.default_advertised_address&#x3D;0.0.0.0</span><br><span class="line">dbms.connector.bolt.listen_address&#x3D;0.0.0.0:7687</span><br><span class="line">dbms.connector.http.listen_address&#x3D;0.0.0.0:7474</span><br></pre></td></tr></table></figure>
+
+<p>win直接安装 <a href="https://github.com/BloodHoundAD/BloodHound/releases" target="_blank" rel="noopener">bloodhound</a></p>
+<p>配套使用<a href="https://github.com/BloodHoundAD/SharpHound" target="_blank" rel="noopener">SharpHound.exe</a>，在目标主机运行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SharpHound.exe -c all</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/image-20200509161842148.png" alt="image-20200509161842148"></p>
+<p>然后下载zip，把json文件拖进bloodhound</p>
+<ul>
+<li>database info </li>
+</ul>
+<img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/image-20200509162917174.png" alt="image-20200509162917174" style="zoom:150%;">
+
+<ul>
+<li>nodeinfo</li>
+</ul>
+<img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/image-20200509163204823.png" alt="image-20200509163204823" style="zoom:150%;">
+
+<ul>
+<li>queries</li>
+</ul>
+<p>对应下面</p>
+<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/image-20200509164243314.png" alt="image-20200509164243314"></p>
+<h4 id="示例：Shortest-Paths-from-Kerberoastable-Users"><a href="#示例：Shortest-Paths-from-Kerberoastable-Users" class="headerlink" title="示例：Shortest Paths from Kerberoastable Users"></a>示例：Shortest Paths from Kerberoastable Users</h4><p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/image-20200509165304258.png" alt="image-20200509165304258"></p>
+<p>如果一个用户是Kerberoastable，可以通过Kerberoasting的到hash，然后可以爆破密码。</p>
+<p>ps:注册spn的服务账号都是Kerberoastable的。</p>
+<p>ps:右键路径可以得到相关滥用信息以及参考，如上面这个在Abuse里提供了基于资源的约束委派利用方法。</p>
+<p><img src="/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/image-20200509165843365.png" alt="image-20200509165843365"></p>
+<h1 id="4-cobalt-strike"><a href="#4-cobalt-strike" class="headerlink" title="4 cobalt strike"></a>4 cobalt strike</h1><p>执行powermad或powerpiew，用powershell-import,然后再用powerpick  XXX.</p>
+<p>sleep 0 速度会快，但是实战中流量会大。</p>
+<p>参考</p>
+<p><a href="https://xz.aliyun.com/t/7311" target="_blank" rel="noopener">https://xz.aliyun.com/t/7311</a></p>
+<p><a href="https://daiker.gitbook.io/windows-protocol/ldap-pian/12#0x02-acl" target="_blank" rel="noopener">https://daiker.gitbook.io/windows-protocol/ldap-pian/12#0x02-acl</a></p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/05/05/渗透工具使用/" target="_blank" title="渗透工具使用">http://mount4in.github.io/2020/05/05/渗透工具使用/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/05/05/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" data-id="clg20p5lu000s14uv20jtghgn"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pentest/" rel="tag">pentest</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/05/09/De1ctf-pentest2/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            De1ctf Hard_Pentest_2
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/05/05/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">内网渗透信息收集</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

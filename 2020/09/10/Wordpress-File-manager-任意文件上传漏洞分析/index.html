@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    Wordpress File-manager 任意文件上传漏洞分析 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-Wordpress-File-manager-任意文件上传漏洞分析" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Wordpress File-manager 任意文件上传漏洞分析
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" class="article-date">
+  <time datetime="2020-09-10T10:41:17.000Z" itemprop="datePublished">2020-09-10</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>紧急！WordPress文件管理器（file manager）插件爆严重0day漏洞</p>
+<a id="more"></a>
+
+<blockquote>
+<p>本文首发于安全客 <a href="https://www.anquanke.com/post/id/216990" target="_blank" rel="noopener">Wordpress File-manager 任意文件上传漏洞分析</a></p>
+</blockquote>
+<h1 id="0x01-漏洞分析"><a href="#0x01-漏洞分析" class="headerlink" title="0x01 漏洞分析"></a>0x01 漏洞分析</h1><p>分析环境：</p>
+<ul>
+<li>wordpress 5.5.1</li>
+<li>file manager 6.0</li>
+<li>win10   phpstudy   php 7.0.9</li>
+</ul>
+<p>漏洞点位于file manager的connector.minimal.php文件，具体路径在<code>wordpress\wp-content\plugins\wp-file-manager\lib\php\connector.minimal.php</code></p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908121359135-1599734770059.png" alt="image-20200908121359135"></p>
+<p>首先实例化一个<code>elFinderConnector</code>对象，然后调用它的<code>run()</code>方法，跟进run();</p>
+<p>wp-content/plugins/wp-file-manager/lib/php/elFinderConnector.class.php</p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908133111974-1599734777018.png" alt="image-20200908133111974"></p>
+<p>如果HTTP请求的方法是<code>POST</code>会把<code>POST</code>和<code>GET</code>请求的保存到<code>$src</code>，然后判断<code>POST</code>传的参数。如果不传入<code>targets</code>，就不会进入前几个判断，之后会把<code>POST</code>传的<code>cmd</code>变量赋给<code>$cmd</code>，然后调用<code>commandExists()</code>检测传入的<code>$cmd</code>是否存在。</p>
+<img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908125214608.png" alt="image-20200908125214608" style="zoom:150%;">
+
+<p>然后利用<code>commandArgsList()</code>函数获取<code>$cmd</code>对应的命令参数列表，漏洞利用需要上传文件，这里只关注<code>$cmd</code>为<code>upload</code>的情况。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">commandArgsList</span><span class="params">($cmd)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;commandExists($cmd)) &#123;</span><br><span class="line">            $list = <span class="keyword">$this</span>-&gt;commands[$cmd];</span><br><span class="line">            $list[<span class="string">'reqid'</span>] = <span class="keyword">false</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            $list = <span class="keyword">array</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> $list;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/*`upload`对应的数组如下:</span></span><br><span class="line"><span class="comment">'upload' =&gt; array(</span></span><br><span class="line"><span class="comment">    'target' =&gt; true, 'FILES' =&gt; true, 'mimes' =&gt; false, 'html' =&gt; false, 'upload' =&gt; false, </span></span><br><span class="line"><span class="comment">    'name' =&gt; false, 'upload_path' =&gt; false, 'chunk' =&gt; false, 'cid' =&gt; false, 'node' =&gt; false, </span></span><br><span class="line"><span class="comment">    'renames' =&gt; false, 'hashes' =&gt; false, 'suffix' =&gt; false, 'mtime' =&gt; false, 'overwrite' =&gt; false, </span></span><br><span class="line"><span class="comment">    'contentSaveId' =&gt; false)</span></span><br><span class="line"><span class="comment">    */</span></span><br></pre></td></tr></table></figure>
+
+<p>循环遍历，将<code>POST</code>传入的参数保存到<code>$args</code>数组中，然后调用<code>input_filter()</code>函数对<code>$args</code>进行简单的过滤，</p>
+<img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908130150392.png" alt="image-20200908130150392" style="zoom:150%;">
+
+<p>替换掉<code>%00</code>，并且做<code>stripslashes()</code>处理。然后将通过表单上传的文件<code>$_FILES</code>存到<code>$args[&#39;FILE&#39;]</code>中。然后调用<code>exec()</code>函数，跟进</p>
+<p>wp-content/plugins/wp-file-manager/lib/php/elFinder.class.php</p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908132919783-1599734791897.png" alt="image-20200908132919783"></p>
+<p>前面会进行一些判断，最后进入到<code>$this-&gt;$cmd($args)</code>调用<code>upload()</code>函数，跟进</p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908151636282-1599734796269.png" alt="image-20200908151636282"></p>
+<p>首先将<code>POST</code>传入的<code>target</code>赋给<code>$target</code>变量，然后调用<code>volume()</code>函数，</p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908152053795-1599734798968.png" alt="image-20200908152053795"></p>
+<p>可以看到<code>$this-&gt;volume</code>数组含有两项，一项是<code>l1_</code>，一项是<code>t1_</code>，<code>volume()</code>函数定义如果传入的<code>$hash</code>以<code>l1_</code>或<code>t1_</code>开头，返回<code>$this-&gt;volume</code>数组对应的值，否则返回false。在<code>upload</code>函数中会检测<code>$volume</code>，如果其为false，程序会报错结束，所以<code>POST</code>传入的<code>target</code>必须以它们两个为前缀。继续分析upload()函数。依次取出<code>$args</code>数组中的值赋给相应的变量，这里要求<code>$args[&#39;FILES&#39;][&#39;upload&#39;]</code>也就是<code>$_FILES[&#39;upload&#39;]</code>为数组，才能将其赋给<code>$files</code>变量，这就需要上传文件时上传一个文件数组。接下来其他的如<code>html、upload_path、chunk、cid、mtime</code>等参数可以不传。接下来遍历<code>$files[&#39;name&#39;]</code>也就是<code>$_FILES[&#39;upload&#39;][&#39;name&#39;]</code>，如果文件上传成功，将<code>$_FILES[&#39;upload&#39;][&#39;name&#39;]</code>赋给<code>$tmpname</code>，然后调用<code>fopen()</code>打开上传的临时文件，将指针保存在<code>$fp</code>。在不传如<code>upload_path</code>时<code>$thash等于$target</code>，所以<code>$_target</code>为<code>$target</code>为我们<code>POST</code>传入的<code>target</code>变量。之后调用了<code>$volume-&gt;upload()</code>函数，第一个参数为之前打开文件的指针，第二个参数为<code>POST</code>传入的<code>target</code>变量，第三个参数为上传的文件名，第四个参数为空的数组。跟进<code>elFinderVolumeDriver</code>的<code>upload()</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">upload</span><span class="params">($fp, $dst, $name, $tmpname, $hashes = array<span class="params">()</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;commandDisabled(<span class="string">'upload'</span>)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;setError(elFinder::ERROR_PERM_DENIED);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (($dir = <span class="keyword">$this</span>-&gt;dir($dst)) == <span class="keyword">false</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;setError(elFinder::ERROR_TRGDIR_NOT_FOUND, <span class="string">'#'</span> . $dst);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">empty</span>($dir[<span class="string">'write'</span>])) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;setError(elFinder::ERROR_PERM_DENIED);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!<span class="keyword">$this</span>-&gt;nameAccepted($name, <span class="keyword">false</span>)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;setError(elFinder::ERROR_INVALID_NAME);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        $mimeByName = <span class="string">''</span>;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;mimeDetect === <span class="string">'internal'</span>) &#123;</span><br><span class="line">            $mime = <span class="keyword">$this</span>-&gt;mimetype($tmpname, $name);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            $mime = <span class="keyword">$this</span>-&gt;mimetype($tmpname, $name);</span><br><span class="line">            $mimeByName = <span class="keyword">$this</span>-&gt;mimetype($name, <span class="keyword">true</span>);</span><br><span class="line">            <span class="keyword">if</span> ($mime === <span class="string">'unknown'</span>) &#123;</span><br><span class="line">                $mime = $mimeByName;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!<span class="keyword">$this</span>-&gt;allowPutMime($mime) || ($mimeByName &amp;&amp; !<span class="keyword">$this</span>-&gt;allowPutMime($mimeByName))) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;setError(elFinder::ERROR_UPLOAD_FILE_MIME, <span class="string">'('</span> . $mime . <span class="string">')'</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        $tmpsize = (int)sprintf(<span class="string">'%u'</span>, filesize($tmpname));</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;uploadMaxSize &gt; <span class="number">0</span> &amp;&amp; $tmpsize &gt; <span class="keyword">$this</span>-&gt;uploadMaxSize) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;setError(elFinder::ERROR_UPLOAD_FILE_SIZE);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        $dstpath = <span class="keyword">$this</span>-&gt;decode($dst);</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">isset</span>($hashes[$name])) &#123;</span><br><span class="line">            $test = <span class="keyword">$this</span>-&gt;decode($hashes[$name]);</span><br><span class="line">            $file = <span class="keyword">$this</span>-&gt;stat($test);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            $test = <span class="keyword">$this</span>-&gt;joinPathCE($dstpath, $name);</span><br><span class="line">            $file = <span class="keyword">$this</span>-&gt;isNameExists($test);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">$this</span>-&gt;clearcache();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> ($file &amp;&amp; $file[<span class="string">'name'</span>] === $name) &#123; <span class="comment">// file exists and check filename for item ID based filesystem</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;uploadOverwrite) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!$file[<span class="string">'write'</span>]) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;setError(elFinder::ERROR_PERM_DENIED);</span><br><span class="line">                &#125; <span class="keyword">elseif</span> ($file[<span class="string">'mime'</span>] == <span class="string">'directory'</span>) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;setError(elFinder::ERROR_NOT_REPLACE, $name);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">$this</span>-&gt;remove($test);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                $name = <span class="keyword">$this</span>-&gt;uniqueName($dstpath, $name, <span class="string">'-'</span>, <span class="keyword">false</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        $stat = <span class="keyword">array</span>(</span><br><span class="line">            <span class="string">'mime'</span> =&gt; $mime,</span><br><span class="line">            <span class="string">'width'</span> =&gt; <span class="number">0</span>,</span><br><span class="line">            <span class="string">'height'</span> =&gt; <span class="number">0</span>,</span><br><span class="line">            <span class="string">'size'</span> =&gt; $tmpsize);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// $w = $h = 0;</span></span><br><span class="line">        <span class="keyword">if</span> (strpos($mime, <span class="string">'image'</span>) === <span class="number">0</span> &amp;&amp; ($s = getimagesize($tmpname))) &#123;</span><br><span class="line">            $stat[<span class="string">'width'</span>] = $s[<span class="number">0</span>];</span><br><span class="line">            $stat[<span class="string">'height'</span>] = $s[<span class="number">1</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// $this-&gt;clearcache();</span></span><br><span class="line">        <span class="keyword">if</span> (($path = <span class="keyword">$this</span>-&gt;saveCE($fp, $dstpath, $name, $stat)) == <span class="keyword">false</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        $stat = <span class="keyword">$this</span>-&gt;stat($path);</span><br><span class="line">        <span class="comment">// Try get URL</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">empty</span>($stat[<span class="string">'url'</span>]) &amp;&amp; ($url = <span class="keyword">$this</span>-&gt;getContentUrl($stat[<span class="string">'hash'</span>]))) &#123;</span><br><span class="line">            $stat[<span class="string">'url'</span>] = $url;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> $stat;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先进入<code>commandDisabled()</code>函数，返回false。</p>
+<img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908150731360.png" alt="image-20200908150731360" style="zoom:150%;">
+
+<p>然后进入<code>dir()</code>函数，参数为<code>$dst</code>即<code>POST</code>传入的<code>target</code>值。</p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908153636101-1599734809121.png" alt="image-20200908153636101"></p>
+<p>调用了file函数，</p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908153733922-1599734813491.png" alt="image-20200908153733922"></p>
+<p>跟进<code>decode()</code>函数</p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908153822619-1599734816115.png" alt="image-20200908153822619"></p>
+<img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908154015274.png" alt="image-20200908154015274" style="zoom:150%;">
+
+<p>decode()函数首先判断是否以$this-&gt;id开头，然后截取出<code>l1_</code>后面的内容，之后进行base64解密，uncrypt函数如上，未作操作。然后更换分隔符，之后调用<code>abspathCE()</code>函数，从注释中可以看出，<code>abspathCE()</code>函数会先判断$path是否等于分隔符<code>\</code>,如果等于，返回<code>$this-&gt;root</code>，否则返回<code>$this-&gt;root拼接$path</code>。看下对应的<code>abspathCE()</code>函数。</p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908160039652-1599734821833.png" alt="image-20200908160039652"></p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908155954458-1599734824736.png" alt="image-20200908155954458"></p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908155946798-1599734827321.png" alt="image-20200908155946798"></p>
+<blockquote>
+<p><strong>ps：POST传入target前缀不同的区别</strong></p>
+<ul>
+<li>前缀为<code>l1_</code>时，<code>$this-&gt;root</code> 为<code>C:\Users\admin\phpstudy_pro\WWW\wordpress\wp-content\plugins\wp-file-manager\lib\files</code></li>
+</ul>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908161235911-1599734830148.png" alt="image-20200908161235911"></p>
+<ul>
+<li>前缀为<code>t1_</code>时，<code>$this-&gt;disabled[]</code>包含<code>upload</code>，程序会报错结束，<code>$this-&gt;root</code> 为<code>C:\Users\admin\phpstudy_pro\WWW\wordpress\wp-content\plugins\wp-file-manager\lib\files\.trash</code></li>
+</ul>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908160836714-1599734833086.png" alt="image-20200908160836714"></p>
+</blockquote>
+<p>继续分析程序流程，<code>decode()</code>函数会返回<code>C:\Users\admin\phpstudy_pro\WWW\wordpress\wp-content\plugins\wp-file-manager\lib\files</code>,然后调用<code>stat()</code>函数。</p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908153733922-1599734838249.png" alt="image-20200908153733922"></p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908162459331-1599734840447.png" alt="image-20200908162459331"></p>
+<p>返回的<code>$ret</code>为</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Array</span></span><br><span class="line">(</span><br><span class="line">    [isowner] =&gt; </span><br><span class="line">    [ts] =&gt; <span class="number">1589423646</span></span><br><span class="line">    [mime] =&gt; directory</span><br><span class="line">    [read] =&gt; <span class="number">1</span></span><br><span class="line">    [write] =&gt; <span class="number">1</span></span><br><span class="line">    [size] =&gt; <span class="number">0</span></span><br><span class="line">    [hash] =&gt; l1_Lw</span><br><span class="line">    [name] =&gt; files</span><br><span class="line">    [rootRev] =&gt; </span><br><span class="line">    [options] =&gt; <span class="keyword">Array</span></span><br><span class="line">        (</span><br><span class="line">            [path] =&gt; </span><br><span class="line">            [url] =&gt; /wordpress/wp-content/plugins/wp-file-manager/lib/php/../files/</span><br><span class="line">            [tmbUrl] =&gt; /wordpress/wp-content/plugins/wp-file-manager/lib/php/../files/.tmb/</span><br><span class="line">            [disabled] =&gt; <span class="keyword">Array</span></span><br><span class="line">                (</span><br><span class="line">                    [<span class="number">0</span>] =&gt; chmod</span><br><span class="line">                )</span><br><span class="line"></span><br><span class="line">            [separator] =&gt; \</span><br><span class="line">            [copyOverwrite] =&gt; <span class="number">1</span></span><br><span class="line">            [uploadOverwrite] =&gt; <span class="number">1</span></span><br><span class="line">            [uploadMaxSize] =&gt; <span class="number">9223372036854775807</span></span><br><span class="line">            [uploadMaxConn] =&gt; <span class="number">3</span></span><br><span class="line">            [uploadMime] =&gt; <span class="keyword">Array</span></span><br><span class="line">                (</span><br><span class="line">                    [firstOrder] =&gt; deny</span><br><span class="line">                    [allow] =&gt; <span class="keyword">Array</span></span><br><span class="line">                        (</span><br><span class="line">                            [<span class="number">0</span>] =&gt; all</span><br><span class="line">                        )</span><br><span class="line"></span><br><span class="line">                    [deny] =&gt; <span class="keyword">Array</span></span><br><span class="line">                        (</span><br><span class="line">                            [<span class="number">0</span>] =&gt; all</span><br><span class="line">                        )</span><br><span class="line"></span><br><span class="line">                )</span><br><span class="line"></span><br><span class="line">            [dispInlineRegex] =&gt; ^(?:(?:video|audio)|image/(?!.+\+xml)|application/(?:ogg|x-mpegURL|dash\+xml)|(?:text/plain|application/pdf)$)</span><br><span class="line">            [jpgQuality] =&gt; <span class="number">100</span></span><br><span class="line">            [archivers] =&gt; <span class="keyword">Array</span></span><br><span class="line">                (</span><br><span class="line">                    [create] =&gt; <span class="keyword">Array</span></span><br><span class="line">                        (</span><br><span class="line">                            [<span class="number">0</span>] =&gt; application/x-tar</span><br><span class="line">                            [<span class="number">1</span>] =&gt; application/zip</span><br><span class="line">                        )</span><br><span class="line"></span><br><span class="line">                    [extract] =&gt; <span class="keyword">Array</span></span><br><span class="line">                        (</span><br><span class="line">                            [<span class="number">0</span>] =&gt; application/x-tar</span><br><span class="line">                            [<span class="number">1</span>] =&gt; application/zip</span><br><span class="line">                        )</span><br><span class="line"></span><br><span class="line">                    [createext] =&gt; <span class="keyword">Array</span></span><br><span class="line">                        (</span><br><span class="line">                            [application/x-tar] =&gt; tar</span><br><span class="line">                            [application/zip] =&gt; zip</span><br><span class="line">                        )</span><br><span class="line"></span><br><span class="line">                )</span><br><span class="line"></span><br><span class="line">            [uiCmdMap] =&gt; <span class="keyword">Array</span></span><br><span class="line">                (</span><br><span class="line">                )</span><br><span class="line"></span><br><span class="line">            [syncChkAsTs] =&gt; <span class="number">1</span></span><br><span class="line">            [syncMinMs] =&gt; <span class="number">10000</span></span><br><span class="line">            [i18nFolderName] =&gt; <span class="number">0</span></span><br><span class="line">            [tmbCrop] =&gt; <span class="number">1</span></span><br><span class="line">            [tmbReqCustomData] =&gt; </span><br><span class="line">            [substituteImg] =&gt; <span class="number">1</span></span><br><span class="line">            [onetimeUrl] =&gt; <span class="number">1</span></span><br><span class="line">            [trashHash] =&gt; t1_Lw</span><br><span class="line">            [csscls] =&gt; elfinder-navbar-root-local</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    [volumeid] =&gt; l1_</span><br><span class="line">    [locked] =&gt; <span class="number">1</span></span><br><span class="line">    [isroot] =&gt; <span class="number">1</span></span><br><span class="line">    [phash] =&gt; </span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>返回<code>dir()</code>函数，然后在返回到<code>upload()</code>函数，将返回值赋给<code>upload()</code>函数中的<code>$dir</code>变量，</p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908172728778-1599734848077.png" alt="image-20200908172728778"></p>
+<p>然后进行<code>mime</code>的判断，程序识别上传的php脚本的<code>mime</code>为<code>text/x-php</code>，跟进<code>allowPutMime()</code>函数，</p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908175400724-1599734850961.png" alt="image-20200908175400724"></p>
+<p>从程序自带的注释中可以看出如果<code>uploadOrder</code>数组为<code>array(&#39;deny&#39;,&#39;allow&#39;)</code>，则默认时允许上传的<code>mime</code>。然后获取文件的大小，若文件大小不合法报错结束程序，之后<code>decode()</code>处理<code>$dst</code>(<strong><code>POST</code>传入的<code>target</code>值</strong>)赋给<code>$dstpath</code>，因为<code>$hash</code>为空数组，所以会调用<code>joinPathCE()</code>将<code>$dstpath</code>和<code>$name</code>(<strong>上传文件的文件名</strong>)拼接，然后检查文件是否存在。</p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908180818104-1599734854769.png" alt="image-20200908180818104"></p>
+<p>最后调用<code>$this-&gt;saveCE()</code></p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908181044918-1599734857093.png" alt="image-20200908181044918"></p>
+<p>跟进<code>_save()</code>。</p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908181932277-1599734861053.png" alt="image-20200908181932277"></p>
+<p>本地时利用Windows系统分析，<code>$path</code>为<code>C:\Users\admin\phpstudy_pro\WWW\wordpress\wp-content\plugins\wp-file-manager\lib\files\shell.php</code>;<code>$uri</code>为<code>C:\Windows\phpxxxx.tmp</code>，最后会调用<code>copy()</code>将上传的文件复制到<code>\wordpress\wp-content\plugins\wp-file-manager\lib\files\shell.php</code>，即完成了任意文件上传。</p>
+<img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908184402757.png" alt="image-20200908184402757" style="zoom:150%;">
+
+<h1 id="0x02-漏洞利用"><a href="#0x02-漏洞利用" class="headerlink" title="0x02 漏洞利用"></a>0x02 漏洞利用</h1><p>利用burp发包</p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908183438085-1599734867412.png" alt="image-20200908183438085"></p>
+<p>访问<a href="http://192.168.43.44/wordpress/wp-content/plugins/wp-file-manager/lib/files/shell.php" target="_blank" rel="noopener">http://192.168.43.44/wordpress/wp-content/plugins/wp-file-manager/lib/files/shell.php</a></p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908183522240-1599734870037.png" alt="image-20200908183522240"></p>
+<h1 id="0x03-漏洞修复"><a href="#0x03-漏洞修复" class="headerlink" title="0x03 漏洞修复"></a>0x03 漏洞修复</h1><blockquote>
+<p>影响范围</p>
+<p>file manager 6.0至6.8</p>
+</blockquote>
+<p>官方修复删除了connector.minimal.php和connector.minimal.php-dist文件。</p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908183148666-1599734873382.png" alt="image-20200908183148666"></p>
+<p>增加了.htaccess。</p>
+<p><img src="/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20200908183049056-1599734876220.png" alt="image-20200908183049056"></p>
+<p>参考:</p>
+<p><a href="https://cn-sec.com/archives/117417.html" target="_blank" rel="noopener">紧急！WordPress文件管理器插件爆严重0day漏洞</a></p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/09/10/Wordpress-File-manager-任意文件上传漏洞分析/" target="_blank" title="Wordpress File-manager 任意文件上传漏洞分析">http://mount4in.github.io/2020/09/10/Wordpress-File-manager-任意文件上传漏洞分析/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" data-id="clg20p5ux001k14uv21zg55rn"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/wordpress/" rel="tag">wordpress</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/09/13/2020ciscn%E5%8D%8E%E4%B8%9C%E5%8C%97%E5%88%86%E5%8C%BA%E8%B5%9Bweb%E9%A2%98%E7%9B%AEwp/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            2020ciscn华东北分区赛web题目wp
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/09/07/2020DDCTFweb%E9%A2%98%E7%9B%AE/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">2020DDCTFweb题目</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

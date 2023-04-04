@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    初探fastjson系列漏洞 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-初探fastjson系列漏洞" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      初探fastjson系列漏洞
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/09/07/%E5%88%9D%E6%8E%A2fastjson%E7%B3%BB%E5%88%97%E6%BC%8F%E6%B4%9E/" class="article-date">
+  <time datetime="2020-09-07T02:46:43.000Z" itemprop="datePublished">2020-09-07</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>参考几位师傅的文章复现分析下fastjson的漏洞</p>
+<a id="more"></a>
+
+<h1 id="0x01-序列化和反序列化"><a href="#0x01-序列化和反序列化" class="headerlink" title="0x01 序列化和反序列化"></a>0x01 序列化和反序列化</h1><p>为了方便修改fastjson版本，利用maven构建项目，</p>
+<p>直接用了<a href="http://www.rai4over.cn/" target="_blank" rel="noopener">rai4over</a>师傅的源码，User()的成员及其属性如下：</p>
+<img src="/2020/09/07/%E5%88%9D%E6%8E%A2fastjson%E7%B3%BB%E5%88%97%E6%BC%8F%E6%B4%9E/image-20200907111204669.png" alt="image-20200907111204669" style="zoom:150%;">
+
+<h3 id="序列化"><a href="#序列化" class="headerlink" title="序列化"></a>序列化</h3><ul>
+<li><strong>非自省的序列化</strong>：<code>JSON.toJSONString(Object object)</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        User a = <span class="keyword">new</span> User();</span><br><span class="line">        System.out.println(<span class="string">"==========================="</span>);</span><br><span class="line">        String jsonstr_a = JSON.toJSONString(a);</span><br><span class="line">        System.out.println(<span class="string">"==========================="</span>);</span><br><span class="line">        System.out.println(jsonstr_a);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/09/07/%E5%88%9D%E6%8E%A2fastjson%E7%B3%BB%E5%88%97%E6%BC%8F%E6%B4%9E/image-20200907112008933.png" alt="image-20200907112008933"></p>
+<p>只要存在get方法（不管是public还是private）都被调用。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	<span class="attr">"age1"</span>: <span class="string">"a1"</span>,</span><br><span class="line">	<span class="attr">"age2"</span>: <span class="string">"a2"</span>,</span><br><span class="line">	<span class="attr">"name1"</span>: <span class="string">"mount4in1"</span>,</span><br><span class="line">	<span class="attr">"name2"</span>: <span class="string">"mount4in2"</span>,</span><br><span class="line">	<span class="attr">"name3"</span>: <span class="string">"mount4in3"</span>,</span><br><span class="line">	<span class="attr">"name4"</span>: <span class="string">"mount4in4"</span>,</span><br><span class="line">	<span class="attr">"prop1_1"</span>: &#123;</span><br><span class="line">		<span class="attr">"prop1_1"</span>: <span class="string">"1_1"</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"prop1_2"</span>: &#123;</span><br><span class="line">		<span class="attr">"prop1_2"</span>: <span class="string">"1_2"</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"prop1_3"</span>: &#123;</span><br><span class="line">		<span class="attr">"prop1_3"</span>: <span class="string">"1_3"</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"prop1_4"</span>: &#123;</span><br><span class="line">		<span class="attr">"prop1_4"</span>: <span class="string">"1_4"</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"prop2_1"</span>: &#123;</span><br><span class="line">		<span class="attr">"prop2_1"</span>: <span class="string">"2_1"</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"prop2_2"</span>: &#123;</span><br><span class="line">		<span class="attr">"prop2_2"</span>: <span class="string">"2_2"</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以发现除了<strong>private属性而且不存在对应的get方法的成员</strong>外，其他的成员均被序列化。</p>
+<ul>
+<li><strong>自省的序列化</strong>：<code>toJSONString(Object object, SerializerFeature... features)</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.serializer.SerializerFeature;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        User a = <span class="keyword">new</span> User();</span><br><span class="line">        System.out.println(<span class="string">"==========================="</span>);</span><br><span class="line">        String jsonstr_a = JSON.toJSONString(a,SerializerFeature.WriteClassName);</span><br><span class="line">        System.out.println(<span class="string">"==========================="</span>);</span><br><span class="line">        System.out.println(jsonstr_a);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/09/07/%E5%88%9D%E6%8E%A2fastjson%E7%B3%BB%E5%88%97%E6%BC%8F%E6%B4%9E/image-20200907112634394.png" alt="image-20200907112634394"></p>
+<p>只要存在get方法（不管是public还是private）都被调用。与非自省相同。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	<span class="attr">"@type"</span>: <span class="string">"User"</span>,</span><br><span class="line">	<span class="attr">"age1"</span>: <span class="string">"a1"</span>,</span><br><span class="line">	<span class="attr">"age2"</span>: <span class="string">"a2"</span>,</span><br><span class="line">	<span class="attr">"name1"</span>: <span class="string">"mount4in1"</span>,</span><br><span class="line">	<span class="attr">"name2"</span>: <span class="string">"mount4in2"</span>,</span><br><span class="line">	<span class="attr">"name3"</span>: <span class="string">"mount4in3"</span>,</span><br><span class="line">	<span class="attr">"name4"</span>: <span class="string">"mount4in4"</span>,</span><br><span class="line">	<span class="attr">"prop1_1"</span>: &#123;</span><br><span class="line">		<span class="attr">"@type"</span>: <span class="string">"java.util.Properties"</span>,</span><br><span class="line">		<span class="attr">"prop1_1"</span>: <span class="string">"1_1"</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"prop1_2"</span>: &#123;</span><br><span class="line">		<span class="attr">"@type"</span>: <span class="string">"java.util.Properties"</span>,</span><br><span class="line">		<span class="attr">"prop1_2"</span>: <span class="string">"1_2"</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"prop1_3"</span>: &#123;</span><br><span class="line">		<span class="attr">"@type"</span>: <span class="string">"java.util.Properties"</span>,</span><br><span class="line">		<span class="attr">"prop1_3"</span>: <span class="string">"1_3"</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"prop1_4"</span>: &#123;</span><br><span class="line">		<span class="attr">"@type"</span>: <span class="string">"java.util.Properties"</span>,</span><br><span class="line">		<span class="attr">"prop1_4"</span>: <span class="string">"1_4"</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"prop2_1"</span>: &#123;</span><br><span class="line">		<span class="attr">"@type"</span>: <span class="string">"java.util.Properties"</span>,</span><br><span class="line">		<span class="attr">"prop2_1"</span>: <span class="string">"2_1"</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"prop2_2"</span>: &#123;</span><br><span class="line">		<span class="attr">"@type"</span>: <span class="string">"java.util.Properties"</span>,</span><br><span class="line">		<span class="attr">"prop2_2"</span>: <span class="string">"2_2"</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>与非自省的区别是增加了<code>@type</code>字段，可以得到对象的类型。</p>
+<h3 id="反序列化"><a href="#反序列化" class="headerlink" title="反序列化"></a>反序列化</h3><ul>
+<li><strong>反序列化分三种</strong>，分别是<code>parseObject(String text, Class&lt;T&gt; clazz)</code>、<code>JSONObject parseObject(String text)</code>、<code>parse(String text)</code>。反序列化时要把User.java中的构造函数注释掉。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.serializer.SerializerFeature;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        String jsonstr_a = <span class="string">"&#123;\"age1\":\"a1\",\"age2\":\"a2\",\"age3\":\"a3\",\"age4\":\"a4\",\"name1\":\"mount4in1\",\"name2\":\"mount4in2\",\"name3\":\"mount4in3\",\"name4\":\"mount4in4\",\"prop1_1\":&#123;\"prop1_1\":\"1_1\"&#125;,\"prop1_2\":&#123;\"prop1_2\":\"1_2\"&#125;,\"prop1_3\":&#123;\"prop1_3\":\"1_3\"&#125;,\"prop1_4\":&#123;\"prop1_4\":\"1_4\"&#125;,\"prop2_1\":&#123;\"prop2_1\":\"2_1\"&#125;,\"prop2_2\":&#123;\"prop2_2\":\"2_2\"&#125;,\"prop2_3\":&#123;\"prop2_3\":\"2_3\"&#125;,\"prop2_4\":&#123;\"prop2_4\":\"2_4\"&#125;&#125;"</span>;</span><br><span class="line">        String jsonstr_b = <span class="string">"&#123;\"@type\":\"User\",\"age1\":\"a1\",\"age2\":\"a2\",\"age3\":\"a3\",\"age4\":\"a4\",\"name1\":\"mount4in1\",\"name2\":\"mount4in2\",\"name3\":\"mount4in3\",\"name4\":\"mount4in4\",\"prop1_1\":&#123;\"@type\":\"java.util.Properties\",\"prop1_1\":\"1_1\"&#125;,\"prop1_2\":&#123;\"@type\":\"java.util.Properties\",\"prop1_2\":\"1_2\"&#125;,\"prop1_3\":&#123;\"@type\":\"java.util.Properties\",\"prop1_3\":\"1_3\"&#125;,\"prop1_4\":&#123;\"@type\":\"java.util.Properties\",\"prop1_4\":\"1_4\"&#125;,\"prop2_1\":&#123;\"@type\":\"java.util.Properties\",\"prop2_1\":\"2_1\"&#125;,\"prop2_2\":&#123;\"@type\":\"java.util.Properties\",\"prop2_2\":\"2_2\"&#125;,\"prop2_3\":&#123;\"@type\":\"java.util.Properties\",\"prop2_3\":\"2_3\"&#125;,\"prop2_4\":&#123;\"@type\":\"java.util.Properties\",\"prop2_4\":\"2_4\"&#125;&#125;"</span>;</span><br><span class="line">        System.out.println(<span class="string">"============JSON.parseObject()指定类，非自省==============="</span>);</span><br><span class="line">        User a = JSON.parseObject(jsonstr_a, User<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">        System.out.println(a);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"============JSON.parseObject()自省==============="</span>);</span><br><span class="line">        JSONObject b = JSON.parseObject(jsonstr_b);</span><br><span class="line">        System.out.println(b);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"============JSON.parse()==============="</span>);</span><br><span class="line">        Object c = JSON.parse(jsonstr_b);</span><br><span class="line">        System.out.println(c);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/09/07/%E5%88%9D%E6%8E%A2fastjson%E7%B3%BB%E5%88%97%E6%BC%8F%E6%B4%9E/image-20200907122925167.png" alt="image-20200907122925167"></p>
+<ul>
+<li><p><strong>JSON.parseObject()指定类，非自省</strong></p>
+<p>只要存在set方法（不管是public还是private）都被调用。额外调用了<code>getprop2_2();//private且有get</code>。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">User &#123;</span><br><span class="line">	name1 = 'mount4in1', name2 = 'mount4in2', name3 = 'mount4in3', name4 = 'mount4in4', age1 = 'a1', age2 = 'null', age3 = 'a3', age4 = 'null', prop1_1 = &#123;</span><br><span class="line">		prop1_1 = 1 _1</span><br><span class="line">	&#125;, prop1_2 = &#123;</span><br><span class="line">		prop1_2 = 1 _2</span><br><span class="line">	&#125;, prop1_3 = &#123;</span><br><span class="line">		prop1_3 = 1 _3</span><br><span class="line">	&#125;, prop1_4 = &#123;</span><br><span class="line">		prop1_4 = 1 _4</span><br><span class="line">	&#125;, prop2_1 = &#123;</span><br><span class="line">		prop2_1 = 2 _1</span><br><span class="line">	&#125;, prop2_2 = &#123;</span><br><span class="line">		prop2_2 = 2 _2</span><br><span class="line">	&#125;, prop2_3 = &#123;</span><br><span class="line">		prop2_3 = 2 _3</span><br><span class="line">	&#125;, prop2_4 = null</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>public属性或含有set方法的成员都被赋值，private属性而且没有set方法的的成员赋值为null,但是这里prop2_2被赋值了，不知道什么原因。</p>
+</li>
+<li><p><strong>JSON.parseObject()自省</strong></p>
+<p>所有的set和get方法都被调用，getProp2_2调用了两次。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	<span class="attr">"prop1_3"</span>: &#123;</span><br><span class="line">		<span class="attr">"prop1_3"</span>: <span class="string">"1_3"</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"prop2_2"</span>: &#123;</span><br><span class="line">		<span class="attr">"prop2_2"</span>: <span class="string">"2_2"</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"prop1_4"</span>: &#123;</span><br><span class="line">		<span class="attr">"prop1_4"</span>: <span class="string">"1_4"</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"name4"</span>: <span class="string">"mount4in4"</span>,</span><br><span class="line">	<span class="attr">"prop1_1"</span>: &#123;</span><br><span class="line">		<span class="attr">"prop1_1"</span>: <span class="string">"1_1"</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"name3"</span>: <span class="string">"mount4in3"</span>,</span><br><span class="line">	<span class="attr">"prop1_2"</span>: &#123;</span><br><span class="line">		<span class="attr">"prop1_2"</span>: <span class="string">"1_2"</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"prop2_1"</span>: &#123;</span><br><span class="line">		<span class="attr">"prop2_1"</span>: <span class="string">"2_1"</span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="attr">"name2"</span>: <span class="string">"mount4in2"</span>,</span><br><span class="line">	<span class="attr">"name1"</span>: <span class="string">"mount4in1"</span>,</span><br><span class="line">	<span class="attr">"age1"</span>: <span class="string">"a1"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里public属性的成员都被赋值，private属性的的只有age1和prop2_1被赋值。</p>
+</li>
+<li><p><strong>JSON.parse()</strong></p>
+<p>只要存在set方法（不管是public还是private）都被调用。额外调用了<code>getprop2_2();//private且有get</code>。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">User &#123;</span><br><span class="line">	name1 = 'mount4in1', name2 = 'mount4in2', name3 = 'mount4in3', name4 = 'mount4in4', age1 = 'a1', age2 = 'null', age3 = 'a3', age4 = 'null', prop1_1 = &#123;</span><br><span class="line">		prop1_1 = 1 _1</span><br><span class="line">	&#125;, prop1_2 = &#123;</span><br><span class="line">		prop1_2 = 1 _2</span><br><span class="line">	&#125;, prop1_3 = &#123;</span><br><span class="line">		prop1_3 = 1 _3</span><br><span class="line">	&#125;, prop1_4 = &#123;</span><br><span class="line">		prop1_4 = 1 _4</span><br><span class="line">	&#125;, prop2_1 = &#123;</span><br><span class="line">		prop2_1 = 2 _1</span><br><span class="line">	&#125;, prop2_2 = &#123;</span><br><span class="line">		prop2_2 = 2 _2</span><br><span class="line">	&#125;, prop2_3 = &#123;</span><br><span class="line">		prop2_3 = 2 _3</span><br><span class="line">	&#125;, prop2_4 = null</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>public属性或含有set方法的成员都被赋值，private属性而且没有set方法的的成员赋值为null,但是这里prop2_2被赋值了，不知道什么原因。</p>
+</li>
+</ul>
+<p><strong>ps:</strong>可以通过传递<code>Feature.SupportNonPublicField</code>来对没有set方法的private属性成员赋值。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.parser.Feature;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test2</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        String jsonstr_a = <span class="string">"&#123;\"age1\":\"a1\",\"age2\":\"a2\",\"age3\":\"a3\",\"age4\":\"a4\",\"name1\":\"mount4in1\",\"name2\":\"mount4in2\",\"name3\":\"mount4in3\",\"name4\":\"mount4in4\",\"prop1_1\":&#123;\"prop1_1\":\"1_1\"&#125;,\"prop1_2\":&#123;\"prop1_2\":\"1_2\"&#125;,\"prop1_3\":&#123;\"prop1_3\":\"1_3\"&#125;,\"prop1_4\":&#123;\"prop1_4\":\"1_4\"&#125;,\"prop2_1\":&#123;\"prop2_1\":\"2_1\"&#125;,\"prop2_2\":&#123;\"prop2_2\":\"2_2\"&#125;,\"prop2_3\":&#123;\"prop2_3\":\"2_3\"&#125;,\"prop2_4\":&#123;\"prop2_4\":\"2_4\"&#125;&#125;"</span>;</span><br><span class="line">        System.out.println(jsonstr_a);</span><br><span class="line">        System.out.println(<span class="string">"==========================="</span>);</span><br><span class="line">        User b = JSON.parseObject(jsonstr_a, User<span class="class">.<span class="keyword">class</span>, <span class="title">Feature</span>.<span class="title">SupportNonPublicField</span>)</span>;</span><br><span class="line">        System.out.println(b);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/09/07/%E5%88%9D%E6%8E%A2fastjson%E7%B3%BB%E5%88%97%E6%BC%8F%E6%B4%9E/image-20200907125946234.png" alt="image-20200907125946234"></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">User &#123;</span><br><span class="line">	name1 = 'mount4in1', name2 = 'mount4in2', name3 = 'mount4in3', name4 = 'mount4in4', age1 = 'a1', age2 = 'a2', age3 = 'a3', age4 = 'a4', prop1_1 = &#123;</span><br><span class="line">		prop1_1 = 1 _1</span><br><span class="line">	&#125;, prop1_2 = &#123;</span><br><span class="line">		prop1_2 = 1 _2</span><br><span class="line">	&#125;, prop1_3 = &#123;</span><br><span class="line">		prop1_3 = 1 _3</span><br><span class="line">	&#125;, prop1_4 = &#123;</span><br><span class="line">		prop1_4 = 1 _4</span><br><span class="line">	&#125;, prop2_1 = &#123;</span><br><span class="line">		prop2_1 = 2 _1</span><br><span class="line">	&#125;, prop2_2 = &#123;</span><br><span class="line">		prop2_2 = 2 _2</span><br><span class="line">	&#125;, prop2_3 = &#123;</span><br><span class="line">		prop2_3 = 2 _3</span><br><span class="line">	&#125;, prop2_4 = &#123;</span><br><span class="line">		prop2_4 = 2 _4</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="0x02"><a href="#0x02" class="headerlink" title="0x02"></a>0x02</h1>
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/09/07/初探fastjson系列漏洞/" target="_blank" title="初探fastjson系列漏洞">http://mount4in.github.io/2020/09/07/初探fastjson系列漏洞/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/09/07/%E5%88%9D%E6%8E%A2fastjson%E7%B3%BB%E5%88%97%E6%BC%8F%E6%B4%9E/" data-id="clg20p5v7001q14uvblvydb9c"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fastjson/" rel="tag">fastjson</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/09/07/2020DDCTFweb%E9%A2%98%E7%9B%AE/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            2020DDCTFweb题目
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/09/06/2020%E5%AE%89%E6%81%928%E6%9C%88%E6%9C%88%E8%B5%9B%E5%A4%8D%E7%8E%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">2020安恒8月月赛复现</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

