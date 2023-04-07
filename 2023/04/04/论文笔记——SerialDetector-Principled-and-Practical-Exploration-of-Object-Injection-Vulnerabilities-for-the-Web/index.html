@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    论文笔记——SerialDetector: Principled and Practical Exploration of Object Injection Vulnerabilities for the Web |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-论文笔记——SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      论文笔记——SerialDetector: Principled and Practical Exploration of Object Injection Vulnerabilities for the Web
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/" class="article-date">
+  <time datetime="2023-04-04T11:04:36.000Z" itemprop="datePublished">2023-04-04</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>时隔三年，继续更新！！！！</p>
+<a id="more"></a>
+
+<p>论文题目：SerialDetector: Principled and Practical Exploration of Object Injection Vulnerabilities for the Web</p>
+<p>论文出处：NDSS 2021</p>
+<p>论文作者：Mikhail Shcherbakov(KTH Royal Institute of Technology)，Musard Balliu(KTH Royal Institute of Technology)     </p>
+<p><a href="https://www.ndss-symposium.org/wp-content/uploads/ndss2021_3A-5_24550_paper.pdf" target="_blank" rel="noopener">论文下载地址</a></p>
+<p><a href="https://www.youtube.com/watch?v=s55zxjEIvE4&list=PLfUWWM-POgQtcueMu_QOh87jWB6r5MeRm&index=5" target="_blank" rel="noopener">会议视频地址</a></p>
+<h2 id="0x01-Abstract-amp-Introduction"><a href="#0x01-Abstract-amp-Introduction" class="headerlink" title="0x01 Abstract &amp; Introduction"></a>0x01 Abstract &amp; Introduction</h2><p>​        对象注入漏洞(OIV)允许攻击者控制的数据滥用Web应用代码库中的合法代码片段来执行一个代码链（gadget），攻击者利用这个代码链执行恶意行为，如RCE。当使用不受信任的数据实例化攻击者控制类型的对象，而且这个对象的属性攻击者可以选择时，就会发生OIV，从而触发恶意行为。</p>
+<p>​        论文第一个提出了针对包含框架和库的.NET语言应用的OIV漏洞的系统检测和利用方法。作者认为OIV漏洞的根本原因是不受信任的信息流从Web应用公共入口流到可以创建任意类型的对象的敏感函数去调用触发gadget执行的方法。</p>
+<ol>
+<li>作者基于污点的数据流分析方法实现了自动化挖掘.NET程序集中的OIV模式；</li>
+<li>使用这些模式自动匹配公开可用的gadget并验证OIV攻击的可用性；</li>
+<li>用该方法对复杂的生产级应用进行实验，如微软的Azure DevOps Server；</li>
+<li>描述针对Azure DevOps Server的威胁模型。</li>
+</ol>
+<p>挑战：</p>
+<ol>
+<li>对OIV核心语言特征的全面理解尚未出现;</li>
+<li>类似.Net这种生产级别的框架，具有大量代码库复杂的实体、复杂的语言特性以及缺乏源代码；</li>
+<li>缺乏一个自动化和开源的工具调查潜在攻击的可行性。</li>
+</ol>
+<p>贡献：</p>
+<ol>
+<li>识别了对象注入漏洞的根本原因，提出了原则而且实际的与框架无关的方法；</li>
+<li>提出了第一个系统的检测和利用包含框架和库的.NET应用反序列化漏洞的方法；</li>
+<li>开源了SerialDetector,实现了可扩展的基于污点的数据流分析挖掘OIV模式和利用公开可用的gadgets利用真实软件中的OIV；</li>
+<li>进行一个彻底的评估，展示SerialDetector可以在安全分析中低负担地发现漏洞模式；</li>
+<li>对Azure DevOps Server进行了深入的安全分析，解释了不同的威胁模型，借鉴这些威胁模型，展示了SeiralDetector识别和利用高危漏洞导致服务器远程代码执行。</li>
+</ol>
+<h2 id="0x02-Technical-Background"><a href="#0x02-Technical-Background" class="headerlink" title="0x02 Technical Background"></a>0x02 Technical Background</h2><h3 id="2-1-应用层OIVs"><a href="#2-1-应用层OIVs" class="headerlink" title="2.1 应用层OIVs"></a>2.1 应用层OIVs</h3><p>​        应用层OIVs包括如下要素：(1)一个允许攻击者注入不受信任数据的公共入口点；(2)一个可以创建攻击者可控类型对象的敏感函数；(3)一个由最终执行危险操作的方法调用链组成的gadget。示例如下面两张图，</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230404220003256.png" alt="image-20230404220003256"></p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230404220020037.png" alt="image-20230404220020037"></p>
+<p>攻击者构造<code>name = OSCommand &amp; args = del /q *</code>，最后会导致远程代码执行，删除当前目录的所有文件。</p>
+<p>​        对于这类漏洞的检测，需要全面地分析考虑实现IOcomand接口的类中Excute方法的所有实现。</p>
+<h3 id="2-2-基础架构层OIVs"><a href="#2-2-基础架构层OIVs" class="headerlink" title="2.2 基础架构层OIVs"></a>2.2 基础架构层OIVs</h3><p>​        在基础架构层的OIV的一个主要例子是不安全的反序列化，序列化是面向对象语言用来存储和传输对象的机制，可以将对象转换成字节流的形式存储或传输，反序列化与之相反，是从字节流中重新创建对象原始状态的过程。不安全的反序列化中的OIVs如下图实例：</p>
+<p>​        下图表示使用YamlDotNet反序列化yaml参数的代码片段，Deserialeze函数是一个公开入口点（public entry point）,可能从HTTP请求参数、cookie、文件上传收到数据，之后递归调用DeserializeObject创建指定类型的对象并设置它的字段属性值。</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230405193659345.png" alt="image-20230405193659345"></p>
+<p>​        下图为ObjectDataProvider类的代码片段，对象的属性<code>setter</code> <code>ObjectInstance</code>调用<code>Refresh</code>，会调用<code>MethodName</code>指定的方法，所以一旦攻击者控制了<code>ObjectDataProvider.MethodName</code>和<code>ObjectDataProvider.ObjectInstance</code>，就可以执行任意方法。</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230405193723811.png" alt="image-20230405193723811"></p>
+<p>​        攻击者用如下的payload即可实现执行计算器。</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230405220733214.png" alt="image-20230405220733214"></p>
+<p>​        上述漏洞同样包括应用级OIV的3个要素：（1）公开入口点，（2）调用可以创建任意类型对象的敏感函数，（3）后续，恶意gadget的执行（属性的<code>setter</code>）。为了检测这类漏洞，应考虑属性<code>setter</code>方法的所有实现，如.NET框架库中的<code>SetValue</code></p>
+<h2 id="0x03-Overview-of-the-approach"><a href="#0x03-Overview-of-the-approach" class="headerlink" title="0x03 Overview of the approach"></a>0x03 Overview of the approach</h2><h3 id="3-1-分析对象注入漏洞的根本原因"><a href="#3-1-分析对象注入漏洞的根本原因" class="headerlink" title="3.1 分析对象注入漏洞的根本原因"></a>3.1 分析对象注入漏洞的根本原因</h3><ul>
+<li><p>公共的入口点(public entry points)：</p>
+</li>
+<li><p>敏感Sink(sensitive sinks)：RuntimeTypeHandle.Allocate()，方法以输入的<code>type</code>作为参数，并返回<code>type</code>类型定义的对象;</p>
+</li>
+<li><p>攻击触发器(attack triggers)：RuntimeMethodHandle.InvokeMethod()，能够决定导致恶意行为Gadget链第一个方法的方法；</p>
+</li>
+</ul>
+<p>​        作者使用这三个因素作为OIV模式（OIV patterns）：一个公共入口点会触发敏感接收器的执行，以创建一个控制攻击触发器执行的对象，下图为OIV模式的一个例子：</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230317160626713.png" alt="image-20230317160626713"></p>
+<p>研究问题：</p>
+<p>(i)：识别OIV的适当标准是什么？</p>
+<p>(ii)：我们能否提供一个工具可以在大规模包括框架和库的应用中检查OIV模式？</p>
+<p>(iii)：我们如何验生成的OIV模式的有效性？</p>
+<p>(iv)：是否有现实世界的应用来证明这种方法的可行性？</p>
+<h3 id="3-2-SerialDetector"><a href="#3-2-SerialDetector" class="headerlink" title="3.2 SerialDetector"></a>3.2 SerialDetector</h3><p>​      SerialDetector的整体架构如下图，分为检测（全自动）和利用（半自动）两个阶段，对应的输入和输出在图中很清晰。  </p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230405222722597.png" alt="image-20230405222722597"></p>
+<h4 id="（1）静态分析"><a href="#（1）静态分析" class="headerlink" title="（1）静态分析"></a>（1）静态分析</h4><p>目标针对Commom Intermediate Language的原因：</p>
+<p>(i)：旨在分析 .NET Framework 的代码以识别敏感方法，在源代码级别是不可用的；？？？</p>
+<p>(ii)：这个方法允许我们实现框架无关的分析方法，不需要任何框架的已知漏洞知识。</p>
+<p>(iii)：旨在针对真实生产级应用进行深入安全评测，比如微软的Azure DevOps，它们的源码都是不可用的。</p>
+<p>(iv)：对比高级语言，分析CIL需要更少的必须支持的语言构造。</p>
+<p>​        关注CIL不会失去任何代码分析中重要的数据，另一方面，CIL 继承了分析基于堆栈的面向对象中间语言所面临的众所周知的挑战，例如对求值栈的仿真和控制流的重构。这种分析的核心是基于方法摘要、指针别名和高效的即时控制流图重构的模块化过程间抽象解释。该分析实现了<strong>类型敏感</strong>、一个轻量级的<strong>上下文敏感</strong>以及<strong>类型层次结构图分析</strong>，用于重构调用图。</p>
+<h4 id="（2）结果路线图"><a href="#（2）结果路线图" class="headerlink" title="（2）结果路线图"></a>（2）结果路线图</h4><p>​        因为攻击触发器是 gadget 中的第一个方法，所以我们生成的模式中的攻击触发器只需与 gadget 的第一个方法匹配即可。</p>
+<h2 id="0x04-Taint-Based-Static-Analysis"><a href="#0x04-Taint-Based-Static-Analysis" class="headerlink" title="0x04 Taint-Based Static Analysis"></a>0x04 Taint-Based Static Analysis</h2><p>​       这节提出了基于污点的静态分析方法支撑SerialDetector的检测部分，分析针对CIL，一个面向对象的基于栈的二进制指令集，该方法采用模块化的过程间<strong>字段敏感（field-sensitive）</strong>的数据流分析。</p>
+<h3 id="4-1-CIL语言和符号"><a href="#4-1-CIL语言和符号" class="headerlink" title="4.1 CIL语言和符号"></a>4.1 CIL语言和符号</h3><p>关注如下的指令集，描述分析方法的核心思想。</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230406154506898.png" alt="image-20230406154506898"></p>
+<blockquote>
+<p><strong>“ldvar”</strong> 可能指的是 IL (Intermediate Language) 中的 “load local variable”，即加载本地变量的指令。在 CIL 中，本地变量是在方法中定义的变量，它们只在方法中有效。 “ldvar” 指令用于将本地变量的值加载到执行堆栈上，以供后续指令使用。该指令具有不同的操作码，具体取决于本地变量的类型和位置。</p>
+<p><strong>“ldfld”</strong> 是 CIL (Common Intermediate Language) 中的一条指令，用于将对象的字段值加载到执行堆栈上。它需要两个参数：第一个参数是对象引用，第二个参数是字段的元数据标记。这个指令是用于访问一个对象的实例字段的。</p>
+<p>例如，如果有一个名为 “myObject” 的对象实例，它有一个名为 “myField” 的 int 类型字段，那么可以使用以下 C# 代码访问该字段：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">arduinoCopy code</span><br><span class="line"><span class="keyword">int</span> x = myObject.myField;</span><br></pre></td></tr></table></figure>
+
+<p>在 CIL 中，该代码将被转换为以下指令序列：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">arduinoCopy codeldarg.0 &#x2F;&#x2F; 加载 this 对象的引用</span><br><span class="line">ldfld int32 Namespace.MyClass::myField &#x2F;&#x2F; 加载字段的值</span><br></pre></td></tr></table></figure>
+
+<p>其中 “ldarg.0” 指令用于加载当前方法的 this 指针，它是一个指向对象实例的引用。 “ldfld” 指令使用元数据标记来确定要加载的字段。</p>
+<p><strong><code>stvar</code></strong> 是 CIL 语言中的指令之一，用于将值存储到指定变量中。其操作数指定了要存储的变量的索引，该变量必须在先前定义的变量列表中。以下是一个示例代码片段，展示了如何使用 <code>stvar</code> 指令将值存储到变量中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">swiftCopy code.locals init (int32 V_0)</span><br><span class="line">ldc.i4.5</span><br><span class="line">stvar V_0</span><br></pre></td></tr></table></figure>
+
+<p>在这个示例中，<code>.locals</code> 指令声明了一个名为 <code>V_0</code> 的整型变量。<code>ldc.i4.5</code> 将整数值 5 推送到操作数栈上，然后 <code>stvar V_0</code> 将该值存储到 <code>V_0</code> 变量中。</p>
+<p>……</p>
+</blockquote>
+<p>​        作者假设了变量集合<code>Var</code>（包含函数形参、本地变量等）、对象字段集合<code>Fld</code>、值集合<code>Val</code>（对象位置location和其他值bool true\bool false）、类类型集合<code>Types</code>。用 f[x → v] 表示将值 v 替换函数 f 中的参数 x，f(x) 表示函数 f 中 x 的值使用 f(x)↓ 来表示<strong>偏函数</strong> f 在 x 处定义，否则为 f(x)↑。使用 (b ? e1 : e2) 表示一个条件表达式，如果条件 b 为真，则返回 e1，否则返回 e2。</p>
+<p>​        内存模型包含一个环境<strong>E</strong>: Var→Val，映射变量到值、一个堆<strong>h</strong>:Loc x Fld → Val，映射对象位置和字段到值，一个操作栈<strong>s</strong>和一个调用栈<strong>cs</strong>。E和h都是偏函数，<em>⊥</em> 表示未定义的值。程序P<em>∈</em> Prog 由指令列表组成，由程序计数器pc索引表示，i<em>∈</em> PC。作者默认一个类的定义包含一组字段、一组方法，以及一组启动执行的不同的方法。每个方法包含一个带有形参的函数标识符和执行列表。sig<em>∈</em> <em>Sig</em> ,sig为由函数名和形参组成的函数签名。</p>
+<p>​        执行模型由cfg<em>∈</em> CFG组成，cfg形如cfg=(pc,cs,E,h,s)包含程序计数器pc<em>∈</em>PC，环境E<em>∈</em> ENV，堆h<em>∈</em> Heap，调用栈 cs = (pc,E,s)* ,cs<em>∈</em>  (<em>PC</em> <em>×</em> <em>Env</em> <em>×</em> <em>Val</em> * ) *，操作栈s<em>∈</em> Val*。</p>
+<p>​         希腊字母e表示空栈， t::v表示栈的顶部是v，尾部是t。CIL程序中的语义由cfg上的转换关系<em>→</em>定义，→∈ <em>Conf</em> ×Conf</p>
+<p>下图为CIL的操作语义：</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230406170327323.png" alt="image-20230406170327323"></p>
+<h3 id="4-2-过程内数据流分析"><a href="#4-2-过程内数据流分析" class="headerlink" title="4.2 过程内数据流分析"></a>4.2 过程内数据流分析</h3><p>​        作者的抽象解释高估了原始类型的操作，关注对象位置从敏感sink到攻击触发器的传播。作者对CIL指令的抽象解释利用了对象位置值和其他原始值的符号域。&lt;pc,E,h,s,$\phi$,$\psi$&gt;，前四个对应具体的组件，$\phi$过估计符号栈,$\psi$过估计控制流。</p>
+<h4 id="〇挑战和解决方案"><a href="#〇挑战和解决方案" class="headerlink" title="〇挑战和解决方案"></a>〇挑战和解决方案</h4><p>挑战：</p>
+<ul>
+<li>堆的抽象表示</li>
+<li>非结构化的控制流和栈的符号表示（缺乏结构和跨不同分支保存符号堆栈的一致性）</li>
+<li>控制流的完备性（sound approximation）</li>
+</ul>
+<p>解决方法：</p>
+<p>​        作者使用基于存储的堆抽象和通过正向符号分析对条件和循环的合并点的有效动态计算来解决这些挑战。作者的分析方法是<strong>流不敏感</strong>的，因此抽象堆图和关于别名的信息存在于方法中的任何程序点上。 通过记录每个分支指令的堆栈状态，并组合合并点上的堆栈，同时更新堆栈和环境中的指针，从而确保了符号堆栈的一致性。</p>
+<h4 id="①抽象堆"><a href="#①抽象堆" class="headerlink" title="①抽象堆"></a>①抽象堆</h4><p>​        节点表示抽象位置，边表示指向关系，包含<strong>字段和变量</strong>对应的标签。堆的抽象表示如下图，规则S-LDVAR、S-LDFLD和S-NEWOBJ（未显示）类似于图12中相应的规则，但对符号值进行操作，并忽略调用堆栈cs。规则S-STVAR和S-STFLD依赖于一个update函数来实现<strong>流不敏感</strong>和<strong>字段敏感</strong>的抽象语义。update函数以两个lication作为输入，会合并根节点在那些locations的子图，这个方法是流不敏感的，因为它使用新的符号值更新符号配置，而不是重新变量字段的旧值。</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230406211143738.png" alt="image-20230406211143738"></p>
+<p>以下面的代码为例，第四行代码对应右边3行CIL，</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230406212337079.png" alt="image-20230406212337079"></p>
+<p>分析完前三行代码可以得到下图左侧的堆图，当分析第四条指令即对应的4a-4c，合并la（E(arg)=la）和lb（栈顶是lb），得到下图右侧图。</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230406212622434.png" alt="image-20230406212622434"></p>
+<h4 id="②抽象控制流"><a href="#②抽象控制流" class="headerlink" title="②抽象控制流"></a>②抽象控制流</h4><p>​        按照程序计数器pc施加的程序顺序“顺序”分析指令(1234,不考虑跳转，按顺序分析)，并确保符号栈和堆的动态一致性。用两个数据结构扩展了符号配置，<strong>一个函数$\phi$： PC→℘(Stack)，映射程序计数器索引到栈集合，来记录控制流分支合并点的符号栈；一个程序计数器索引集$\psi$<em>⊆</em> ℘(PC)来记录与循环相关联的向后跳转（backward jumps），用来确保循环不被重复分析，（这两个符号后面多次使用）</strong>当一个非条件跳转被分析，pc<em>∈</em> <em>$\psi$<em>，设置当前栈为⊥，继续分析下一条指令，一个未定义的堆栈将简单用规则S-STSKIP跳过当前指令的分析。因为这种分析是*</em>流和路径不敏感*<em>的，所以一个代码块分析一次是足够的。下图解释控制流指令分析算法，使用函数</em>mergeStacks</em> : <em>℘</em>(<em>Stack</em>) <em>×</em> <em>Heap</em> <em>×</em> <em>Env</em> <em>×</em> Φ <em>→</em> <em>Stack</em> <em>×</em> <em>Heap</em> <em>×</em> <em>Env</em> <em>×</em> Φ合并所有栈并且更新符号配置。<em>mergeStacks</em>逐点合并符号位置，并更新指向其他组件中合并位置的指针。</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230406215720048.png" alt="image-20230406215720048"></p>
+<p>考虑如下的代码，分析第5行<code>br 7</code>时，为了$\phi$(7)，存储包含arg和var2的函数栈，当分析到第7行<code>stfld obj</code>时，应用S-STUPD规则合并$\phi$(7)和当前的符号栈（包含arg和var1），然后S-STFLD确保字段arg.obj包含合并后的location。</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230406220225999.png" alt="image-20230406220225999"></p>
+<p>​        还需考虑由向后跳转指令产生的潜在循环。如下图的代码，分析第一条指令时，基于S-BRFWD规则将当前符号栈存储在$\phi$(15)中，并将栈更新为未定义，这是因为不知道是否会从另一个配置中到达索引（2）处的下一条指令。因此直到下一个合并点（如对应的$\phi$(pc)是被定义过的）都利用规则S-STSKIP简单地跳过。然后使用规则S-STUPD合并$\phi$(15)和未定义的符号栈，之后加载flag变量到栈，并通过规则S-BRTRUEBWD在索引16处检查指令<code>brture 2</code>，这里对应上上图中i&lt;pc的情况，因为pc<em>∈</em> <em>$\psi$</em> ,将控制转换到索引为2的代码行去分析循环体，当再次分析到<code>brture 2</code>时，因为已经分析过，即16<em>∈</em> <em>$\psi$</em>  ，所以继续分析下一条指令（索引为17的指令）。</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230406230306346.png" alt="image-20230406230306346"></p>
+<h4 id="③假名和污点跟踪"><a href="#③假名和污点跟踪" class="headerlink" title="③假名和污点跟踪"></a>③假名和污点跟踪</h4><p>​        为了分析从敏感sink到攻击触发器的信息流，在抽象堆图的节点中丰富加了taint标记。如下图，无论什么时候分析完敏感sink后，将返回值放入栈标记为taint，然后为b.bar这个假名添加边，最终分析第三行得到b.bar是tainted的，因此，控制其类型的攻击者决定了执行VirtualCall()的具体实现。因此，我们认为这种方法是一种潜在的攻击触发器。</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230407102651398.png" alt="image-20230407102651398"></p>
+<h3 id="4-3模块化数据流分析"><a href="#4-3模块化数据流分析" class="headerlink" title="4.3模块化数据流分析"></a>4.3模块化数据流分析</h3><h4 id="①调用图分析"><a href="#①调用图分析" class="headerlink" title="①调用图分析"></a>①调用图分析</h4><p>​        从CIL程序集中识别与调用和调用命令指令关联的方法签名，并存储在hash表中，签名作为键，调用的函数作为值。这个hash表就是调用图的一个表示。通过backward analysis，可以重构调用图。从sink到point可以计算O(n),n表示调用栈的深度。计算类型层次图来确定虚拟方法调用的所有实现。作者假设一个基本方法的虚拟调用可以将控制转移到该方法的任何实现中，并将这些信息存储在调用图中。分析器在将调用图从一个敏感的接收器到入口点的反向重建期间，以及在callvirt指令的抽象解释期间使用这些信息。</p>
+<blockquote>
+<p><img src="https://img-blog.csdnimg.cn/20201021152130463.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3poYW5nOTcxMTA1,size_16,color_FFFFFF,t_70#pic_center" alt="前向传播与反向传播"></p>
+</blockquote>
+<h4 id="②使用函数摘要的过程间分析"><a href="#②使用函数摘要的过程间分析" class="headerlink" title="②使用函数摘要的过程间分析"></a>②使用函数摘要的过程间分析</h4><p>​        在初步确定的每个<strong>入口点</strong>（可能是函数的入口点）进行一个模块化数据流分析，在任何分析到达新方法，独立于调用者的上下文来分析该方法，因此，它生成了一个称为摘要的堆图的紧凑表示。然后将摘要存储到缓存结构K中，并为对相同方法的后续调用重用它。</p>
+<p>​        使用下面的符号描述方法调用的抽象表示，state <em>σ</em> <em>∈</em> <em>State</em> ，σ是一个元组(<em>E, h, s, $\phi$, $\psi$</em>) ，无论什么时候分析一个新方法时，都存储它。</p>
+<p>​        符号调用堆栈cs <em>∈</em> (<em>State</em> <em>×</em> <em>PC</em> ) *是一个（σ，pc）对的堆栈，包含调用者的状态和状态σ中的程序计数器索引。</p>
+<p>​        偏函数K：Sig → Sum 缓存每个方法签名的方法摘要，方法摘要 sum ∈ Sum 是由环境E和堆h组成的元组（E，h）定义的。</p>
+<p>​        下图对应基于基于摘要的过程间分析方法的四种案例：S-CALLK：调用缓存K中已有对应摘要的函数，apply摘要（包含形参和返回值等）和当前的state，得到新状态；S-CALLEXT：调用到外部/本地方法，但没有实现可用，；S-CALL：调用到在缓存K中没有摘要的（非递归）方法，通过将控制转移到索引pc0的代码，并将调用者的上下文（调用者状态和程序计数器索引）存储在符号堆栈的cs中，从而触发对新方法的过程内分析，<strong>被调用方法的分析是上下文独立的</strong>，σ是未定义的，匹配S-END计算该方法终止时的过程内分析摘要，后续将摘要apply于调用者的上下文，并将摘要存储到K中。继续下一个指令的分析；S-END:在一个方法的分析终止时，更新缓存K.</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230407105459332.png" alt="image-20230407105459332"></p>
+<h4 id="③例子：方法调用"><a href="#③例子：方法调用" class="headerlink" title="③例子：方法调用"></a>③例子：方法调用</h4><p>​        用下图左侧代码说明非递归调用的抽象解释，从Epoint方法开始分析，并调用SSink这个外部方法，规则S-CALLEXT分配一个新的位置，并将其推到堆栈中，以模拟返回值。因为方法签名被定义为敏感sink，所以我们将新变量标记为tainted。随后，分配值将受污染的值存储到b.foo中的位置。接下来，调用方法CreateAlias，它在将当前的σ和pc存储到调用堆栈后，通过规则S-CALL触发对其主体的过程内分析。该分析应用规则S-STFLD来在arg.bar和arg.foo之间创建一个别名。最后，规则S-END从当前符号状态构建摘要并把它存入缓存。摘要生成算法从E中的根变量Var开始遍历堆图h，并存储已访问的节点和对摘要的引用。这是唯一可能影响调用者上下文的信息。随后，该算法将摘要应用于调用者的状态，以创建一个考虑方法调用效果的新状态，并继续执行方法EPoint的下一条指令。图8b描述了摘要应用程序的效果，它们将带有bar标签的边添加到堆图中，从而导致这两个字段指向被污染的节点。</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230407194307308.png" alt="image-20230407194307308"></p>
+<p>​        最后，通过规则S-CALL分析了Foo方法。Foo包含一个以参数arg作为参数的外部方法调用（由规则S-CALLEXT分析）。由于ExternalMethod可以用作攻击触发器，因此作者将有关ExternalMethod的信息存储在arg位置的节点中。规则S-END构建并存储摘要，并在到达方法的结束时将其应用于EPoint上下文。因此，我们合并两个位置（传递给Foo的b.bar和摘要中的arg），并检测对带有污染标记的攻击触发器的调用。最后，作者将从EPoint到SSink和ExternalMethod的链存储为OIV模式。</p>
+<h2 id="0x05-Implementation"><a href="#0x05-Implementation" class="headerlink" title="0x05 Implementation"></a>0x05 Implementation</h2><h3 id="5-1-剖析SerialDetector"><a href="#5-1-剖析SerialDetector" class="headerlink" title="5.1 剖析SerialDetector"></a>5.1 剖析SerialDetector</h3><p>​        使用C#语言开发，运行在.NET平台，使用dnlib库解析程序集。</p>
+<h4 id="①检测阶段"><a href="#①检测阶段" class="headerlink" title="①检测阶段"></a>①检测阶段</h4><p>​        序列检测器的显著特点是，它实现了与框架无关的范式，并且不使用任何基于方法或类名的启发式方法来检测OIV模式。输入由一组的.NET程序集、针对敏感的接收器和攻击触发器的规则组成。敏感sink最初被描述为返回System.Object类型对象的本机方法。因此，我们假设攻击者可以操作敏感sink的参数或运行时状态，以获得任意类型的对象。SerialDetector只分析.NET程序集中的CIL代码，并且不支持本地方法中的二进制代码。因此，我们采用一种保守的方法，即每个本机方法都返回一个任何派生类型的对象作为返回类型。然后，我们将敏感sink的返回对象标记为tainted。攻击触发器被描述为将受污染对象作为参数的本地（外部）方法，或者将第一个参数标记为受污染对象的虚拟方法。</p>
+<p>​        检测阶段的管道由四个步骤组成：</p>
+<ol>
+<li>序列检测器为整个.NET程序集数据集建立一个方法调用图的索引；</li>
+<li>它使用定义敏感接收器的标准过滤所有本机方法签名。这一步产生敏感sink的签名，我们使用它来向后构建调用图的切片，从敏感sink到入口点方法；</li>
+<li>如第四节所述，序列检测器执行基于摘要的过程间的数据流分析；</li>
+<li>它输出一系列模式，其中包含调用每个敏感sink的触发器以及从入口点到敏感sink的轨迹。收集这些模式到一个知识库中，并将它们作为利用阶段的输入。</li>
+</ol>
+<h4 id="②利用生成和验证"><a href="#②利用生成和验证" class="headerlink" title="②利用生成和验证"></a>②利用生成和验证</h4><p>​         通过先前得到的知识库，手动识别框架和库中漏洞模式的用法。为此，作者使用YSoSerial.Net项目创建利用目标应用程序漏洞的模板。我们通过使用类似于DSL的API直接在C#代码中声明每个公共脆弱方法的签名来实现这一点。下图对应2.2节示例漏洞的利用模板。</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230407205402084.png" alt="image-20230407205402084"></p>
+<p>​        使用DSL生成模板有便于修改和测试不同载荷的优点。</p>
+<ol>
+<li>匹配：手动将生成的模式与已知gadget的真实敏感sink和攻击触发器匹配；</li>
+<li>填充知识库：用匹配的结果填充知识库，描述了一个用于创建和转换为各种格式以生成有效负载的小工具的代码，还描述了来自模板中匹配模式的脆弱入口点的签名，以及额外的限制，例如，脆弱库的版本。</li>
+<li>payload和模板生成：基于描述的知识库规则生成payload和模板；</li>
+<li>调用图分析：使用模板作为调用图分析的输入，以检测目标应用程序中潜在的脆弱模板。SerialDetector从应用程序入口点到模板中描述的脆弱调用生成调用图；</li>
+<li>模板验证：它可以验证给定的有效负载是否可以利用模板中的一个入口点。它还使用模板描述作为编译带有漏洞代码.NET程序集的源来验证调用图分析步骤。它对这个示例运行分析。测试所需的所有信息都是从知识库中提取的；</li>
+<li>利用生成：human-in-the-loop</li>
+</ol>
+<h3 id="5-2-挑战和限制"><a href="#5-2-挑战和限制" class="headerlink" title="5.2 挑战和限制"></a>5.2 挑战和限制</h3><h4 id="①虚拟函数调用"><a href="#①虚拟函数调用" class="headerlink" title="①虚拟函数调用"></a>①虚拟函数调用</h4><h4 id="②递归"><a href="#②递归" class="headerlink" title="②递归"></a>②递归</h4><h4 id="③静态字段"><a href="#③静态字段" class="headerlink" title="③静态字段"></a>③静态字段</h4><h4 id="④数组"><a href="#④数组" class="headerlink" title="④数组"></a>④数组</h4><h4 id="⑤不支持的指令"><a href="#⑤不支持的指令" class="headerlink" title="⑤不支持的指令"></a>⑤不支持的指令</h4><h2 id="0x06-Evaluation"><a href="#0x06-Evaluation" class="headerlink" title="0x06 Evaluation"></a>0x06 Evaluation</h2><p>​        SerialDetector首先索引了.NET框架的所有代码并且检测敏感sink的列表。.NET框架由269个程序集、466218个方法和50399个类型。</p>
+<p>​        12.4s完成了这步，得到123个敏感sink，因为不是所有sink都能根据输入动态创建新的对象，手动分析过滤了这些敏感sink。</p>
+<h3 id="6-1-检测阶段"><a href="#6-1-检测阶段" class="headerlink" title="6.1 检测阶段"></a>6.1 检测阶段</h3><p>​        实验目标程序：.NET框架中的OIV和来自YSoSerial.Net项目中使用不安全反序列化器的第三方库。</p>
+<p>​        使用不安全反序列化器的反序列化方法作为数据流分析的入口点进行分析，将攻击触发器与YSoSerial中的gadget进行匹配作为有效性的指标。</p>
+<p>​        下表中patterns表示每个序列化器的不同OIV模式数，Priority Patterns表示包含公开gadget方法的OIV模式数。</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230407220153930.png" alt="image-20230407220153930"></p>
+<h3 id="6-2-利用阶段"><a href="#6-2-利用阶段" class="headerlink" title="6.2 利用阶段"></a>6.2 利用阶段</h3><p>​        实验目标程序：NVD中搜索.NET and CWE-502，得到55个记录，对这些手动分析发现11个真实检测到漏洞，而且仅仅有5个存在漏洞的应用可以搭建。使用SerialDetector分析下表的应用，包括7个不同的应用，10个OIVS。SerialDetector检测到除Telerik UI产品之外的所有应用程序中不安全反序列化程序和相关入口点的脆弱调用，该UI产品使用反射API调用JavaScript序列化程序的不安全配置。当前版本的序列检测器不支持重构调用图的<strong>反射（Reflection）</strong>，并且忽略这样的调用。Entry Points w/o Threat Model列表示到达不安全序列化器调用的入口点的数量，然而有些入口点永远不会被执行。Entry Points w/ Threat Model列报告了SerialDetector的结果。</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230407222213898.png" alt="image-20230407222213898"></p>
+<p>PS:上表中的后两列对应的三个漏洞为作者报告的0day漏洞。</p>
+<p>​        CVE-2019-0604中6283的原因是SharePoint服务器中的代码与其主要程序集Microsoft.SharePoint.dll之间的紧密耦合，以及方法对虚拟调用的过估计。</p>
+<p>​        <strong>性能：</strong>分析速度相当快，平均分析时间47.4秒，作者的流不敏感方法减少了堆图的大小，这使得SerialDetector能够更快地应用摘要和合并location，从而提高了整体分析时间。另一个提高可伸缩性的因素是轻量级上下文敏感分析的使用。</p>
+<p>​        <strong>误报：</strong>我们还发现了从未被调用的攻击触发器。造成这些假阳性的根本原因是数据流分析的流-不敏感性。对流不敏感的方法允许我们以牺牲分析的精度为代价来控制堆的大小。另一方面，我们的结果显示，安全分析师应该手动审查的模式的数量并不庞大。</p>
+<h2 id="0x07-In-depth-analysis-of-Azure-Devops-Server"><a href="#0x07-In-depth-analysis-of-Azure-Devops-Server" class="headerlink" title="0x07 In-depth analysis of Azure Devops Server"></a>0x07 In-depth analysis of Azure Devops Server</h2><p>介绍了三个对于Azure Devops Server的威胁模型。</p>
+<p>下图路径：1，2a/2b/2c</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230407224830609.png" alt="image-20230407224830609"></p>
+<p>下图路径：1a,2a  /  1b,2b,3b</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230407224932925.png" alt="image-20230407224932925"></p>
+<p>下图路径：1a,2a  / 1b,2b,3b,4b</p>
+<p><img src="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/image-20230407225211627.png" alt="image-20230407225211627"></p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2023/04/04/论文笔记——SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/" target="_blank" title="论文笔记——SerialDetector: Principled and Practical Exploration of Object Injection Vulnerabilities for the Web">http://mount4in.github.io/2023/04/04/论文笔记——SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/" data-id="clg6o3wi20000aouvbc8cgmuj"
+         class="article-share-link">Share</a>
+      
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+    
+      <a href="/2022/03/24/SCARF-Vulnerability-Report/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">SCARF Vulnerability Report</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

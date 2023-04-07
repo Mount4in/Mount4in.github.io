@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://mount4in.github.io/"/>
-  <updated>2023-04-04T07:43:22.220Z</updated>
+  <updated>2023-04-07T14:53:48.649Z</updated>
   <id>http://mount4in.github.io/</id>
   
   <author>
@@ -15,6 +15,23 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>论文笔记——SerialDetector: Principled and Practical Exploration of Object Injection Vulnerabilities for the Web</title>
+    <link href="http://mount4in.github.io/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/"/>
+    <id>http://mount4in.github.io/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/</id>
+    <published>2023-04-04T11:04:36.000Z</published>
+    <updated>2023-04-07T14:53:48.649Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;时隔三年，继续更新！！！！&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+  </entry>
   
   <entry>
     <title>SCARF Vulnerability Report</title>
@@ -360,23 +377,6 @@
     <summary type="html">
     
       &lt;p&gt;记录下用idea新建Spring boot项目&lt;/p&gt;
-    
-    </summary>
-    
-    
-    
-  </entry>
-  
-  <entry>
-    <title>2020GACTF题目复现</title>
-    <link href="http://mount4in.github.io/2020/09/02/2020GACTF%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/"/>
-    <id>http://mount4in.github.io/2020/09/02/2020GACTF%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/</id>
-    <published>2020-09-02T02:14:06.000Z</published>
-    <updated>2020-09-03T08:09:50.171Z</updated>
-    
-    <summary type="html">
-    
-      &lt;p&gt;没打比赛，赛后复现&lt;/p&gt;
     
     </summary>
     
