@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://mount4in.github.io/"/>
-  <updated>2023-06-06T01:48:51.547Z</updated>
+  <updated>2023-06-06T14:45:49.554Z</updated>
   <id>http://mount4in.github.io/</id>
   
   <author>
@@ -15,6 +15,23 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>论文笔记——FUGIO- Automatic Exploit Generation for PHP Object Injection Vulnerabilities</title>
+    <link href="http://mount4in.github.io/2023/06/06/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94FUGIO-Automatic-Exploit-Generation-for-PHP-Object-Injection-Vulnerabilities/"/>
+    <id>http://mount4in.github.io/2023/06/06/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94FUGIO-Automatic-Exploit-Generation-for-PHP-Object-Injection-Vulnerabilities/</id>
+    <published>2023-06-06T14:27:55.000Z</published>
+    <updated>2023-06-06T14:45:49.554Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;PHP反序列化链自动生成的研究&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+  </entry>
   
   <entry>
     <title>redis利用方式</title>
@@ -360,25 +377,6 @@
     
     
       <category term="wordpress" scheme="http://mount4in.github.io/tags/wordpress/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>2020DDCTFweb题目</title>
-    <link href="http://mount4in.github.io/2020/09/07/2020DDCTFweb%E9%A2%98%E7%9B%AE/"/>
-    <id>http://mount4in.github.io/2020/09/07/2020DDCTFweb%E9%A2%98%E7%9B%AE/</id>
-    <published>2020-09-07T06:33:45.000Z</published>
-    <updated>2020-09-09T01:50:04.343Z</updated>
-    
-    <summary type="html">
-    
-      &lt;p&gt;趁环境还没关，赶紧复现&lt;/p&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="writeup" scheme="http://mount4in.github.io/tags/writeup/"/>
     
   </entry>
   
