@@ -12,7 +12,7 @@
 <p><a href="https://www.usenix.org/system/files/sec22summer_park-sunnyeo.pdf" target="_blank" rel="noopener">论文下载地址</a></p>
 <p><a href="https://www.youtube.com/watch?v=Rb8XTm-3ep0" target="_blank" rel="noopener">会议视频地址</a></p>
 <p><a href="https://github.com/WSP-LAB/FUGIO" target="_blank" rel="noopener">代码地址</a></p>
-<p>FUGIO：<br>![Pasted image 20230526171614](C:/Users/thinkstation/Documents/Obsidian Vault/附件/Pasted image 20230526171614.png)</p>
+<p>FUGIO：<br>![Pasted image 20230526171614](论文笔记——FUGIO-Automatic-Exploit-Generation-for-PHP-Object-Injection-Vulnerabilities/Pasted image 20230526171614.png)</p>
 <h2 id="0x01-Intraduction"><a href="#0x01-Intraduction" class="headerlink" title="0x01 Intraduction"></a>0x01 Intraduction</h2><h2 id="0x02-Background"><a href="#0x02-Background" class="headerlink" title="0x02 Background"></a>0x02 Background</h2><h2 id="0x03-Motivation-and-Challenges"><a href="#0x03-Motivation-and-Challenges" class="headerlink" title="0x03 Motivation and Challenges"></a>0x03 Motivation and Challenges</h2><p>现存的工具只关注检测潜在的反序列化漏洞，需要使用POP来检测误报，构造POP链需要大量的手工操作和专业知识。</p>
 <p>Dahse提出了一种利用静态分析识别可用POP链的方法，但为了减少误报，仍需解决可达性分析问题，即找到一个合适的输入来利用一个可能利用的POP链。当可能利用的POP链很多时，这变成非常艰巨的工作。如Contao CMS至少有26180条POP链，手工分析这些链是不可能的。</p>
 <p>对POI漏洞自动化利用需要实现如下目标：</p>
@@ -48,7 +48,7 @@
 <p>PS:思考<br>存在动态定义的而且源码中不存在的类吗？可以找出示例看看。</p>
 <h3 id="5-4-POP链识别"><a href="#5-4-POP链识别" class="headerlink" title="5.4 POP链识别"></a>5.4 POP链识别</h3><p>基于从静态和动态分析获取的信息，pop链识别器输出一个可用的POP链列表和一个用于执行模拟测试的PUT。</p>
 <h4 id="5-4-1-POP链识别"><a href="#5-4-1-POP链识别" class="headerlink" title="5.4.1 POP链识别"></a>5.4.1 POP链识别</h4><p>POP链是一系列gadget，当目标漏洞利用发生时，它反映了从魔术方法到敏感接收器的堆栈跟踪。基于不同的敏感sink，攻击者可以发起不同类型的攻击，作者共指定了26种可以导致文件创建、文件修改、文件删除、命令执行和代码执行的敏感sink。</p>
-<p>对于每个敏感Sink的触发，FUGIO利用包含调用的函数或者方法的函数摘要检测攻击者是否可以改变调用的真实参数，它检测从形参m和类的属性值m是否存在过程内数据流。如果存在，FUGIO在生成POP链时考虑该函数，否则，FUGIO排除这个sink函数，因为攻击者没有其他方式通过注入的对象直接修改这些参数。<br>![Pasted image 20230531095857](论文笔记——FUGIO-Automatic-Exploit-Generation-for-PHP-Object-Injection-Vulnerabilities/Pasted image 20230531095857.png)<br>如这个例子，对应save()和close()这两个函数，FUGIO检测到从filename属性和到file_put_contents()第二个参数和unlink()第一个参数的过程内数据流。</p>
+<p>对于每个敏感Sink的触发，FUGIO利用包含调用的函数或者方法的函数摘要检测攻击者是否可以改变调用的真实参数，它检测从形参m和类的属性值m是否存在过程内数据流。如果存在，FUGIO在生成POP链时考虑该函数，否则，FUGIO排除这个sink函数，因为攻击者没有其他方式通过注入的对象直接修改这些参数。<br><img src="/2023/06/06/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94FUGIO-Automatic-Exploit-Generation-for-PHP-Object-Injection-Vulnerabilities/Pasted-image-20230531095857.png" alt="Pasted image 20230531095857"><br>如这个例子，对应save()和close()这两个函数，FUGIO检测到从filename属性和到file_put_contents()第二个参数和unlink()第一个参数的过程内数据流。</p>
 <p>链识别器需要生成POP链，每个POP链由沿着从一个魔术方法到每个目标敏感sink函数的路径上的gadget组成，一个原生的方法是通过深度优先搜索从魔术方法到目标敏感sink构造所有可用的链。然而一个魔术方法的入口遍历被调用者的下游可能不会遇到任何sink，从而浪费计算资源。此外，当调用链中存在循环时，该算法不会终止。</p>
 <p>作者设计了一个算法，以宽度优先的方法构造一棵深度有界的调用树，如下如所示：<br>![Pasted image 20230526171943](论文笔记——FUGIO-Automatic-Exploit-Generation-for-PHP-Object-Injection-Vulnerabilities/Pasted image 20230526171943.png)<br>特别地，对于每个目标sink的调用，FUGIO的链识别器计算一个调用树，调用树的根节点是体现sink调用的方法。然后，对于每个表示一个函数或方法m的叶子节点，迭代地附加新节点，其中的每个子节点对应m的一个潜在调用者。</p>
 <p>链识别器构建这个树，直到它的高度到达一定的高度，这个高度是审计员指定的一个值。作者在7.4节评测设置这个值为7。通过这种高度有界的树搜索，FUGIO可以枚举POP链，即使在调用gadget中存在循环。</p>
