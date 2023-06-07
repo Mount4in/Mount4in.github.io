@@ -12,7 +12,8 @@
 <p><a href="https://www.usenix.org/system/files/sec22summer_park-sunnyeo.pdf" target="_blank" rel="noopener">论文下载地址</a></p>
 <p><a href="https://www.youtube.com/watch?v=Rb8XTm-3ep0" target="_blank" rel="noopener">会议视频地址</a></p>
 <p><a href="https://github.com/WSP-LAB/FUGIO" target="_blank" rel="noopener">代码地址</a></p>
-<p>FUGIO：<br>![Pasted image 20230526171614](论文笔记——FUGIO-Automatic-Exploit-Generation-for-PHP-Object-Injection-Vulnerabilities/Pasted image 20230526171614.png)</p>
+<p>FUGIO：</p>
+<p>![Pasted image 20230526171614](论文笔记——FUGIO-Automatic-Exploit-Generation-for-PHP-Object-Injection-Vulnerabilities/Pasted image 20230526171614.png)</p>
 <h2 id="0x01-Intraduction"><a href="#0x01-Intraduction" class="headerlink" title="0x01 Intraduction"></a>0x01 Intraduction</h2><h2 id="0x02-Background"><a href="#0x02-Background" class="headerlink" title="0x02 Background"></a>0x02 Background</h2><h2 id="0x03-Motivation-and-Challenges"><a href="#0x03-Motivation-and-Challenges" class="headerlink" title="0x03 Motivation and Challenges"></a>0x03 Motivation and Challenges</h2><p>现存的工具只关注检测潜在的反序列化漏洞，需要使用POP来检测误报，构造POP链需要大量的手工操作和专业知识。</p>
 <p>Dahse提出了一种利用静态分析识别可用POP链的方法，但为了减少误报，仍需解决可达性分析问题，即找到一个合适的输入来利用一个可能利用的POP链。当可能利用的POP链很多时，这变成非常艰巨的工作。如Contao CMS至少有26180条POP链，手工分析这些链是不可能的。</p>
 <p>对POI漏洞自动化利用需要实现如下目标：</p>
@@ -32,7 +33,8 @@
 <li>(C2-1)在大型PHP应用程序上进行无状态模糊处理时，很难建立高吞吐量。当目标应用很大时，在应用上执行每个生成的输入是一个很慢的过程。作者选择的30个应用平均一个请求执行时间是0.6s。比SOTA慢非常多。因为目标应用会执行很多与POI漏洞无关的模块，进一步，也可能在模糊测试的过程中，产生副作用，导致目标应用不能正常工作。然后，在每次执行完将程序恢复到原始状态是非常费时的。</li>
 <li>(C2-2)通过模糊测试生成一个具有多个属性值的可利用对象是困难的。大量模糊测试将输入建模为字节流，然而POI漏洞自动利用需要执行面向对象的编程，需要更改多个属性并塑造对象层次结构，如何识别出可利用对象需要的属性？如何突变？</li>
 </ol>
-<h2 id="0x04-Overview"><a href="#0x04-Overview" class="headerlink" title="0x04 Overview"></a>0x04 Overview</h2><p>解决(C1-1)利用动静结合分析合并所有静态声明和动态加载生成的gadgets，解决(C1-2)通过粗粒度的过程间分析（修建不必要的POP链）和深度有界的宽度优先搜索，枚举可能的POP链。<br>解决(C2-1)通过合成一个PUT测试程序模拟触发POI漏洞的执行环境，解决(C2-2)利用分支覆盖率、运行时引用错误和提示来生成潜在的POP链。<br>![Pasted image 20230526171614](论文笔记——FUGIO-Automatic-Exploit-Generation-for-PHP-Object-Injection-Vulnerabilities/Pasted image 20230526171614.png)</p>
+<h2 id="0x04-Overview"><a href="#0x04-Overview" class="headerlink" title="0x04 Overview"></a>0x04 Overview</h2><p>解决(C1-1)利用动静结合分析合并所有静态声明和动态加载生成的gadgets，解决(C1-2)通过粗粒度的过程间分析（修建不必要的POP链）和深度有界的宽度优先搜索，枚举可能的POP链。<br>解决(C2-1)通过合成一个PUT测试程序模拟触发POI漏洞的执行环境，解决(C2-2)利用分支覆盖率、运行时引用错误和提示来生成潜在的POP链。</p>
+<p>![Pasted image 20230526171614](论文笔记——FUGIO-Automatic-Exploit-Generation-for-PHP-Object-Injection-Vulnerabilities/Pasted image 20230526171614.png)</p>
 <h2 id="0x05-Design"><a href="#0x05-Design" class="headerlink" title="0x05 Design"></a>0x05 Design</h2><h3 id="5-1-POI-Detector"><a href="#5-1-POI-Detector" class="headerlink" title="5.1 POI Detector"></a>5.1 POI Detector</h3><p>运行爬虫提取每个页面的&lt;a&gt;&lt;form&gt;标签，生成对应的请求模板，对于这个请求模板中的每个GET、POST和COOKIE参数，检测器注入一个预定义的序列化字符串，该字符串表示我们的测试PHP对象，从而生成一组测试请求；在每个请求中，一个输入参数保存我们的预定义字符串。然后，检测器发送每个测试请求，并观察一个反序列化用户输入的PHP内置调用站点是否被我们的测试对象调用。</p>
 <p>为了实现这个功能，FUGIO使用<a href="https://github.com/zenovich/runkit" target="_blank" rel="noopener">runkit</a>和<a href="https://github.com/krakjoe/uopz" target="_blank" rel="noopener">uopz</a>，HOOK了26个预定义的涉及反序列化用户输入的PHP内置函数，如unserialize、is_file、file_exists等，如果这些反序列化相关内置函数被调用而且包含参数包含测试对象的实际参数时，就报告为一个潜在的POI漏洞，并将这处调用发送给动态分析器。</p>
 <h3 id="5-2-Static-Analyzer"><a href="#5-2-Static-Analyzer" class="headerlink" title="5.2 Static Analyzer"></a>5.2 Static Analyzer</h3><p>静态分析计算用户自定义类和函数的静态摘要，用于生成POP链和PUT测试程序。</p>
